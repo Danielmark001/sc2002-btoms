@@ -22,7 +22,7 @@ A Java-based application for managing **final year projects (FYP)** for students
 
 - [Final Year Project Management System](#final-year-project-management-system)
   - [Table of Contents](#table-of-contents)
-- [FYPMS setup instructions](#fypms-setup-instructions)
+- [BTOMS setup instructions](#btoms-setup-instructions)
   - [Compiling and Running the project](#compiling-and-running-the-project)
     - [Using the terminal](#using-the-terminal)
     - [Using Eclipse](#using-eclipse)
@@ -32,7 +32,7 @@ A Java-based application for managing **final year projects (FYP)** for students
 - [Usage](#usage)
   - [Login Credentials](#login-credentials)
 
-# FYPMS setup instructions
+# BTOMS setup instructions
 
 ## Compiling and Running the project
 
@@ -66,7 +66,7 @@ These setup instructions will guide you through the process of cloning the repos
    java -cp bin main.BtomsApp
    ```
 
-Congratulations, you have successfully cloned, compiled, and run the FYPMS project!
+Congratulations, you have successfully cloned, compiled, and run the BTOMS project!
 
 ### Using Eclipse
 
@@ -84,7 +84,7 @@ If you prefer to use Eclipse as your IDE, you can also set up the project there.
 5. Once the project is cloned, right-click on the project folder and select `Properties`
 6. In the `Properties` window, click on `Java Build Path` > `Source` > `Add Folder`
 7. Select the `src` folder from the project directory and click `OK`
-8. Now you can run the project by right-clicking on `FypmsApp.java` in the `src/main` folder and selecting `Run As` > `Java Application`
+8. Now you can run the project by right-clicking on `BtomsApp.java` in the `src/main` folder and selecting `Run As` > `Java Application`
 
 That's it! You should now have the project up and running in Eclipse.
 
