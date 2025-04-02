@@ -1,4 +1,4 @@
-# Final Year Project Management System
+# Build-To-Order Management System
 
 ![UML Class Diagram](https://img.shields.io/badge/UML%20Class%20Diagram-1976D2?style=for-the-badge&logoColor=white)
 ![Solid Design Principles](https://img.shields.io/badge/SOLID%20Design%20Principles-C71A36?style=for-the-badge&logoColor=white)
@@ -8,7 +8,7 @@
 
 **Team:** [<img src="https://github.com/Danielmark001.png" height="20" width="20" /> Daniel Mark](https://github.com/Danielmark001) |
 [<img src="https://github.com/WilliamN40.png" height="20" width="20" /> William Notowibowo](https://github.com/WilliamN40) |
-[<img src="https://github.com/Hweewoon151.png" height="20" width="20" /> Lim Hwe Hoon](https://github.com/Hweewoon151)
+[<img src="https://github.com/Hweewoon151.png" height="20" width="20" /> Lim Hwee Woon](https://github.com/Hweewoon151)
 [<img src="https://github.com/CekCong.png" height="20" width="20" /> Soh Cek Cong](https://github.com/CekCong)
 
 
@@ -17,11 +17,11 @@
 [UML Sequence Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-sequence-diagram.png) | 
 [Java Docs](https://Danielmark001.github.io/sc2002_btoms/module-summary.html)
 
-A Java-based application for managing **final year projects (FYP)** for students in tertiary institutions. It features authentication, user management, project management, and communications between students, supervisors, and fyp coordinators. This README file provides instructions on how to clone, compile, and run the project.
+A Java-based application system for applicants and HDB staffs to view, apply and manage for BTO projects. This README file provides instructions on how to clone, compile, and run the project.
 
 ## Table of Contents
 
-- [Final Year Project Management System](#final-year-project-management-system)
+- [Build-to-Order Management System](#build-to-order-management-system)
   - [Table of Contents](#table-of-contents)
 - [BTOMS setup instructions](#btoms-setup-instructions)
   - [Compiling and Running the project](#compiling-and-running-the-project)

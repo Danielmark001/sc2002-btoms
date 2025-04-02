@@ -12,7 +12,7 @@ import utils.FilePathsUtils;
 import views.CommonView;
 
 /**
- * The main class responsible for running the FYPMS application.
+ * The main class responsible for running the BTOMS application.
  * 
  * <p>
  * This class handles initializing of the data store, authentication for users
@@ -20,15 +20,15 @@ import views.CommonView;
  * logged-in user.
  * </p>
  */
-public class FypmsApp {
+public class BtomsApp {
 	/**
 	 * Private constructor to prevent instantiation of the class.
 	 */
-	private FypmsApp() {
+	private BtomsApp() {
 	};
 
 	/**
-	 * The entry point for the FYPMS application. This method is responsible for
+	 * The entry point for the BTOMS application. This method is responsible for
 	 * running an infinite loop to allow multiple users to operate the application.
 	 * 
 	 * @param args an array of String arguments passed to this method
@@ -67,7 +67,7 @@ public class FypmsApp {
 			AuthController.endSession();
 
 			// Print message
-			System.out.println("FYPMS crashed. Please restart the system.");
+			System.out.println("BTOMS crashed. Please restart the system.");
 			System.out.println("Error: " + e.getMessage());
 		}
 	}

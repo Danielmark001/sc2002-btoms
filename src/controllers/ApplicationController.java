@@ -1,109 +1,213 @@
-package controllers;
+// File: bto_management_system/controller/ApplicationController.java
+package bto_management_system.controller;
 
-import java.util.Scanner;
+import bto_management_system.model.entity.Applicant;
+import bto_management_system.model.entity.BTOApplication;
+import bto_management_system.model.entity.BTOProject;
+import bto_management_system.model.entity.HDBManager;
+import bto_management_system.model.entity.HDBOfficer;
+import bto_management_system.model.entity.User;
+import bto_management_system.model.enumeration.ApplicationStatus;
+import bto_management_system.model.enumeration.FlatType;
+import bto_management_system.model.manager.ApplicationManager;
+import bto_management_system.model.manager.UserManager;
+import bto_management_system.view.ApplicationView;
 
-import interfaces.IAuthService;
-
-import services.AuthStudentService;
-import services.AuthSupervisorService;
-import services.AuthFYPCoordinatorService;
+import java.util.List;
 
 /**
- * The {@link AuthController} class provides utility methods for managing
- * user authentication within the application. It offers methods to start
- * and end user sessions, as well as handle user login and logout. This
- * class utilizes the {@link IAuthService} interface for handling the
- * authentication process.
+ * Controller for handling application-related operations
  */
-public class AuthController {
+public class ApplicationController {
+    private ApplicationView applicationView;
+    private ApplicationManager applicationManager;
+    private UserManager userManager;
+    
     /**
-     * {@link Scanner} object to get input from the user.
+     * Constructor for ApplicationController
+     * 
+     * @param applicationView View for application operations
      */
-    private static final Scanner sc = new Scanner(System.in);
-
-    /**
-     * {@link IAuthService} object to authenticate the user.
-     */
-    private static IAuthService authService;
-
-    /**
-     * Private constructor to prevent instantiation of the class.
-     */
-    private AuthController() {
-    };
-
-    /**
-     * Starts a user session by prompting the user to select their role and
-     * enter their credentials. The method loops until valid credentials are
-     * provided or the system is shut down.
-     */
-    public static void startSession() {
-        int choice;
-        boolean authenticated = false;
-
-        do {
-
-            while (true) {
-                System.out.println("<Enter 0 to shutdown system>\n");
-                System.out.println("Login as:");
-                System.out.println("1. Student");
-                System.out.println("2. Supervisor");
-                System.out.println("3. FYP Coordinator");
-
-                String input = sc.nextLine();
-
-                if (input.matches("[0-9]+")) { // If the input is an integer, proceed with the code
-                    choice = Integer.parseInt(input);
-
-                    if (choice < 0 || choice > 3) {
-                        System.out.println("Invalid input. Please enter 0-3!");
-                    } else {
-                        break;
-                    }
-                } else { // If the input is not an integer, prompt the user to enter again
-                    System.out.println("Invalid input. Please enter an integer.\n");
-                }
-
-            }
-
-            switch (choice) {
-                case 0:
-                    System.out.println("Shutting down FYPMS...");
-                    return;
-                case 1:
-                    authService = new AuthStudentService();
-                    break;
-                case 2:
-                    authService = new AuthSupervisorService();
-                    break;
-                case 3:
-                    authService = new AuthFYPCoordinatorService();
-                    break;
-            }
-
-            String userID, password;
-
-            System.out.print("UserID: ");
-            userID = sc.nextLine();
-
-            System.out.print("Password: ");
-            password = sc.nextLine();
-
-            authenticated = authService.login(userID, password);
-            if (!authenticated) {
-                // We do not specify whether the userID or password is incorrect to make it more
-                // secure
-                System.out.println("Credentials invalid! Note that UserID and Password are case-sensitive.\n");
-            }
-        } while (!authenticated);
+    public ApplicationController(ApplicationView applicationView) {
+        this.applicationView = applicationView;
+        this.applicationManager = ApplicationManager.getInstance();
+        this.userManager = UserManager.getInstance();
     }
-
+    
     /**
-     * Ends the current user session by logging the user out and displaying a
-     * logout message.
+     * Applies for a BTO project
+     * 
+     * @param project Project to apply for
+     * @return true if application succeeds
      */
-    public static void endSession() {
-        authService.logout();
-        System.out.println("User logged out!");
+    public boolean applyForProject(BTOProject project) {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof Applicant)) {
+            return false;
+        }
+        
+        Applicant applicant = (Applicant) currentUser;
+        
+        // Check if already applied for a project
+        if (applicant.getCurrentApplication() != null) {
+            return false;
+        }
+        
+        // Create the application
+        BTOApplication application = applicationManager.createApplication(applicant, project);
+        return application != null;
+    }
+    
+    /**
+     * Requests withdrawal of an application
+     * 
+     * @return true if request succeeds
+     */
+    public boolean requestWithdrawal() {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof Applicant)) {
+            return false;
+        }
+        
+        Applicant applicant = (Applicant) currentUser;
+        return applicant.requestWithdrawal();
+    }
+    
+    /**
+     * Approves an application
+     * 
+     * @param application Application to approve
+     * @return true if approval succeeds
+     */
+    public boolean approveApplication(BTOApplication application) {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof HDBManager)) {
+            return false;
+        }
+        
+        HDBManager manager = (HDBManager) currentUser;
+        return applicationManager.approveApplication(application, manager);
+    }
+    
+    /**
+     * Rejects an application
+     * 
+     * @param application Application to reject
+     * @return true if rejection succeeds
+     */
+    public boolean rejectApplication(BTOApplication application) {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof HDBManager)) {
+            return false;
+        }
+        
+        HDBManager manager = (HDBManager) currentUser;
+        return applicationManager.rejectApplication(application, manager);
+    }
+    
+    /**
+     * Processes an application withdrawal request
+     * 
+     * @param application Application to withdraw
+     * @param approve true to approve, false to reject
+     * @return true if processing succeeds
+     */
+    public boolean processWithdrawal(BTOApplication application, boolean approve) {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof HDBManager)) {
+            return false;
+        }
+        
+        HDBManager manager = (HDBManager) currentUser;
+        return applicationManager.processWithdrawal(application, manager, approve);
+    }
+    
+    /**
+     * Books a flat for a successful application
+     * 
+     * @param application Application to book for
+     * @param flatType Type of flat to book
+     * @return true if booking succeeds
+     */
+    public boolean bookFlat(BTOApplication application, FlatType flatType) {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof HDBOfficer)) {
+            return false;
+        }
+        
+        HDBOfficer officer = (HDBOfficer) currentUser;
+        return applicationManager.bookFlat(application, officer, flatType);
+    }
+    
+    /**
+     * Gets applications for a specific project
+     * 
+     * @param project Project to get applications for
+     * @return List of applications
+     */
+    public List<BTOApplication> getApplicationsByProject(BTOProject project) {
+        return applicationManager.getApplicationsByProject(project);
+    }
+    
+    /**
+     * Gets applications with a specific status for a project
+     * 
+     * @param project Project to get applications for
+     * @param status Status to filter by
+     * @return List of matching applications
+     */
+    public List<BTOApplication> getApplicationsByStatus(BTOProject project, ApplicationStatus status) {
+        return applicationManager.getApplicationsByStatus(project, status);
+    }
+    
+    /**
+     * Gets the current user's application
+     * 
+     * @return Current application or null if none
+     */
+    public BTOApplication getCurrentApplication() {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof Applicant)) {
+            return null;
+        }
+        
+        Applicant applicant = (Applicant) currentUser;
+        return applicant.getCurrentApplication();
+    }
+    
+    /**
+     * Retrieves an application by NRIC
+     * 
+     * @param nric NRIC to look up
+     * @return Application if found, null otherwise
+     */
+    public BTOApplication getApplicationByNRIC(String nric) {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof HDBOfficer)) {
+            return null;
+        }
+        
+        HDBOfficer officer = (HDBOfficer) currentUser;
+        if (officer.getHandlingProject() == null) {
+            return null;
+        }
+        
+        return officer.retrieveApplication(nric);
+    }
+    
+    /**
+     * Generates a receipt for a booked flat
+     * 
+     * @param application Application with booking details
+     * @return Formatted receipt string
+     */
+    public String generateReceipt(BTOApplication application) {
+        User currentUser = userManager.getCurrentUser();
+        if (!(currentUser instanceof HDBOfficer)) {
+            return null;
+        }
+        
+        HDBOfficer officer = (HDBOfficer) currentUser;
+        return officer.generateReceipt(application);
     }
 }

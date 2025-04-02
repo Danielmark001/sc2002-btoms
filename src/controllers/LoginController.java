@@ -86,35 +86,3 @@ public class LoginController {
     }
 }
 
-// File: bto_management_system/controller/ProjectController.java
-package bto_management_system.controller;
-
-import bto_management_system.model.entity.BTOProject;
-import bto_management_system.model.entity.HDBManager;
-import bto_management_system.model.entity.User;
-import bto_management_system.model.enumeration.FlatType;
-import bto_management_system.model.manager.ProjectManager;
-import bto_management_system.model.manager.UserManager;
-import bto_management_system.view.ProjectView;
-
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Controller for handling project-related operations
- */
-public class ProjectController {
-    private ProjectView projectView;
-    private ProjectManager projectManager;
-    private UserManager userManager;
-    
-    /**
-     * Constructor for ProjectController
-     * 
-     * @param projectView View for project operations
-     */
-    public ProjectController(ProjectView projectView) {
-        this.projectView = projectView;
-        this.

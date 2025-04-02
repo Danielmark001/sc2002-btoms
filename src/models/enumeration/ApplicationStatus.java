@@ -1,34 +1,58 @@
-// File: bto_management_system/model/enumeration/ApplicationStatus.java
-package bto_management_system.model.enumeration;
+package models.enumeration;
 
 /**
- * Represents the status of a BTO application or registration
+ * Enumeration representing the possible statuses of a BTO application
  */
 public enum ApplicationStatus {
-    PENDING,           // No conclusive decision yet
-    SUCCESSFUL,        // Application successful, can book flat
-    UNSUCCESSFUL,      // Application unsuccessful
-    BOOKED             // Flat has been booked
-}
-
-// File: bto_management_system/model/enumeration/MaritalStatus.java
-package bto_management_system.model.enumeration;
-
-/**
- * Represents the marital status of a user
- */
-public enum MaritalStatus {
-    SINGLE,
-    MARRIED
-}
-
-// File: bto_management_system/model/enumeration/FlatType.java
-package bto_management_system.model.enumeration;
-
-/**
- * Represents the type of flat available in BTO projects
- */
-public enum FlatType {
-    TWO_ROOM,
-    THREE_ROOM
+    /**
+     * Initial status upon application submission
+     */
+    PENDING("Pending"),
+    
+    /**
+     * Application has been approved
+     */
+    SUCCESSFUL("Successful"),
+    
+    /**
+     * Application has been rejected
+     */
+    UNSUCCESSFUL("Unsuccessful"),
+    
+    /**
+     * Flat has been booked after successful application
+     */
+    BOOKED("Booked"),
+    
+    /**
+     * Application has been withdrawn by the applicant
+     */
+    WITHDRAWN("Withdrawn");
+    
+    private final String displayName;
+    
+    /**
+     * Constructor
+     * @param displayName Display name of the status
+     */
+    ApplicationStatus(String displayName) {
+        this.displayName = displayName;
+    }
+    
+    /**
+     * Gets the display name of the status
+     * @return Display name
+     */
+    public String getDisplayName() {
+        return displayName;
+    }
+    
+    /**
+     * Returns the display name when converted to string
+     * @return Display name
+     */
+    @Override
+    public String toString() {
+        return displayName;
+    }
 }
