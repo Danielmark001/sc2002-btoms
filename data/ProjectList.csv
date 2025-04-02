@@ -1,0 +1,4 @@
+ProjectName,Neighborhood,TwoRoomUnits,ThreeRoomUnits,ApplicationOpeningDate,ApplicationClosingDate,ManagerInCharge,OfficerSlots,Visibility
+Harmony Heights,Yishun,100,150,2023-01-01,2023-03-01,T5566778H,10,off
+Meadow View,Boon Lay,80,120,2023-02-15,2023-04-15,T6677889I,10,on
+Sunrise Gardens,Tampines,120,180,2023-03-01,2023-05-01,T7788990J,10,on
