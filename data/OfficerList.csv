@@ -1,4 +1,4 @@
-NRIC,Password,Age,MaritalStatus,Project
-T1122334E,password,45,Married,
-T2233445F,password,38,Married,
-T3344556G,password,42,Single,
+Name,NRIC,Age,MaritalStatus,Password
+Daniel,T2109876H,36,Single,password
+Emily,S6543210I,28,Single,password
+David,T1234567J,29,Married,password

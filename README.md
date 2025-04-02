@@ -140,38 +140,55 @@ Congratulations, you have successfully created and viewed the JavaDocs.
 
 This section contains some login credentials for users with different roles. The full list is available in `data/user.csv` file.
 
-**Students:**
+**Applicants:**
 
 ```bash
-# Student 1
-USERID: YCHERN
-PASSWORD: password
+# Applicant 1
+Name: John
+NRIC: S1234567A
+Age: 35  
+Marital Status: Single
+Password: password
 
-# Student 2
-USERID: KOH1
-PASSWORD: password
+# Applicant 2
+Name: Sarah
+NRIC: T7654321B
+Age: 40
+Marital Status: Married
+Password: password
 
 # Student 3
-USERID: CT113
-PASSWORD: password
+Name: Grace
+NRIC: S9876543C
+Age: 37
+Marital Status: Married
+Password: password
 ```
 
-**Supervisors:**
+**HDB Officer:**
 
 ```bash
-# Supervisor 1
-USERID: BOAN
-PASSWORD: password
+# HDB Officer 1
+Name: Daniel
+NRIC: T2109876H
+Age: 36
+Marital Status: Single
+Password: password
 
-# Supervisor 2
-USERID: LIMO
-PASSWORD: password
+# HDB Officer 2
+Name: Emily
+NRIC: S6543210I  
+Age: 28
+Marital Status: Single
+Password: password
 ```
 
-**FYP Coordinator:**
-
+**HDB Manager:**
 ```bash
-# FYP Coordinator 1
-USERID: ASFLI
-PASSWORD: password
+# HDB Manager 1
+Name: Michael
+NRIC: T8765432F
+Age: 36
+Marital Status: Single
+Password: password
 ```

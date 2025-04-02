@@ -1,6 +1,6 @@
-NRIC,Password,Age,MaritalStatus
-S1234567A,password,35,Single
-S7654321B,password,25,Married
-S2345678C,password,40,Single
-S8765432D,password,30,Married
-S3456789E,password,22,Married
+Name,NRIC,Age,MaritalStatus,Password
+John,S1234567A,35,Single,password
+Sarah,T7654321B,40,Married,password
+Grace,S9876543C,37,Married,password
+James,T2345678D,30,Married,password
+Rachel,S3456789E,25,Single,password
