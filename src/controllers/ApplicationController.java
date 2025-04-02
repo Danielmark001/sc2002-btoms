@@ -1,7 +1,6 @@
 // File: bto_management_system/controller/ApplicationController.java
 package controller;
 
-import models.entity.Applicant;
 import models.entity.BTOApplication;
 import models.entity.BTOProject;
 import models.entity.HDBManager;
@@ -9,8 +8,8 @@ import models.entity.HDBOfficer;
 import models.entity.User;
 import models.enumeration.ApplicationStatus;
 import models.enumeration.FlatType;
-import models.manager.ApplicationManager;
-import models.manager.UserManager;
+import services.ApplicationService;
+import services.UserService;
 import view.ApplicationView;
 
 import java.util.List;
@@ -20,8 +19,8 @@ import java.util.List;
  */
 public class ApplicationController {
     private ApplicationView applicationView;
-    private ApplicationManager applicationManager;
-    private UserManager userManager;
+    private ApplicationService applicationService;
+    private UserService userService;
     
     /**
      * Constructor for ApplicationController
@@ -30,18 +29,18 @@ public class ApplicationController {
      */
     public ApplicationController(ApplicationView applicationView) {
         this.applicationView = applicationView;
-        this.applicationManager = ApplicationManager.getInstance();
-        this.userManager = UserManager.getInstance();
+        this.applicationService = new ApplicationService();
+        this.userService = new UserService();
     }
     
     /**
      * Applies for a BTO project
      * 
-     * @param project Project to apply for
+     * @param project Project to apply for  
      * @return true if application succeeds
      */
     public boolean applyForProject(BTOProject project) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof Applicant)) {
             return false;
         }
@@ -54,7 +53,7 @@ public class ApplicationController {
         }
         
         // Create the application
-        BTOApplication application = applicationManager.createApplication(applicant, project);
+        BTOApplication application = applicationService.createApplication(applicant, project);
         return application != null;
     }
     
@@ -64,7 +63,7 @@ public class ApplicationController {
      * @return true if request succeeds
      */
     public boolean requestWithdrawal() {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof Applicant)) {
             return false;
         }
@@ -77,16 +76,16 @@ public class ApplicationController {
      * Approves an application
      * 
      * @param application Application to approve
-     * @return true if approval succeeds
+     * @return true if approval succeeds 
      */
     public boolean approveApplication(BTOApplication application) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser(); 
         if (!(currentUser instanceof HDBManager)) {
             return false;
         }
         
         HDBManager manager = (HDBManager) currentUser;
-        return applicationManager.approveApplication(application, manager);
+        return applicationService.approveApplication(application, manager);
     }
     
     /**
@@ -96,13 +95,13 @@ public class ApplicationController {
      * @return true if rejection succeeds
      */
     public boolean rejectApplication(BTOApplication application) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             return false;
         }
         
         HDBManager manager = (HDBManager) currentUser;
-        return applicationManager.rejectApplication(application, manager);
+        return applicationService.rejectApplication(application, manager);  
     }
     
     /**
@@ -113,13 +112,13 @@ public class ApplicationController {
      * @return true if processing succeeds
      */
     public boolean processWithdrawal(BTOApplication application, boolean approve) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             return false;
         }
         
         HDBManager manager = (HDBManager) currentUser;
-        return applicationManager.processWithdrawal(application, manager, approve);
+        return applicationService.processWithdrawal(application, manager, approve);
     }
     
     /**
@@ -130,23 +129,23 @@ public class ApplicationController {
      * @return true if booking succeeds
      */
     public boolean bookFlat(BTOApplication application, FlatType flatType) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBOfficer)) {
-            return false;
+            return false;  
         }
         
         HDBOfficer officer = (HDBOfficer) currentUser;
-        return applicationManager.bookFlat(application, officer, flatType);
+        return applicationService.bookFlat(application, officer, flatType);
     }
     
     /**
      * Gets applications for a specific project
      * 
-     * @param project Project to get applications for
+     * @param project Project to get applications for 
      * @return List of applications
      */
     public List<BTOApplication> getApplicationsByProject(BTOProject project) {
-        return applicationManager.getApplicationsByProject(project);
+        return applicationService.getApplicationsByProject(project);
     }
     
     /**
@@ -154,19 +153,19 @@ public class ApplicationController {
      * 
      * @param project Project to get applications for
      * @param status Status to filter by
-     * @return List of matching applications
+     * @return List of matching applications  
      */
     public List<BTOApplication> getApplicationsByStatus(BTOProject project, ApplicationStatus status) {
-        return applicationManager.getApplicationsByStatus(project, status);
+        return applicationService.getApplicationsByStatus(project, status);
     }
     
     /**
      * Gets the current user's application
      * 
-     * @return Current application or null if none
+     * @return Current application or null if none  
      */
     public BTOApplication getCurrentApplication() {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof Applicant)) {
             return null;
         }
@@ -182,9 +181,9 @@ public class ApplicationController {
      * @return Application if found, null otherwise
      */
     public BTOApplication getApplicationByNRIC(String nric) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBOfficer)) {
-            return null;
+            return null;  
         }
         
         HDBOfficer officer = (HDBOfficer) currentUser;
@@ -202,12 +201,12 @@ public class ApplicationController {
      * @return Formatted receipt string
      */
     public String generateReceipt(BTOApplication application) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBOfficer)) {
             return null;
         }
         
         HDBOfficer officer = (HDBOfficer) currentUser;
-        return officer.generateReceipt(application);
+        return officer.generateReceipt(application);  
     }
 }

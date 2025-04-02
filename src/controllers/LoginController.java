@@ -4,9 +4,9 @@ package controller;
 import models.entity.Applicant;
 import models.entity.HDBManager;
 import models.entity.HDBOfficer;
-import models.entity.User;
+import models.entity.User;  
 import models.enumeration.MaritalStatus;
-import models.manager.UserManager;
+import services.UserService;
 import view.LoginView;
 
 /**
@@ -14,16 +14,16 @@ import view.LoginView;
  */
 public class LoginController {
     private LoginView loginView;
-    private UserManager userManager;
+    private UserService userService;
     
     /**
      * Constructor for LoginController
      * 
-     * @param loginView View for login operations
+     * @param loginView View for login operations  
      */
     public LoginController(LoginView loginView) {
         this.loginView = loginView;
-        this.userManager = UserManager.getInstance();
+        this.userService = new UserService();
     }
     
     /**
@@ -34,11 +34,11 @@ public class LoginController {
      * @return User object if login succeeds, null otherwise
      */
     public User login(String nric, String password) {
-        return userManager.authenticateUser(nric, password);
+        return userService.authenticateUser(nric, password);
     }
     
     /**
-     * Determines user type and returns appropriate string
+     * Determines user type and returns appropriate string 
      * 
      * @param user User to check
      * @return String representing user type
@@ -47,7 +47,7 @@ public class LoginController {
         if (user instanceof Applicant) {
             return "APPLICANT";
         } else if (user instanceof HDBOfficer) {
-            return "OFFICER";
+            return "OFFICER";  
         } else if (user instanceof HDBManager) {
             return "MANAGER";
         }
@@ -59,12 +59,12 @@ public class LoginController {
      * 
      * @param nric NRIC of the applicant
      * @param password Password for the account
-     * @param age Age of the applicant
+     * @param age Age of the applicant 
      * @param maritalStatus Marital status of the applicant
      * @return true if registration succeeds
      */
     public boolean registerApplicant(String nric, String password, int age, MaritalStatus maritalStatus) {
-        return userManager.registerApplicant(nric, password, age, maritalStatus);
+        return userService.registerApplicant(nric, password, age, maritalStatus);
     }
     
     /**
@@ -73,16 +73,15 @@ public class LoginController {
      * @param oldPassword Old password to verify
      * @param newPassword New password to set
      * @return true if password change succeeds
-     */
+     */  
     public boolean changePassword(String oldPassword, String newPassword) {
-        return userManager.changePassword(oldPassword, newPassword);
+        return userService.changePassword(oldPassword, newPassword);
     }
     
     /**
-     * Logs out the current user
+     * Logs out the current user  
      */
     public void logout() {
-        userManager.logout();
+        userService.logout();  
     }
 }
-

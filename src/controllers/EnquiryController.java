@@ -5,8 +5,8 @@ import models.entity.BTOProject;
 import models.entity.Enquiry;
 import models.entity.HDBManager;
 import models.entity.User;
-import models.manager.EnquiryManager;
-import models.manager.UserManager;
+import services.EnquiryService;
+import services.UserService;
 import view.EnquiryView;
 
 import java.util.List;
@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class EnquiryController {
     private EnquiryView enquiryView;
-    private EnquiryManager enquiryManager;
-    private UserManager userManager;
+    private EnquiryService enquiryService;
+    private UserService userService;
     
     /**
      * Constructor for EnquiryController
@@ -26,24 +26,24 @@ public class EnquiryController {
      */
     public EnquiryController(EnquiryView enquiryView) {
         this.enquiryView = enquiryView;
-        this.enquiryManager = EnquiryManager.getInstance();
-        this.userManager = UserManager.getInstance();
+        this.enquiryService = new EnquiryService();
+        this.userService = new UserService();
     }
     
     /**
      * Creates a new enquiry
      * 
      * @param project Project the enquiry is about
-     * @param content Content of the enquiry
+     * @param content Content of the enquiry  
      * @return true if creation succeeds
      */
     public boolean createEnquiry(BTOProject project, String content) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (currentUser == null) {
             return false;
         }
         
-        Enquiry enquiry = enquiryManager.createEnquiry(currentUser, project, content);
+        Enquiry enquiry = enquiryService.createEnquiry(currentUser, project, content);
         return enquiry != null;
     }
     
@@ -55,27 +55,27 @@ public class EnquiryController {
      * @return true if edit succeeds
      */
     public boolean editEnquiry(Enquiry enquiry, String newContent) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (currentUser == null) {
             return false;
         }
         
-        return enquiryManager.editEnquiry(enquiry, currentUser, newContent);
+        return enquiryService.editEnquiry(enquiry, currentUser, newContent);  
     }
     
     /**
      * Deletes an enquiry
      * 
      * @param enquiry Enquiry to delete
-     * @return true if deletion succeeds
+     * @return true if deletion succeeds  
      */
     public boolean deleteEnquiry(Enquiry enquiry) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (currentUser == null) {
             return false;
         }
         
-        return enquiryManager.deleteEnquiry(enquiry, currentUser);
+        return enquiryService.deleteEnquiry(enquiry, currentUser);
     }
     
     /**
@@ -85,13 +85,13 @@ public class EnquiryController {
      * @param replyContent Content of the reply
      * @return true if reply succeeds
      */
-    public boolean replyToEnquiry(Enquiry enquiry, String replyContent) {
-        User currentUser = userManager.getCurrentUser();
+    public boolean replyToEnquiry(Enquiry enquiry, String replyContent) {  
+        User currentUser = userService.getCurrentUser();
         if (currentUser == null) {
-            return false;
+            return false;  
         }
         
-        return enquiryManager.replyToEnquiry(enquiry, currentUser, replyContent);
+        return enquiryService.replyToEnquiry(enquiry, currentUser, replyContent);
     }
     
     /**
@@ -101,21 +101,21 @@ public class EnquiryController {
      * @return List of enquiries
      */
     public List<Enquiry> getEnquiriesByProject(BTOProject project) {
-        return enquiryManager.getEnquiriesByProject(project);
+        return enquiryService.getEnquiriesByProject(project);
     }
     
     /**
      * Gets enquiries created by the current user
      * 
-     * @return List of enquiries
+     * @return List of enquiries  
      */
     public List<Enquiry> getCurrentUserEnquiries() {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (currentUser == null) {
             return List.of();
         }
         
-        return enquiryManager.getEnquiriesByUser(currentUser);
+        return enquiryService.getEnquiriesByUser(currentUser);
     }
     
     /**
@@ -124,21 +124,20 @@ public class EnquiryController {
      * @return List of all enquiries
      */
     public List<Enquiry> getAllEnquiries() {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             return List.of();
         }
         
-        return enquiryManager.getAllEnquiries();
+        return enquiryService.getAllEnquiries();
     }
     
     /**
      * Gets all unanswered enquiries
      * 
      * @return List of unanswered enquiries
-     */
+     */  
     public List<Enquiry> getUnansweredEnquiries() {
-        return enquiryManager.getUnansweredEnquiries();
+        return enquiryService.getUnansweredEnquiries();  
     }
 }
-

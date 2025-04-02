@@ -1,13 +1,12 @@
-// File: bto_management_system/controller/ProjectController.java (continued)
-package controller;
+package controllers;
 
 import models.entity.BTOProject;
 import models.entity.HDBManager;
 import models.entity.User;
 import models.enumeration.FlatType;
-import models.manager.ProjectManager;
-import models.manager.UserManager;
-import view.ProjectView;
+import services.ProjectService;
+import services.UserService;
+import views.ProjectView;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -19,8 +18,8 @@ import java.util.Map;
  */
 public class ProjectController {
     private ProjectView projectView;
-    private ProjectManager projectManager;
-    private UserManager userManager;
+    private ProjectService projectService;
+    private UserService userService;
     
     /**
      * Constructor for ProjectController
@@ -29,8 +28,8 @@ public class ProjectController {
      */
     public ProjectController(ProjectView projectView) {
         this.projectView = projectView;
-        this.projectManager = ProjectManager.getInstance();
-        this.userManager = UserManager.getInstance();
+        this.projectService = ProjectService.getInstance();
+        this.userService = UserService.getInstance();
     }
     
     /**
@@ -49,7 +48,7 @@ public class ProjectController {
             int twoRoomCount, int threeRoomCount, 
             LocalDate openingDate, LocalDate closingDate, int officerSlots) {
         
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             return false;
         }
@@ -58,7 +57,7 @@ public class ProjectController {
         unitCounts.put(FlatType.TWO_ROOM.name(), twoRoomCount);
         unitCounts.put(FlatType.THREE_ROOM.name(), threeRoomCount);
         
-        BTOProject project = projectManager.createProject(
+        BTOProject project = projectService.createProject(
                 (HDBManager) currentUser, 
                 projectName, 
                 neighborhood, 
@@ -88,7 +87,7 @@ public class ProjectController {
             int twoRoomCount, int threeRoomCount, 
             LocalDate openingDate, LocalDate closingDate, int officerSlots) {
         
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             return false;
         }
@@ -102,7 +101,7 @@ public class ProjectController {
         unitCounts.put(FlatType.TWO_ROOM, twoRoomCount);
         unitCounts.put(FlatType.THREE_ROOM, threeRoomCount);
         
-        return manager.editProject(
+        return projectService.editProject(
                 project, 
                 projectName, 
                 neighborhood, 
@@ -120,7 +119,7 @@ public class ProjectController {
      * @return true if deletion succeeds
      */
     public boolean deleteProject(BTOProject project) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             return false;
         }
@@ -130,7 +129,7 @@ public class ProjectController {
             return false;
         }
         
-        return manager.deleteProject(project);
+        return projectService.deleteProject(project);
     }
     
     /**
@@ -141,7 +140,7 @@ public class ProjectController {
      * @return true if toggle succeeds
      */
     public boolean toggleProjectVisibility(BTOProject project, boolean visible) {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             return false;
         }
@@ -151,8 +150,8 @@ public class ProjectController {
             return false;
         }
         
-        manager.toggleProjectVisibility(project, visible);
-        projectManager.saveProjects();
+        projectService.toggleProjectVisibility(project, visible);
+        projectService.saveProjects();
         return true;
     }
     
@@ -162,7 +161,7 @@ public class ProjectController {
      * @return List of all projects
      */
     public List<BTOProject> getAllProjects() {
-        return projectManager.getAllProjects();
+        return projectService.getAllProjects();
     }
     
     /**
@@ -171,8 +170,8 @@ public class ProjectController {
      * @return List of visible projects
      */
     public List<BTOProject> getVisibleProjects() {
-        User currentUser = userManager.getCurrentUser();
-        return projectManager.getVisibleProjects(currentUser);
+        User currentUser = userService.getCurrentUser();
+        return projectService.getVisibleProjects(currentUser);
     }
     
     /**
@@ -181,12 +180,12 @@ public class ProjectController {
      * @return List of projects created by the current manager
      */
     public List<BTOProject> getProjectsByCurrentManager() {
-        User currentUser = userManager.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             return List.of();
         }
         
-        return projectManager.getProjectsByManager((HDBManager) currentUser);
+        return projectService.getProjectsByManager((HDBManager) currentUser);
     }
     
     /**
@@ -196,11 +195,6 @@ public class ProjectController {
      * @return Project if found, null otherwise
      */
     public BTOProject getProjectByName(String projectName) {
-        return projectManager.getProjectByName(projectName);
+        return projectService.getProjectByName(projectName);
     }
 }
-
-
-
-
-

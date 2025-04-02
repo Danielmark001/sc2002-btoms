@@ -1,170 +1,166 @@
 package services;
 
-import models.entity.Project;
+import models.entity.BTOProject;
+import models.entity.HDBManager;
 import models.entity.User;
 import models.enumeration.FlatType;
-import stores.DataStore;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ProjectService {
     private static ProjectService instance;
+    private List<BTOProject> projects;
 
-    private ProjectService() {}
+    private ProjectService() {
+        this.projects = new ArrayList<>();
+    }
 
     public static synchronized ProjectService getInstance() {
         if (instance == null) {
-            instance = new UserService();
+            instance = new ProjectService();
         }
         return instance;
     }
 
     /**
-     * Create a new project
+     * Create a new BTO project
+     * 
+     * @param manager HDB Manager creating the project
      * @param projectName Name of the project
-     * @param neighborhood Location of the project
-     * @param applicationOpeningDate Project application opening date
-     * @param applicationClosingDate Project application closing date
-     * @param flatTypes Available flat types
-     * @param hdbManager HDB Manager for the project
+     * @param neighborhood Project neighborhood
+     * @param unitCounts Map of flat types and their counts
+     * @param openingDate Application opening date
+     * @param closingDate Application closing date
+     * @param officerSlots Number of available officer slots
      * @return Created project
      */
-    public Project createProject(String projectName, String neighborhood, 
-                                 LocalDate applicationOpeningDate, 
-                                 LocalDate applicationClosingDate, 
-                                 List<FlatType> flatTypes, 
-                                 User hdbManager) {
-        // Check if project with same name already exists
-        if (getProjectByName(projectName).isPresent()) {
+    public BTOProject createProject(HDBManager manager, String projectName, String neighborhood, 
+                                    Map<String, Integer> unitCounts, 
+                                    LocalDate openingDate, LocalDate closingDate, 
+                                    int officerSlots) {
+        // Validate project creation
+        if (getProjectByName(projectName) != null) {
             throw new IllegalArgumentException("Project with this name already exists");
         }
 
-        Project newProject = new Project(projectName, neighborhood, 
-                                         applicationOpeningDate, 
-                                         applicationClosingDate);
-        newProject.setFlatTypes(flatTypes);
-        newProject.setHdbManager(hdbManager);
+        // Convert unit counts to FlatType map
+        Map<FlatType, Integer> flatTypeCounts = new HashMap<>();
+        flatTypeCounts.put(FlatType.TWO_ROOM, unitCounts.getOrDefault(FlatType.TWO_ROOM.name(), 0));
+        flatTypeCounts.put(FlatType.THREE_ROOM, unitCounts.getOrDefault(FlatType.THREE_ROOM.name(), 0));
+
+        BTOProject newProject = new BTOProject(projectName, neighborhood, flatTypeCounts, 
+                                               openingDate, closingDate, manager, officerSlots);
         
-        DataStore.getProjects().add(newProject);
+        projects.add(newProject);
         return newProject;
     }
 
     /**
      * Get project by name
-     * @param projectName Project name
-     * @return Optional of project
+     * 
+     * @param projectName Name of the project
+     * @return Project or null if not found
      */
-    public Optional<Project> getProjectByName(String projectName) {
-        return DataStore.getProjects().stream()
-            .filter(project -> project.getProjectName().equalsIgnoreCase(projectName))
-            .findFirst();
+    public BTOProject getProjectByName(String projectName) {
+        return projects.stream()
+            .filter(p -> p.getProjectName().equalsIgnoreCase(projectName))
+            .findFirst()
+            .orElse(null);
     }
 
     /**
-     * Update project details
-     * @param projectName Project name
-     * @param neighborhood New neighborhood (can be null)
-     * @param applicationOpeningDate New opening date (can be null)
-     * @param applicationClosingDate New closing date (can be null)
-     * @param flatTypes New flat types (can be null)
-     * @return Updated project
+     * Get all projects
+     * 
+     * @return List of all projects
      */
-    public Project updateProject(String projectName, String neighborhood, 
-                                 LocalDate applicationOpeningDate, 
-                                 LocalDate applicationClosingDate, 
-                                 List<FlatType> flatTypes) {
-        Project project = getProjectByName(projectName)
-            .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+    public List<BTOProject> getAllProjects() {
+        return new ArrayList<>(projects);
+    }
 
-        if (neighborhood != null && !neighborhood.isEmpty()) {
-            project.setNeighborhood(neighborhood);
-        }
-        if (applicationOpeningDate != null) {
-            project.setApplicationOpeningDate(applicationOpeningDate);
-        }
-        if (applicationClosingDate != null) {
-            project.setApplicationClosingDate(applicationClosingDate);
-        }
-        if (flatTypes != null && !flatTypes.isEmpty()) {
-            project.setFlatTypes(flatTypes);
+    /**
+     * Get visible projects for a user
+     * 
+     * @param user Current user
+     * @return List of visible projects
+     */
+    public List<BTOProject> getVisibleProjects(User user) {
+        return projects.stream()
+            .filter(BTOProject::isVisibility)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Get projects by manager
+     * 
+     * @param manager HDB Manager
+     * @return List of projects managed by the manager
+     */
+    public List<BTOProject> getProjectsByManager(HDBManager manager) {
+        return projects.stream()
+            .filter(p -> p.getManager().equals(manager))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Save projects (placeholder for potential file/database persistence)
+     */
+    public void saveProjects() {
+        // Implement persistence logic if needed
+    }
+
+    /**
+     * Edit an existing project
+     * 
+     * @param project Project to edit
+     * @param projectName New project name
+     * @param neighborhood New neighborhood
+     * @param unitCounts New unit counts
+     * @param openingDate New opening date
+     * @param closingDate New closing date
+     * @param officerSlots New officer slots
+     * @return true if edit successful
+     */
+    public boolean editProject(BTOProject project, String projectName, String neighborhood, 
+                                Map<FlatType, Integer> unitCounts, 
+                                LocalDate openingDate, LocalDate closingDate, 
+                                int officerSlots) {
+        // Validate manager
+        if (project == null) {
+            return false;
         }
 
-        return project;
+        project.setProjectName(projectName);
+        project.setNeighborhood(neighborhood);
+        project.setFlatTypes(unitCounts);
+        project.setApplicationOpeningDate(openingDate);
+        project.setApplicationClosingDate(closingDate);
+        project.setAvailableHDBOfficerSlots(officerSlots);
+
+        return true;
     }
 
     /**
      * Delete a project
-     * @param projectName Project name to delete
-     * @return True if project deleted successfully
+     * 
+     * @param project Project to delete
+     * @return true if deletion successful
      */
-    public boolean deleteProject(String projectName) {
-        Project project = getProjectByName(projectName)
-            .orElseThrow(() -> new IllegalArgumentException("Project not found"));
-
-        return DataStore.getProjects().remove(project);
+    public boolean deleteProject(BTOProject project) {
+        return projects.remove(project);
     }
 
     /**
      * Toggle project visibility
-     * @param projectName Project name
-     * @param visibility New visibility status
-     * @return Updated project
+     * 
+     * @param project Project to toggle
+     * @param visible New visibility status
      */
-    public Project toggleProjectVisibility(String projectName, boolean visibility) {
-        Project project = getProjectByName(projectName)
-            .orElseThrow(() -> new IllegalArgumentException("Project not found"));
-
-        project.setVisibility(visibility);
-        return project;
-    }
-
-    /**
-     * Get all visible projects
-     * @return List of visible projects
-     */
-    public List<Project> getVisibleProjects() {
-        return DataStore.getProjects().stream()
-            .filter(Project::isVisibility)
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Get projects filtered by flat type
-     * @param flatType Flat type to filter
-     * @return List of projects with specified flat type
-     */
-    public List<Project> getProjectsByFlatType(FlatType flatType) {
-        return DataStore.getProjects().stream()
-            .filter(project -> project.getFlatTypes().contains(flatType))
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Get projects managed by a specific HDB manager
-     * @param hdbManager HDB Manager
-     * @return List of projects managed by the HDB manager
-     */
-    public List<Project> getProjectsByHDBManager(User hdbManager) {
-        return DataStore.getProjects().stream()
-            .filter(project -> project.getHdbManager().equals(hdbManager))
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Check if a project is currently in its application period
-     * @param projectName Project name
-     * @return True if project is in application period, false otherwise
-     */
-    public boolean isInApplicationPeriod(String projectName) {
-        Project project = getProjectByName(projectName)
-            .orElseThrow(() -> new IllegalArgumentException("Project not found"));
-
-        LocalDate now = LocalDate.now();
-        return !now.isBefore(project.getApplicationOpeningDate()) && 
-               !now.isAfter(project.getApplicationClosingDate());
+    public void toggleProjectVisibility(BTOProject project, boolean visible) {
+        project.setVisibility(visible);
     }
 }

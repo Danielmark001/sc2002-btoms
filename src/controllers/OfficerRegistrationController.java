@@ -1,134 +1,135 @@
-// File: bto_management_system/controller/OfficerRegistrationController.java
-package controller;
+package controllers;
 
 import models.entity.BTOProject;
 import models.entity.HDBManager;
 import models.entity.HDBOfficer;
-import models.entity.OfficerRegistration;
 import models.entity.User;
-import models.enumeration.ApplicationStatus;
-import models.manager.RegistrationManager;
-import models.manager.UserManager;
-import view.RegistrationView;
+import models.enumeration.UserStatus;
+import services.ProjectService;
+import services.UserService;
+import views.OfficerRegistrationView;
 
-import java.util.List;
+import java.time.LocalDate;
 
-/**
- * Controller for handling officer registration-related operations
- */
 public class OfficerRegistrationController {
-    private RegistrationView registrationView;
-    private RegistrationManager registrationManager;
-    private UserManager userManager;
-    
-    /**
-     * Constructor for OfficerRegistrationController
-     * 
-     * @param registrationView View for registration operations
-     */
-    public OfficerRegistrationController(RegistrationView registrationView) {
-        this.registrationView = registrationView;
-        this.registrationManager = RegistrationManager.getInstance();
-        this.userManager = UserManager.getInstance();
+    private UserService userService;
+    private ProjectService projectService;
+    private OfficerRegistrationView view;
+
+    public OfficerRegistrationController(OfficerRegistrationView view) {
+        this.userService = UserService.getInstance();
+        this.projectService = ProjectService.getInstance();
+        this.view = view;
     }
-    
+
     /**
-     * Registers to handle a project
+     * Registers an HDB Officer for a project
      * 
-     * @param project Project to register for
-     * @return true if registration succeeds
+     * @param nric Officer's NRIC
+     * @param name Officer's name
+     * @param projectName Project to register for
+     * @return Registered HDB Officer
      */
-    public boolean registerForProject(BTOProject project) {
-        User currentUser = userManager.getCurrentUser();
-        if (!(currentUser instanceof HDBOfficer)) {
-            return false;
-        }
-        
-        HDBOfficer officer = (HDBOfficer) currentUser;
-        OfficerRegistration registration = registrationManager.createRegistration(officer, project);
-        return registration != null;
-    }
-    
-    /**
-     * Approves an officer registration
-     * 
-     * @param registration Registration to approve
-     * @return true if approval succeeds
-     */
-    public boolean approveRegistration(OfficerRegistration registration) {
-        User currentUser = userManager.getCurrentUser();
-        if (!(currentUser instanceof HDBManager)) {
-            return false;
-        }
-        
-        HDBManager manager = (HDBManager) currentUser;
-        return registrationManager.processRegistration(registration, manager, true);
-    }
-    
-    /**
-     * Rejects an officer registration
-     * 
-     * @param registration Registration to reject
-     * @return true if rejection succeeds
-     */
-    public boolean rejectRegistration(OfficerRegistration registration) {
-        User currentUser = userManager.getCurrentUser();
-        if (!(currentUser instanceof HDBManager)) {
-            return false;
-        }
-        
-        HDBManager manager = (HDBManager) currentUser;
-        return registrationManager.processRegistration(registration, manager, false);
-    }
-    
-    /**
-     * Gets registrations for a specific project
-     * 
-     * @param project Project to get registrations for
-     * @return List of registrations
-     */
-    public List<OfficerRegistration> getRegistrationsByProject(BTOProject project) {
-        return registrationManager.getRegistrationsByProject(project);
-    }
-    
-    /**
-     * Gets registrations with a specific status for a project
-     * 
-     * @param project Project to get registrations for
-     * @param status Status to filter by
-     * @return List of matching registrations
-     */
-    public List<OfficerRegistration> getRegistrationsByStatus(BTOProject project, ApplicationStatus status) {
-        return registrationManager.getRegistrationsByStatus(project, status);
-    }
-    
-    /**
-     * Gets the current user's registration status
-     * 
-     * @return Current registration status
-     */
-    public ApplicationStatus getCurrentRegistrationStatus() {
-        User currentUser = userManager.getCurrentUser();
-        if (!(currentUser instanceof HDBOfficer)) {
+    public HDBOfficer registerOfficer(String nric, String name, String projectName) {
+        // Validate project exists
+        BTOProject project = projectService.getProjectByName(projectName);
+        if (project == null) {
+            view.displayError("Project not found");
             return null;
         }
-        
-        HDBOfficer officer = (HDBOfficer) currentUser;
-        return officer.getRegistrationStatus();
-    }
-    
-    /**
-     * Gets the project the current officer is handling
-     * 
-     * @return Project being handled
-     */
-    public BTOProject getHandlingProject() {
-        User currentUser = userManager.getCurrentUser();
-        if (!(currentUser instanceof HDBOfficer)) {
+
+        // Check current user is a manager
+        User currentUser = userService.getCurrentUser();
+        if (!(currentUser instanceof HDBManager)) {
+            view.displayError("Only HDB Managers can register officers");
             return null;
         }
-        
-        HDBOfficer officer = (HDBOfficer) currentUser;
-        return officer.getHandlingProject();
+        HDBManager manager = (HDBManager) currentUser;
+
+        // Verify project is managed by current manager
+        if (!project.getManager().equals(manager)) {
+            view.displayError("You can only register officers for your own projects");
+            return null;
+        }
+
+        // Check officer slots availability
+        if (project.getAvailableHDBOfficerSlots() <= 0) {
+            view.displayError("No available officer slots for this project");
+            return null;
+        }
+
+        // Create officer
+        HDBOfficer officer = (HDBOfficer) userService.createUser(
+            nric, 
+            name, 
+            LocalDate.now(), 
+            null, 
+            UserStatus.OFFICER
+        );
+
+        // Set handling project
+        officer.setHandlingProject(project);
+
+        // Decrement available officer slots
+        project.setAvailableHDBOfficerSlots(project.getAvailableHDBOfficerSlots() - 1);
+
+        view.displaySuccess("Officer registered successfully");
+        return officer;
+    }
+
+    /**
+     * Approves or rejects an officer registration
+     * 
+     * @param officer Officer to process
+     * @param approve Whether to approve or reject
+     * @return true if processing successful
+     */
+    public boolean processOfficerRegistration(HDBOfficer officer, boolean approve) {
+        // Check current user is a manager
+        User currentUser = userService.getCurrentUser();
+        if (!(currentUser instanceof HDBManager)) {
+            view.displayError("Only HDB Managers can process registrations");
+            return false;
+        }
+        HDBManager manager = (HDBManager) currentUser;
+
+        // Validate officer and project
+        if (officer.getHandlingProject() == null) {
+            view.displayError("Officer is not associated with a project");
+            return false;
+        }
+
+        // Verify project is managed by current manager
+        if (!officer.getHandlingProject().getManager().equals(manager)) {
+            view.displayError("You can only process registrations for your own projects");
+            return false;
+        }
+
+        if (approve) {
+            // Additional logic for approval if needed
+            view.displaySuccess("Officer registration approved");
+            return true;
+        } else {
+            // Return officer slot and remove officer
+            BTOProject project = officer.getHandlingProject();
+            project.setAvailableHDBOfficerSlots(project.getAvailableHDBOfficerSlots() + 1);
+            userService.removeUser(officer);
+            
+            view.displaySuccess("Officer registration rejected");
+            return true;
+        }
+    }
+
+    /**
+     * Checks if an officer can be registered for a project
+     * 
+     * @param officer Officer to check
+     * @param project Project to check against
+     * @return true if officer can be registered
+     */
+    public boolean canRegisterForProject(HDBOfficer officer, BTOProject project) {
+        // Check if officer is already registered for another project
+        return project.getAvailableHDBOfficerSlots() > 0 &&
+               officer.getHandlingProject() == null;
     }
 }

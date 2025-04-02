@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import models.enumeration.FlatType;
 
-public class Project {
+public class BTOProject {
     private String projectName;
     private String neighborhood;
     private List<FlatType> flatTypes;
@@ -15,9 +15,9 @@ public class Project {
     private boolean visibility;
 
     // Constructors
-    public Project() {}
+    public BTOProject() {}
 
-    public Project(String projectName, String neighborhood, LocalDate applicationOpeningDate, LocalDate applicationClosingDate) {
+    public BTOProject(String projectName, String neighborhood, LocalDate applicationOpeningDate, LocalDate applicationClosingDate) {
         this.projectName = projectName;
         this.neighborhood = neighborhood;
         this.applicationOpeningDate = applicationOpeningDate;

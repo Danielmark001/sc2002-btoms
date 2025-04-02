@@ -2,7 +2,7 @@ package models.entity;
 
 import java.time.LocalDate;
 
-public class Application {
+public class BTOApplication {
     private User applicant;
     private Project project;
     private Project.FlatType flatType;
@@ -18,9 +18,9 @@ public class Application {
     }
 
     // Constructors
-    public Application() {}
+    public BTOApplication() {}
 
-    public Application(User applicant, Project project, Project.FlatType flatType) {
+    public BTOApplication(User applicant, BTOProject project, Project.FlatType flatType) {
         this.applicant = applicant;
         this.project = project;
         this.flatType = flatType;
