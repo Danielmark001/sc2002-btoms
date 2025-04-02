@@ -8,6 +8,4 @@ import java.util.Map;
  */
 public interface IReportService {
     String generateBookingReport(String filter, String value);
-    Map<String, Long> generateApplicationStatusReport();
-    Map<String, Long> generateProjectApplicationReport(); 
 }

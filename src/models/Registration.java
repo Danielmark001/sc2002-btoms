@@ -65,13 +65,7 @@ public class Registration {
     }
 
     // Method to check registration eligibility
-    public boolean isEligibleToRegister() {
-        // Check if officer is not already an applicant for this project
-        // Check if officer is not registered for another project in the same period
-        return officer.getStatus() == User.UserStatus.OFFICER &&
-               !isRegisteredForAnotherProject() &&
-               !hasAppliedForProject();
-    }
+    
 
     // Helper method to check if officer is registered for another project
     private boolean isRegisteredForAnotherProject() {
@@ -88,7 +82,7 @@ public class Registration {
     }
 
     // Helper method to check overlapping application periods
-    private boolean isOverlappingPeriod(Project otherProject) {
+    private boolean isOverlappingPeriod(BTOProject otherProject) {
         LocalDate currentProjectStart = project.getApplicationOpeningDate();
         LocalDate currentProjectEnd = project.getApplicationClosingDate();
         LocalDate otherProjectStart = otherProject.getApplicationOpeningDate();

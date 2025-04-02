@@ -21,9 +21,8 @@ public class LoginController {
      * 
      * @param loginView View for login operations  
      */
-    public LoginController(LoginView loginView) {
-        this.loginView = loginView;
-        this.userService = new UserService();
+    public LoginController() {
+
     }
     
     /**
@@ -33,9 +32,7 @@ public class LoginController {
      * @param password Password of the user
      * @return User object if login succeeds, null otherwise
      */
-    public User login(String nric, String password) {
-        return userService.authenticateUser(nric, password);
-    }
+
     
     /**
      * Determines user type and returns appropriate string 
@@ -84,11 +81,15 @@ public class LoginController {
     public void logout() {
         userService.logout();
     }
+
+    /**
+     * Gets the current logged-in user
+     * 
+     * @return Current user object
+     */
     
     
-    public static LoginController getInstance() {
-        return new LoginController(new LoginView());
-    }
+    
     
     public User getCurrentUser() {
         return userService.getCurrentUser();

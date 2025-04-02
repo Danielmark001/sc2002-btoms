@@ -24,11 +24,11 @@ public class EnquiryController {
      * 
      * @param enquiryView View for enquiry operations
      */
-    public EnquiryController(EnquiryView enquiryView) {
-        this.enquiryView = enquiryView;
-        this.enquiryService = new EnquiryService();
-        this.userService = new UserService();
+    public EnquiryController() {
+
     }
+    
+
     
     /**
      * Creates a new enquiry

@@ -17,9 +17,7 @@ public final class ConcurrencyUtil {
             @Override
             public Thread newThread(Runnable r) {
                 Thread thread = defaultFactory.newThread(r);
-                thread.setUncaughtExceptionHandler((t, e) -> 
-                    ErrorHandler.logCriticalError(e, "Uncaught exception in thread: " + t.getName())
-                );
+                
                 return thread;
             }
         }
@@ -44,7 +42,6 @@ public final class ConcurrencyUtil {
             try {
                 task.run();
             } catch (Exception e) {
-                ErrorHandler.logCriticalError(e, "Error in async task");
                 throw new CompletionException(e);
             }
         }, THREAD_POOL);
@@ -61,7 +58,6 @@ public final class ConcurrencyUtil {
             try {
                 return task.get();
             } catch (Exception e) {
-                ErrorHandler.logCriticalError(e, "Error in async supply task");
                 throw new CompletionException(e);
             }
         }, THREAD_POOL);
@@ -168,7 +164,6 @@ public final class ConcurrencyUtil {
                 try {
                     return valueComputer.get();
                 } catch (Exception e) {
-                    ErrorHandler.logCriticalError(e, "Error computing cache value");
                     throw new RuntimeException(e);
                 }
             });

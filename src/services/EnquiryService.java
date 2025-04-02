@@ -159,10 +159,6 @@ public class EnquiryService implements interfaces.IEnquiryService {
         }
 
         // If user is an HDB Officer, they must be handling the project
-        if (user instanceof HDBOfficer) {
-            HDBOfficer officer = (HDBOfficer) user;
-            return officer.getHandlingProject().equals(enquiry.getProject());
-        }
 
         // HDB Manager can reply to enquiries for any project
         return true;

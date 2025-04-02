@@ -48,17 +48,12 @@ public class AuthenticationErrorHandler {
         synchronized (loginAttempts) {
             LoginAttempt attempt = loginAttempts.computeIfAbsent(username, k -> new LoginAttempt());
 
-            // Check if account is already locked
-            if (attempt.isLocked) {
-                if (isLockoutExpired(attempt)) {
-                    resetLoginAttempts(username);
-                } else {
-                    logLockedAccountAttempt(username, ipAddress);
-                    throw new BTOSystemException(
-                            "Account is temporarily locked. Please try again later.",
-                            BTOSystemException.ErrorCode.INSUFFICIENT_USER_PERMISSIONS);
-                }
-            }
+        // Check if account is already locked
+        if (attempt.isLocked && attempt.lastAttempt.plusMinutes(LOCKOUT_DURATION).isAfter(LocalDateTime.now())) {
+            throw new BTOSystemException(
+                    "Account is locked. Please try again later.",
+                    BTOSystemException.ErrorCode.INSUFFICIENT_USER_PERMISSIONS);
+        }
 
             // Increment failed attempts
             attempt.failedAttempts++;

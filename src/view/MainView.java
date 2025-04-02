@@ -9,7 +9,6 @@ public class MainView {
     private MainMenuView mainMenuView;
 
     public MainView() {
-        this.loginController = new LoginController(new LoginView(null));
         this.loginView = new LoginView(loginController);
         this.mainMenuView = new MainMenuView(null);
     }

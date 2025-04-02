@@ -1,17 +1,54 @@
 package controllers;
 
 import models.User;
-import enumeration.UserStatus;
 import services.UserService;
+import stores.AuthStore;
 import view.AuthView;
 
+/**
+ * Controller for handling authentication operations
+ */
 public class AuthController {
+    private static AuthController instance;
     private UserService userService;
     private AuthView authView;
 
+    /**
+     * Constructor
+     * 
+     * @param authView View for authentication operations
+     */
     public AuthController(AuthView authView) {
         this.authView = authView;
         this.userService = UserService.getInstance();
+    }
+    
+    /**
+     * Private constructor for singleton pattern
+     */
+    private AuthController() {
+        this.userService = UserService.getInstance();
+    }
+    
+    /**
+     * Gets singleton instance of AuthController
+     * 
+     * @return AuthController instance
+     */
+    public static synchronized AuthController getInstance() {
+        if (instance == null) {
+            instance = new AuthController();
+        }
+        return instance;
+    }
+    
+    /**
+     * Sets the auth view
+     * 
+     * @param authView View to set
+     */
+    public void setAuthView(AuthView authView) {
+        this.authView = authView;
     }
 
     /**
@@ -24,56 +61,72 @@ public class AuthController {
     public User login(String nric, String password) {
         // Validate NRIC format
         if (!isValidNRIC(nric)) {
-            authView.displayError("Invalid NRIC format");
+            if (authView != null) {
+                authView.displayError("Invalid NRIC format");
+            }
             return null;
         }
 
         // Attempt authentication
-        User user = userService.authenticateUser(nric, password);
+        boolean authenticated = userService.login(nric, password);
         
-        if (user == null) {
-            authView.displayError("Invalid credentials");
+        if (!authenticated) {
+            if (authView != null) {
+                authView.displayError("Invalid credentials");
+            }
             return null;
         }
 
         // Log successful login
-        authView.displaySuccess("Login successful");
-        return user;
+        if (authView != null) {
+            authView.displaySuccess("Login successful");
+        }
+        
+        return userService.getCurrentUser();
     }
 
     /**
      * Handles user logout process
      */
     public void logout() {
-        userService.setCurrentUser(null);
-        authView.displaySuccess("Logged out successfully");
+        userService.logout();
+        if (authView != null) {
+            authView.displaySuccess("Logged out successfully");
+        }
     }
 
     /**
      * Changes user password
      * 
-     * @param nric User's NRIC
      * @param oldPassword Current password
      * @param newPassword New password
      * @return true if password change successful
      */
-    public boolean changePassword(String nric, String oldPassword, String newPassword) {
+    public boolean changePassword(String oldPassword, String newPassword) {
         // Password complexity check
         if (!isValidPassword(newPassword)) {
-            authView.displayError("Password does not meet complexity requirements");
+            if (authView != null) {
+                authView.displayError("Password does not meet complexity requirements");
+            }
             return false;
         }
 
         try {
             boolean changed = userService.changePassword(oldPassword, newPassword);
             if (changed) {
-                authView.displaySuccess("Password changed successfully");
+                if (authView != null) {
+                    authView.displaySuccess("Password changed successfully");
+                }
             } else {
-                authView.displayError("Failed to change password");
+                if (authView != null) {
+                    authView.displayError("Failed to change password");
+                }
             }
             return changed;
         } catch (Exception e) {
-            authView.displayError("Error changing password: " + e.getMessage());
+            if (authView != null) {
+                authView.displayError("Error changing password: " + e.getMessage());
+            }
             return false;
         }
     }
@@ -95,9 +148,33 @@ public class AuthController {
      * @return true if password meets complexity requirements
      */
     private boolean isValidPassword(String password) {
-        // Example password complexity rules
-        return password != null && 
-               password.length() >= 8 && 
-               password.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$");
+        // For now, just check length as a minimal requirement
+        return password != null && password.length() >= 8;
+    }
+    
+    /**
+     * Gets the currently logged-in user
+     * 
+     * @return Current user
+     */
+    public User getCurrentUser() {
+        return userService.getCurrentUser();
+    }
+    
+    /**
+     * Starts an authentication session
+     * @return true if session started successfully
+     */
+    public static boolean startSession() {
+        // Here you could implement a login flow
+        // For now, we'll just check if there's a user already logged in
+        return AuthStore.isLoggedIn();
+    }
+    
+    /**
+     * Ends the current authentication session
+     */
+    public static void endSession() {
+        AuthStore.getInstance().logout();
     }
 }

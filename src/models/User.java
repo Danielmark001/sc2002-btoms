@@ -34,19 +34,83 @@ public class User {
         validateNRIC(nric);
         validateName(name);
         validateDateOfBirth(dateOfBirth);
-        
+
         this.nric = nric;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.maritalStatus = maritalStatus;
-        
+
         // Bug Fix: Initialize collections safely
         this.applications = new ArrayList<>();
         this.registrations = new ArrayList<>();
-        
+
         // Default initialization
         this.userType = UserType.APPLICANT;
-        this.password = generateDefaultPassword();
+        this.password = "password"; // Default password
+    }
+    
+    public User(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, String password) {
+        this(nric, name, dateOfBirth, maritalStatus);
+        this.password = password;
+    }
+
+    public User(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, String password,
+            UserType userType) {
+        this(nric, name, dateOfBirth, maritalStatus);
+        this.password = password;
+        this.userType = userType;
+    }
+    public User(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, String password,
+            UserType userType, String contactNumber, String email) {
+        this(nric, name, dateOfBirth, maritalStatus);
+        this.password = password;
+        this.userType = userType;
+        this.contactNumber = contactNumber;
+        this.email = email;
+    }
+    public User(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, String password,
+            UserType userType, String contactNumber, String email, List<Application> applications,
+            List<Registration> registrations) {
+        this(nric, name, dateOfBirth, maritalStatus);
+        this.password = password;
+        this.userType = userType;
+        this.contactNumber = contactNumber;
+        this.email = email;
+        this.applications = applications;
+        this.registrations = registrations;
+    }
+    public User(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, String password,
+            UserType userType, String contactNumber, String email, List<Application> applications,
+            List<Registration> registrations, String status) {
+        this(nric, name, dateOfBirth, maritalStatus);
+        this.password = password;
+        this.userType = userType;
+        this.contactNumber = contactNumber;
+        this.email = email;
+        this.applications = applications;
+        this.registrations = registrations;
+    }
+    public User() {
+        this.nric = null;
+        this.name = null;
+        this.dateOfBirth = null;
+        this.maritalStatus = null;
+        this.password = null;
+        this.userType = UserType.APPLICANT; // Default user type
+        this.applications = new ArrayList<>();
+        this.registrations = new ArrayList<>();
+    }
+
+    // Additional constructor for complete initialization
+    public User(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType) {
+        this.nric = nric;
+        this.password = password;
+        // Calculate date of birth from age
+        this.dateOfBirth = LocalDate.now().minusYears(age);
+        this.maritalStatus = maritalStatus;
+        this.userType = userType;
+        this.applications = new ArrayList<>();
+        this.registrations = new ArrayList<>();
     }
 
     // Comprehensive validation methods
@@ -66,11 +130,6 @@ public class User {
         if (dateOfBirth == null || dateOfBirth.isAfter(LocalDate.now())) {
             throw new IllegalArgumentException("Invalid date of birth");
         }
-    }
-
-    // Bug Fix: Generate a more secure default password
-    private String generateDefaultPassword() {
-        return "Temp" + System.currentTimeMillis() + "!";
     }
 
     // Enhanced age calculation with robust error handling
@@ -100,9 +159,7 @@ public class User {
 
     // Enhanced password validation
     private boolean isPasswordValid(String password) {
-        return password != null && 
-               password.length() >= 8 && 
-               password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$");
+        return password != null && password.length() >= 8;
     }
 
     // Enhanced authentication
@@ -198,11 +255,11 @@ public class User {
         this.maritalStatus = maritalStatus;
     }
 
-    public UserType getStatus() {
+    public UserType getUserType() {
         return userType;
     }
 
-    public void setStatus(UserType userType) {
+    public void setUserType(UserType userType) {
         this.userType = userType;
     }
 
@@ -235,14 +292,6 @@ public class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public void setUserType(UserType userType) {
-        this.userType = userType;
-    }
-
-    public UserType getUserType() {
-        return userType;
-    }
-
     public void setApplications(List<Application> applications) {
         this.applications = new ArrayList<>(applications);
     }
@@ -250,10 +299,43 @@ public class User {
     public void setRegistrations(List<Registration> registrations) {
         this.registrations = new ArrayList<>(registrations);
     }
-
     
-
-
-
+    // Bug Fix: Added method to check if user has applied
+    public boolean hasApplied() {
+        return !applications.isEmpty();
+    }
+    
+    // Bug Fix: Added method to get applied project ID
+    public String getAppliedProjectId() {
+        if (!applications.isEmpty()) {
+            return applications.get(0).getProject().getProjectId();
+        }
+        return null;
+    }
+    
+    // Bug Fix: Method to check if user is HDB manager
+    public boolean isHdbManager() {
+        return userType == UserType.MANAGER;
+    }
+    
+    // Utility method that can be used to check role
+    public Role getRole() {
+        if (userType == UserType.APPLICANT) {
+            return Role.APPLICANT;
+        } else if (userType == UserType.OFFICER) {
+            return Role.OFFICER;
+        } else if (userType == UserType.MANAGER) {
+            return Role.MANAGER;
+        }
+        return Role.APPLICANT; // Default
+    }
+    
+    // Added enum for roles to make switching easier
+    public enum Role {
+        APPLICANT,
+        OFFICER,
+        MANAGER
+    }
+    // Removed duplicate method
 
 }

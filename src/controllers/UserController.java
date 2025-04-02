@@ -14,6 +14,16 @@ public class UserController {
     private UserService userService;
     private UserView userView;
 
+
+    /**
+     * Constructor for UserController
+     * 
+     * @param userView View for user operations
+     */
+
+    public UserController() {
+    }
+
     public UserController(UserView userView) {
         this.userService = UserService.getInstance();
         this.userView = userView;
@@ -130,6 +140,11 @@ public class UserController {
     public void logout() {
         // Implement logout logic here
         userView.displayMessage("User logged out successfully");
+    }
+
+    
+    public void start() {
+        userView.displayMessage("UserController started");
     }
 
     

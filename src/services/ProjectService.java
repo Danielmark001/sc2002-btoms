@@ -131,6 +131,32 @@ public class ProjectService {
 
         project.setFlatTypes(flatTypes);
     }
+    /**
+     * Get a project by its name
+     */
+    public BTOProject getProjectByName(String projectName) {
+        return projects.stream()
+                .filter(p -> p.getProjectName().equalsIgnoreCase(projectName))
+                .findFirst()
+                .orElse(null);
+    }
+    /**
+     * Get all projects
+     */
+    public List<BTOProject> getAllProjects() {
+        return new ArrayList<>(projects);
+    }
+
+    
+    /**
+     * Get a project by its ID
+     */
+    public BTOProject getProjectById(String projectId) {
+        return projects.stream()
+                .filter(p -> p.getProjectId().equalsIgnoreCase(projectId))
+                .findFirst()
+                .orElse(null);
+    }
 
     // Rest of the methods remain the same as in the previous implementation
     // ... (getProjectByName, getAllProjects, etc.)

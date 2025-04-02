@@ -59,6 +59,10 @@ public class UserService implements IUserService {
         return authStore.changePassword(oldPassword, newPassword);
     }
 
+    private boolean isValidPassword(String password) {
+        return password != null && password.length() >= MIN_PASSWORD_LENGTH && PASSWORD_PATTERN.matcher(password).matches();
+    }
+
     @Override
     public boolean isApplicant() {
         return AuthStore.isApplicant();
@@ -126,12 +130,7 @@ public class UserService implements IUserService {
         return nric != null && NRIC_PATTERN.matcher(nric).matches();
     }
 
-    @Override
-    public boolean isValidPassword(String password) {
-        return password != null 
-               && password.length() >= MIN_PASSWORD_LENGTH 
-               && PASSWORD_PATTERN.matcher(password).matches();
-    }
+    
 
     public boolean registerApplicant(String nric, String password, int age, MaritalStatus maritalStatus) {
         return createUser(nric, password, age, maritalStatus, UserType.APPLICANT);

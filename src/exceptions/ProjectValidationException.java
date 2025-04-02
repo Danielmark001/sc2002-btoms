@@ -5,7 +5,7 @@ package exceptions;
  */
 public class ProjectValidationException extends BTOSystemException {
     // Project-specific error codes
-    public enum ProjectErrorCode implements ErrorCode {
+    public enum ProjectErrorCode  {
         INVALID_PROJECT_NAME(1000, "Invalid project name"),
         INVALID_NEIGHBORHOOD(1001, "Invalid neighborhood"),
         INVALID_DATES(1002, "Invalid project dates"),
@@ -23,15 +23,6 @@ public class ProjectValidationException extends BTOSystemException {
             this.description = description;
         }
 
-        @Override
-        public int getCode() {
-            return code;
-        }
-
-        @Override
-        public String getDescription() {
-            return description;
-        }
     }
 
     // Field to store the error code
@@ -48,9 +39,6 @@ public class ProjectValidationException extends BTOSystemException {
         this.errorCode = errorCode;
     }
 
-    public ProjectValidationException(String message, ErrorCode errorCode) {
-        super(message, errorCode);
-    }
 
     // Static factory methods for common validation scenarios
     public static ProjectValidationException invalidProjectName(String projectName) {
@@ -101,8 +89,8 @@ public class ProjectValidationException extends BTOSystemException {
         
         // Add error code details if available
         if (getErrorCode() != null) {
-            sb.append("\nError Code: ").append(getErrorCode().getCode())
-              .append("\nDescription: ").append(getErrorCode().getDescription());
+            sb.append("\nError Code: ").append(getErrorCode().getCode());
+              
         }
         
         return sb.toString();

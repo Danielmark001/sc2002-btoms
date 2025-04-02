@@ -1,4 +1,4 @@
-package view;
+package views;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -6,8 +6,8 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
-import models.BTOProject;
-import enumeration.FlatType;
+import models.entity.Project;
+import models.enumeration.FlatType;
 import models.manager.ProjectManager;
 
 /**

@@ -3,31 +3,34 @@ package models;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import enumeration.MaritalStatus;
+import enumeration.UserStatus;
+import enumeration.UserType;
+import models.BTOProject;
 
 public class HDBManager extends User {
-    private List<Project> managedProjects;
+    private List<BTOProject> managedProjects;
 
     // Constructor
     public HDBManager(String nric, String name, LocalDate dateOfBirth) {
         super(nric, name, dateOfBirth, MaritalStatus.SINGLE); // Managers typically not applicants
-        this.setStatus(UserStatus.MANAGER);
         this.managedProjects = new ArrayList<>();
     }
 
     // Method to add a managed project
-    public void addManagedProject(Project project) {
+    public void addManagedProject(BTOProject project) {
         if (!managedProjects.contains(project)) {
             managedProjects.add(project);
         }
     }
 
     // Method to remove a managed project
-    public void removeManagedProject(Project project) {
+    public void removeManagedProject(BTOProject project) {
         managedProjects.remove(project);
     }
 
     // Get managed projects
-    public List<Project> getManagedProjects() {
+    public List<BTOProject> getManagedProjects() {
         return new ArrayList<>(managedProjects);
     }
 
@@ -41,14 +44,11 @@ public class HDBManager extends User {
                 '}';
     }
 
-    // Specific methods for manager roles can be added here
-    public boolean canCreateProject() {
-        // Logic to determine if manager can create a new project
-        return this.getStatus() == UserStatus.MANAGER;
-    }
+    
 
-    public boolean canApproveApplication() {
-        // Logic to determine if manager can approve applications
-        return this.getStatus() == UserStatus.MANAGER;
+    @Override
+    public MaritalStatus getMaritalStatus() {
+        // TODO Auto-generated method stub
+        return super.getMaritalStatus();
     }
 }

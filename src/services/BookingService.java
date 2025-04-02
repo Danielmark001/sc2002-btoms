@@ -107,9 +107,4 @@ public class BookingService {
      * @param user User to check
      * @return True if user has booked a flat
      */
-    public boolean hasBookedFlat(User user) {
-        return DataStore.getApplications().stream()
-            .anyMatch(app -> app.getApplicant().equals(user) && 
-                     app.getStatus() == ApplicationStatus.BOOKED);
-    }
 }

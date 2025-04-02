@@ -115,7 +115,7 @@ public class AuthStore {
      * @return true if user is an HDB Officer, false otherwise
      */
     public static boolean isHdbOfficer() {
-        return currentUser != null && currentUser.getUserType() == UserType.HDB_OFFICER;
+        return currentUser != null && currentUser.getUserType() == UserType.OFFICER;
     }
     
     /**
@@ -123,6 +123,6 @@ public class AuthStore {
      * @return true if user is an HDB Manager, false otherwise
      */
     public static boolean isHdbManager() {
-        return currentUser != null && currentUser.getUserType() == UserType.HDB_MANAGER;
+        return currentUser != null && currentUser.getUserType() == UserType.MANAGER;
     }
 }

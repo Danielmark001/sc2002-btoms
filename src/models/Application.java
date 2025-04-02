@@ -2,6 +2,7 @@ package models;
 
 import enumeration.ApplicationStatus;
 import enumeration.FlatType;
+import java.time.LocalDateTime;
 public class Application {
     private String applicationId;
     private Applicant applicant;
@@ -9,6 +10,7 @@ public class Application {
     private ApplicationStatus status;
     private String bookingReceipt;
     private FlatType flatType; // Added flatType variable
+    private LocalDateTime applicationDate;
 
     public Application(String applicationId, Applicant applicant, BTOProject project) {
         this.applicationId = applicationId;
@@ -20,6 +22,28 @@ public class Application {
     public String getApplicationId() {
         return applicationId;
     }
+
+    
+
+    public void setBookedFlatType(FlatType bookedFlatType) {
+        this.flatType = bookedFlatType;
+    }
+
+    public FlatType getBookedFlatType() {
+        return flatType;
+    }
+
+    
+
+    public void setApplicationDate(LocalDateTime applicationDate) {
+        this.applicationDate = applicationDate;
+    }
+
+    public LocalDateTime getApplicationDate() {
+        return applicationDate;
+    }
+  
+
 
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;

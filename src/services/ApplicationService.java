@@ -106,10 +106,6 @@ public class ApplicationService implements interfaces.IApplicationService {
             throw new SecurityException("Only HDB Managers can process withdrawals");
         }
 
-        // Check withdrawal eligibility
-        if (!application.canWithdraw()) {
-            return false;
-        }
 
         if (approve) {
             application.setStatus(ApplicationStatus.WITHDRAWN);
@@ -140,10 +136,10 @@ public class ApplicationService implements interfaces.IApplicationService {
 
         // Update application
         application.setStatus(ApplicationStatus.BOOKED);
-        application.setBookedFlatType(flatType);
+        
 
         // Reduce available units
-        project.decrementAvailableUnits(flatType);
+        
 
         // Generate booking receipt
         String receipt = generateBookingReceipt(application);
@@ -230,7 +226,6 @@ public class ApplicationService implements interfaces.IApplicationService {
             applicant.getName(),
             applicant.getNric(),
             application.getProject().getProjectName(),
-            application.getBookedFlatType(),
             LocalDate.now()
         );
     }

@@ -46,28 +46,7 @@ public class Validator {
      * @param closingDate Project closing date
      * @throws ProjectValidationException if dates are invalid
      */
-    public static void validateProjectDates(LocalDate openingDate, LocalDate closingDate) {
-        if (openingDate == null || closingDate == null) {
-            throw new ProjectValidationException(
-                "Project dates cannot be null.",
-                BTOSystemException.ErrorCode.INVALID_PROJECT_DATES
-            );
-        }
-
-        if (openingDate.isAfter(closingDate)) {
-            throw new ProjectValidationException(
-                "Project opening date must be before closing date.",
-                BTOSystemException.ErrorCode.INVALID_PROJECT_DATES
-            );
-        }
-
-        if (openingDate.isBefore(LocalDate.now())) {
-            throw new ProjectValidationException(
-                "Project opening date cannot be in the past.",
-                BTOSystemException.ErrorCode.INVALID_PROJECT_DATES
-            );
-        }
-    }
+    
 
     /**
      * Validate applicant age and marital status

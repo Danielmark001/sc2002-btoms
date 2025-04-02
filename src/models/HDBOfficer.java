@@ -8,6 +8,7 @@ import enumeration.UserStatus;
 import enumeration.FlatType;
 import models.BTOProject;
 import enumeration.UserType;
+import enumeration.ApplicationStatus;
 
 public class HDBOfficer extends User {
     private BTOProject handlingProject;
@@ -16,16 +17,16 @@ public class HDBOfficer extends User {
     // Constructor
     public HDBOfficer(String nric, String name, LocalDate dateOfBirth) {
         super(nric, name, dateOfBirth, MaritalStatus.SINGLE); // Officers typically not applicants
-        this.setStatus(UserStatus.OFFICER);
+
         this.processedApplications = new ArrayList<>();
     }
 
     // Getter and setter for handling project
-    public Project getHandlingProject() {
+    public BTOProject getHandlingProject() {
         return handlingProject;
     }
 
-    public void setHandlingProject(Project project) {
+    public void setHandlingProject(BTOProject project) {
         this.handlingProject = project;
     }
 
@@ -51,14 +52,5 @@ public class HDBOfficer extends User {
                 '}';
     }
 
-    // Specific methods for officer roles
-    public boolean canProcessApplication() {
-        // Logic to determine if officer can process applications
-        return this.getStatus() == UserStatus.OFFICER && handlingProject != null;
-    }
 
-    public boolean canBookFlat() {
-        // Logic to determine if officer can book a flat
-        return this.getStatus() == UserStatus.OFFICER && handlingProject != null;
-    }
 }

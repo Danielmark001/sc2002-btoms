@@ -29,24 +29,24 @@ public class BTOSystemException extends RuntimeException {
         INVALID_USER_CREDENTIALS(1000),
         USER_ALREADY_EXISTS(1001),
         INSUFFICIENT_USER_PERMISSIONS(1002),
-        
+
         // Project-related errors
         PROJECT_ALREADY_EXISTS(2000),
         PROJECT_NOT_FOUND(2001),
         INVALID_PROJECT_DATES(2002),
-        
+
         // Application-related errors
         INVALID_APPLICATION_STATUS(3000),
         APPLICATION_ALREADY_EXISTS(3001),
         INELIGIBLE_FOR_APPLICATION(3002),
-        
+
         // Registration-related errors
         REGISTRATION_ALREADY_EXISTS(4000),
         INVALID_REGISTRATION_STATUS(4001),
-        
+
         // Enquiry-related errors
         ENQUIRY_NOT_MODIFIABLE(5000),
-        
+
         // General system errors
         INTERNAL_SYSTEM_ERROR(9000),
         VALIDATION_ERROR(9001);
@@ -61,6 +61,22 @@ public class BTOSystemException extends RuntimeException {
             return code;
         }
     }
+
+    
+    public String getDescription() {
+        return "Error Code: " + errorCode.getCode() + ", Message: " + getMessage();
+    }
+
+    public String getDescriptionWithStackTrace() {
+        return "Error Code: " + errorCode.getCode() + ", Message: " + getMessage() + ", Stack Trace: "
+                + getStackTrace();
+    }
+
+    public String getDescriptionWithStackTraceAndCause() {
+        return "Error Code: " + errorCode.getCode() + ", Message: " + getMessage() + ", Cause: " + getCause()
+                + ", Stack Trace: " + getStackTrace();
+    }
+    
 }
 
 /**

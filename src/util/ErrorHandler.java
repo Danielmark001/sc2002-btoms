@@ -3,15 +3,14 @@ package util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Centralized error handling utility for the BTO Management System
  */
 public class ErrorHandler {
     // Logger for system-wide error tracking
-    private static final Logger SYSTEM_LOGGER = Logger.getLogger(ErrorHandler.class.getName());
+
 
     /**
      * Log a critical error with full stack trace
@@ -24,7 +23,6 @@ public class ErrorHandler {
         String errorMessage = prepareErrorMessage(error, context);
         
         // Log to system logger
-        SYSTEM_LOGGER.log(Level.SEVERE, errorMessage, error);
         
         // Optional: Print to console for immediate visibility
         System.err.println(errorMessage);
@@ -129,8 +127,7 @@ public class ErrorHandler {
     public static String sanitizeInput(String input) {
         if (input == null) return null;
         
-        // Remove potential script tags
-        input = input.replaceAll("<script.*?</script>", "", java.util.regex.Pattern.DOTALL | java.util.regex.Pattern.CASE_INSENSITIVE);
+       
         
         // Remove HTML tags
         input = input.replaceAll("<[^>]*>", "");

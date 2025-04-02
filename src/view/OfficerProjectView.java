@@ -5,6 +5,12 @@ import models.BTOProject;
 
 import java.util.List;
 import java.util.Scanner;
+import models.Enquiry;
+import enumeration.FlatType;
+import models.User;
+import enumeration.UserStatus;
+import enumeration.ApplicationStatus;
+
 
 public class OfficerProjectView {
     private ProjectController projectController;
@@ -16,10 +22,14 @@ public class OfficerProjectView {
     }
 
     public void displayMenu() {
-        System.out.println("Neighborhood: " + project.getNeighborhood());
-        System.out.println("Available 2-Room Units: " + project.getAvailableUnits(FlatType.TWO_ROOM));
-        System.out.println("Available 3-Room Units: " + project.getAvailableUnits(FlatType.THREE_ROOM));
-        System.out.println("Application Period: " + project.getOpeningDate() + " to " + project.getClosingDate());
+        BTOProject project = projectController.getHandlingProject();
+        if (project != null) {
+            System.out.println("Neighborhood: " + project.getNeighborhood());
+            System.out.println("Available 2-Room Units: " + project.getAvailableUnits(FlatType.TWO_ROOM));
+            System.out.println("Available 3-Room Units: " + project.getAvailableUnits(FlatType.THREE_ROOM));
+        } else {
+            System.out.println("No project is currently being handled.");
+        }
     }
     
     private void displayEnquiries(List<Enquiry> enquiries) {
@@ -47,7 +57,7 @@ public class OfficerProjectView {
         int choice = scanner.nextInt();
         scanner.nextLine(); // Consume newline
         switch (choice) {
-            case 1 -> viewHandlingProject();
+            case 1 -> displayMenu();
             case 2 -> viewEnquiries();
             case 3 -> processBooking();
             case 4 -> System.out.println("Going back...");
@@ -55,17 +65,9 @@ public class OfficerProjectView {
         }
     }
 
-    private void viewHandlingProject() {
-        Project project = projectController.getHandlingProject();
-        if (project != null) {
-            displayProjectDetails(project);
-        } else {
-            System.out.println("You are not currently handling any project.");
-        }
-    }
 
     private void viewEnquiries() {
-        Project project = projectController.getHandlingProject();
+        BTOProject project = projectController.getHandlingProject();
         if (project != null) {
             List<Enquiry> enquiries = projectController.getEnquiriesByProject(project);
             displayEnquiries(enquiries);
@@ -78,7 +80,5 @@ public class OfficerProjectView {
         // Navigate to ApplicationView for booking process
     }
 
-    private void displayProjectDetails(Project project) {
-        System.out.println("Project ID: " + project.getProjectId());
-        System.out.println("Project Name: " + project.getProjectName());
-        System.out
+   
+    

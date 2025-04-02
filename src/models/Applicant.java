@@ -12,11 +12,11 @@ import enumeration.UserType;
 public class Applicant extends User {
     private BTOProject bookedProject;
     private FlatType bookedFlatType;
+    
 
     // Constructor
     public Applicant(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus) {
         super(nric, name, dateOfBirth, maritalStatus);
-        this.setStatus(UserStatus.APPLICANT);
     }
 
     // Getter and setter for booked project
@@ -73,36 +73,7 @@ public class Applicant extends User {
     }
 
     // Method to apply for a project
-    public Application applyForProject(Project project) {
-        // Check if already has an active application
-        if (hasActiveApplication()) {
-            throw new IllegalStateException("Applicant already has an active application");
-        }
-
-        // Validate project eligibility
-        if (!project.isEligibleForApplicant(this)) {
-            throw new IllegalArgumentException("Applicant is not eligible for this project");
-        }
-
-        // Create and return a new application
-        Application application = new Application(this, project, determineFlatType(project));
-        this.getApplications().add(application);
-        return application;
-    }
-
-    // Determine flat type based on project and applicant's eligibility
-    private FlatType determineFlatType(BTOProject project) {
-        // Logic to determine the appropriate flat type
-        if (project.getFlatTypes().contains(FlatType.TWO_ROOM) &&
-                isEligibleForFlatType(FlatType.TWO_ROOM)) {
-            return FlatType.TWO_ROOM;
-        } else if (project.getFlatTypes().contains(FlatType.THREE_ROOM) &&
-                isEligibleForFlatType(FlatType.THREE_ROOM)) {
-            return FlatType.THREE_ROOM;
-        }
-
-        throw new IllegalArgumentException("No eligible flat type found");
-    }
+   
 
  
     

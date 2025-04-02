@@ -2,16 +2,20 @@ package controllers;
 
 import models.BTOProject;
 import models.HDBManager;
+import models.HDBOfficer;
+import models.Registration;
 import models.User;
-import models.enumeration.FlatType;
+import enumeration.FlatType;
+import enumeration.RegistrationStatus;
 import services.ProjectService;
 import services.UserService;
-import views.ProjectView;
+import view.ProjectView;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * Controller for handling project-related operations
@@ -30,6 +34,21 @@ public class ProjectController {
         this.projectView = projectView;
         this.projectService = ProjectService.getInstance();
         this.userService = UserService.getInstance();
+    }
+    
+    /**
+     * Default constructor
+     */
+    public ProjectController() {
+        this.projectService = ProjectService.getInstance();
+        this.userService = UserService.getInstance();
+    }
+    
+    /**
+     * Starts the controller's main operation
+     */
+    public void start() {
+        // Implementation depends on the view
     }
     
     /**
@@ -53,21 +72,25 @@ public class ProjectController {
             return false;
         }
         
-        Map<String, Integer> unitCounts = new HashMap<>();
-        unitCounts.put(FlatType.TWO_ROOM.name(), twoRoomCount);
-        unitCounts.put(FlatType.THREE_ROOM.name(), threeRoomCount);
+        Map<FlatType, Integer> unitCounts = new HashMap<>();
+        unitCounts.put(FlatType.TWO_ROOM, twoRoomCount);
+        unitCounts.put(FlatType.THREE_ROOM, threeRoomCount);
         
         BTOProject project = projectService.createProject(
                 (HDBManager) currentUser, 
                 projectName, 
                 neighborhood, 
-                unitCounts, 
                 openingDate, 
-                closingDate, 
-                officerSlots
+                closingDate
         );
         
-        return project != null;
+        if (project != null) {
+            project.setFlatTypes(unitCounts);
+            project.setAvailableHDBOfficerSlots(officerSlots);
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -93,7 +116,7 @@ public class ProjectController {
         }
         
         HDBManager manager = (HDBManager) currentUser;
-        if (!project.getManager().equals(manager)) {
+        if (!project.getHdbManager().equals(manager)) {
             return false;
         }
         
@@ -101,15 +124,15 @@ public class ProjectController {
         unitCounts.put(FlatType.TWO_ROOM, twoRoomCount);
         unitCounts.put(FlatType.THREE_ROOM, threeRoomCount);
         
-        return projectService.editProject(
-                project, 
-                projectName, 
-                neighborhood, 
-                unitCounts, 
-                openingDate, 
-                closingDate, 
-                officerSlots
-        );
+        // Update project properties
+        project.setProjectName(projectName);
+        project.setNeighborhood(neighborhood);
+        project.setApplicationOpeningDate(openingDate);
+        project.setApplicationClosingDate(closingDate);
+        project.setFlatTypes(unitCounts);
+        project.setAvailableHDBOfficerSlots(officerSlots);
+        
+        return true;
     }
     
     /**
@@ -125,7 +148,7 @@ public class ProjectController {
         }
         
         HDBManager manager = (HDBManager) currentUser;
-        if (!project.getManager().equals(manager)) {
+        if (!project.getHdbManager().equals(manager)) {
             return false;
         }
         
@@ -146,12 +169,11 @@ public class ProjectController {
         }
         
         HDBManager manager = (HDBManager) currentUser;
-        if (!project.getManager().equals(manager)) {
+        if (!project.getHdbManager().equals(manager)) {
             return false;
         }
         
-        projectService.toggleProjectVisibility(project, visible);
-        projectService.saveProjects();
+        project.setVisibility(visible);
         return true;
     }
     
@@ -182,7 +204,7 @@ public class ProjectController {
     public List<BTOProject> getProjectsByCurrentManager() {
         User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
-            return List.of();
+            return new ArrayList<>();
         }
         
         return projectService.getProjectsByManager((HDBManager) currentUser);
@@ -207,6 +229,7 @@ public class ProjectController {
     public BTOProject getProjectById(String projectId) {
         return projectService.getProjectById(projectId);
     }
+    
     /**
      * Gets a project by its index
      * 
@@ -219,7 +242,90 @@ public class ProjectController {
             return null;
         }
         return projects.get(index);
-
+    }
     
+    /**
+     * Gets projects that an officer is handling
+     * 
+     * @param officerNric Officer's NRIC
+     * @return List of projects the officer is handling
+     */
+    public List<BTOProject> getProjectsByOfficer(String officerNric) {
+        User user = userService.getUserByNRIC(officerNric);
+        if (!(user instanceof HDBOfficer)) {
+            return new ArrayList<>();
+        }
+        
+        HDBOfficer officer = (HDBOfficer) user;
+        List<BTOProject> result = new ArrayList<>();
+        if (officer.getHandlingProject() != null) {
+            result.add(officer.getHandlingProject());
+        }
+        return result;
+    }
     
+    /**
+     * Gets the project that the current officer is handling
+     * 
+     * @return Project if found, null otherwise
+     */
+    public BTOProject getHandlingProject() {
+        User currentUser = userService.getCurrentUser();
+        if (!(currentUser instanceof HDBOfficer)) {
+            return null;
+        }
+        
+        HDBOfficer officer = (HDBOfficer) currentUser;
+        return officer.getHandlingProject();
+    }
+    
+    /**
+     * Registers the current user as an HDB Officer for a project
+     * 
+     * @param projectId ID of the project
+     * @return true if registration succeeds
+     */
+    public boolean registerAsOfficer(String projectId) {
+        User currentUser = userService.getCurrentUser();
+        if (!(currentUser instanceof HDBOfficer)) {
+            return false;
+        }
+        
+        BTOProject project = projectService.getProjectById(projectId);
+        if (project == null) {
+            return false;
+        }
+        
+        // Check eligibility
+        HDBOfficer officer = (HDBOfficer) currentUser;
+        
+        // Create registration
+        Registration registration = new Registration();
+        registration.setOfficer(officer);
+        registration.setProject(project);
+        registration.setRegistrationDate(LocalDate.now());
+        
+        // Add to officer's registrations
+        officer.addRegistration(registration);
+        
+        // Add to project's registrations
+        project.addRegistration(registration);
+        
+        return true;
+    }
+    
+    /**
+     * Gets officer registrations by the current user
+     * 
+     * @param officerNric Officer's NRIC
+     * @return List of registrations
+     */
+    public List<Registration> getOfficerRegistrationsByUser(String officerNric) {
+        User user = userService.getUserByNRIC(officerNric);
+        if (user == null) {
+            return new ArrayList<>();
+        }
+        
+        return user.getRegistrations();
+    }
 }
