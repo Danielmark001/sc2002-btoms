@@ -2,6 +2,7 @@ package view;
 
 import java.util.Scanner;
 import controllers.UserController;
+import models.User;
 
 public class UserView {
     private UserController userController;
@@ -33,18 +34,23 @@ public class UserView {
 
     private void createApplicant() {
         // Implementation for creating an applicant
+        System.out.println("Feature not yet implemented.");
     }
 
     private void updateProfile() {
         // Implementation for updating user profile
+        System.out.println("Feature not yet implemented.");
     }
 
     private void viewProfile() {
         // Implementation for viewing user profile
+        if (userController.getCurrentUser() != null) {
+            displayUserDetails(userController.getCurrentUser());
+        } else {
+            System.out.println("No user logged in.");
+        }
     }
 
-
-    
     public void displaySuccess(String message) {
         System.out.println("SUCCESS: " + message);
     }
@@ -60,16 +66,25 @@ public class UserView {
     public void displayWarning(String message) {
         System.out.println("WARNING: " + message);
     }
+    
     public void displayMessage(String message) {
         System.out.println(message);
     }
+    
     public void displayUserDetails(User user) {
         System.out.println("User Details:");
         System.out.println("NRIC: " + user.getNric());
         System.out.println("Name: " + user.getName());
         System.out.println("Date of Birth: " + user.getDateOfBirth());
+        System.out.println("Age: " + user.calculateAge());
         System.out.println("Marital Status: " + user.getMaritalStatus());
-        System.out.println("Contact Number: " + user.getContactNumber());
-        System.out.println("Email: " + user.getEmail());
+        
+        if (user.getContactNumber() != null) {
+            System.out.println("Contact Number: " + user.getContactNumber());
+        }
+        
+        if (user.getEmail() != null) {
+            System.out.println("Email: " + user.getEmail());
+        }
     }
 }

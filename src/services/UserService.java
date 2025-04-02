@@ -169,4 +169,5 @@ public class UserService implements IUserService {
     public void setCurrentUser(User user) {
         AuthStore.setCurrentUser(user);
     }
+    
 }

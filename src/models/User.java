@@ -133,13 +133,21 @@ public class User {
     }
 
     // Enhanced age calculation with robust error handling
+/**
+ * Enhanced age calculation with robust error handling
+ * @return Age in years, or -1 if date of birth is invalid
+ */
     public int calculateAge() {
         try {
+            if (this.dateOfBirth == null) {
+                return -1;
+            }
             return Period.between(this.dateOfBirth, LocalDate.now()).getYears();
         } catch (Exception e) {
             // Log error or handle exceptional cases
             return -1;
         }
+
     }
 
     // Secure password change method

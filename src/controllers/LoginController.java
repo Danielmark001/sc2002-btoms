@@ -1,4 +1,3 @@
-// File: bto_management_system/controller/LoginController.java
 package controllers;
 
 import models.Applicant;
@@ -6,6 +5,7 @@ import models.HDBManager;
 import models.HDBOfficer;
 import models.User;  
 import enumeration.MaritalStatus;
+import enumeration.UserType;
 import services.UserService;
 import view.LoginView;
 
@@ -15,14 +15,35 @@ import view.LoginView;
 public class LoginController {
     private LoginView loginView;
     private UserService userService;
+    private static LoginController instance;
     
     /**
      * Constructor for LoginController
      * 
      * @param loginView View for login operations  
      */
-    public LoginController() {
-
+    public LoginController(LoginView loginView) {
+        this.loginView = loginView;
+        this.userService = UserService.getInstance();
+    }
+    
+    /**
+     * Private constructor for singleton pattern
+     */
+    private LoginController() {
+        this.userService = UserService.getInstance();
+    }
+    
+    /**
+     * Gets singleton instance of LoginController
+     * 
+     * @return LoginController instance
+     */
+    public static synchronized LoginController getInstance() {
+        if (instance == null) {
+            instance = new LoginController();
+        }
+        return instance;
     }
     
     /**
@@ -32,7 +53,12 @@ public class LoginController {
      * @param password Password of the user
      * @return User object if login succeeds, null otherwise
      */
-
+    public User login(String nric, String password) {
+        if (!userService.login(nric, password)) {
+            return null;
+        }
+        return userService.getCurrentUser();
+    }
     
     /**
      * Determines user type and returns appropriate string 
@@ -41,14 +67,11 @@ public class LoginController {
      * @return String representing user type
      */
     public String getUserType(User user) {
-        if (user instanceof Applicant) {
-            return "APPLICANT";
-        } else if (user instanceof HDBOfficer) {
-            return "OFFICER";  
-        } else if (user instanceof HDBManager) {
-            return "MANAGER";
+        if (user == null) {
+            return "UNKNOWN";
         }
-        return "UNKNOWN";
+        
+        return user.getUserType().toString();
     }
     
     /**
@@ -87,19 +110,30 @@ public class LoginController {
      * 
      * @return Current user object
      */
-    
-    
-    
-    
     public User getCurrentUser() {
         return userService.getCurrentUser();
     }
+    
+    /**
+     * Checks if the current user is an Applicant
+     * @return true if user is an Applicant, false otherwise
+     */
     public boolean isApplicant() {
         return userService.isApplicant();
     }
+    
+    /**
+     * Checks if the current user is an HDB Officer
+     * @return true if user is an HDB Officer, false otherwise
+     */
     public boolean isHdbOfficer() {
         return userService.isHdbOfficer();
     }
+    
+    /**
+     * Checks if the current user is an HDB Manager
+     * @return true if user is an HDB Manager, false otherwise
+     */
     public boolean isHdbManager() {
         return userService.isHdbManager();
     }
