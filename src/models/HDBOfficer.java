@@ -3,9 +3,14 @@ package models;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import enumeration.MaritalStatus;
+import enumeration.UserStatus;
+import enumeration.FlatType;
+import models.BTOProject;
+import enumeration.UserType;
 
 public class HDBOfficer extends User {
-    private Project handlingProject;
+    private BTOProject handlingProject;
     private List<Application> processedApplications;
 
     // Constructor

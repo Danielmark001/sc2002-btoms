@@ -23,7 +23,7 @@ public class Enquiry {
     // Constructors
     public Enquiry() {}
 
-    public Enquiry(User submitter, Project project, String enquiryText) {
+    public Enquiry(User submitter, BTOProject project, String enquiryText) {
         this.id = generateUniqueId();
         this.submitter = submitter;
         this.project = project;
@@ -135,5 +135,5 @@ public class Enquiry {
     public boolean isResponded() {
         return this.status == EnquiryStatus.RESPONDED;
     }
-    
+
 }

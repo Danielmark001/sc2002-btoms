@@ -65,7 +65,7 @@ public class AuthController {
         }
 
         try {
-            boolean changed = userService.changePassword(nric, oldPassword, newPassword);
+            boolean changed = userService.changePassword(oldPassword, newPassword);
             if (changed) {
                 authView.displaySuccess("Password changed successfully");
             } else {

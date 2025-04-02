@@ -3,22 +3,22 @@ package view;
 import java.util.List;
 import java.util.Scanner;
 
+import controllers.ApplicationController;
+import controllers.ProjectController;
+import controllers.UserController;
 import models.Application;
 import models.BTOProject;
 import models.User;
 import enumeration.ApplicationStatus;
 import enumeration.FlatType;
-import manager.ApplicationManager;
-import manager.ProjectManager;
-import manager.UserManager;
 
 /**
  * View for handling application-related operations for applicants
  */
 public class ApplicationView extends BaseView {
-    private final ApplicationManager applicationManager;
-    private final ProjectManager projectManager;
-    private final UserManager userManager;
+    private final ApplicationController applicationController;
+    private final ProjectController projectController;
+    private final UserController userController;
     
     /**
      * Constructor
@@ -26,9 +26,9 @@ public class ApplicationView extends BaseView {
      */
     public ApplicationView(Scanner scanner) {
         super(scanner);
-        this.applicationManager = new ApplicationManager();
-        this.projectManager = new ProjectManager();
-        this.userManager = new UserManager();
+        this.applicationController = new ApplicationController(this);
+        this.projectController = new ProjectController(null);
+        this.userController = new UserController(null);
     }
     
     @Override
@@ -76,7 +76,7 @@ public class ApplicationView extends BaseView {
      */
     private void viewMyApplications() {
         User currentUser = getCurrentUser();
-        List<Application> applications = applicationManager.getApplicationsByUser(currentUser.getNric());
+        List<Application> applications = applicationController.getApplicationsByUser(currentUser.getNric());
         
         if (applications.isEmpty()) {
             System.out.println("You have no applications.");
@@ -91,7 +91,7 @@ public class ApplicationView extends BaseView {
         
         int index = 1;
         for (Application app : applications) {
-            Project project = projectManager.getProjectById(app.getProjectId());
+            BTOProject project = projectController.getProjectById(app.getProject().getProjectId());
             String projectName = (project != null) ? project.getProjectName() : "N/A";
             
             System.out.printf("%-5d | %-20s | %-10s | %-15s | %-15s\n", 
@@ -123,7 +123,7 @@ public class ApplicationView extends BaseView {
      * @param application Application to display
      */
     private void displayApplicationDetails(Application application) {
-        Project project = projectManager.getProjectById(application.getProjectId());
+        BTOProject project = application.getProject();
         String projectName = (project != null) ? project.getProjectName() : "N/A";
         String neighborhood = (project != null) ? project.getNeighborhood() : "N/A";
         
@@ -148,7 +148,7 @@ public class ApplicationView extends BaseView {
      */
     private void requestWithdrawal() {
         User currentUser = getCurrentUser();
-        List<Application> applications = applicationManager.getApplicationsByUser(currentUser.getNric());
+        List<Application> applications = applicationController.getApplicationsByUser(currentUser.getNric());
         
         if (applications.isEmpty()) {
             System.out.println("You have no applications to withdraw.");
@@ -168,7 +168,7 @@ public class ApplicationView extends BaseView {
                 continue;
             }
             
-            Project project = projectManager.getProjectById(app.getProjectId());
+            BTOProject project = app.getProject();
             String projectName = (project != null) ? project.getProjectName() : "N/A";
             
             System.out.printf("%-5d | %-20s | %-10s | %-15s | %-15s\n", 
@@ -195,7 +195,7 @@ public class ApplicationView extends BaseView {
                 
                 String confirm = scanner.nextLine().trim().toUpperCase();
                 if (confirm.equals("Y")) {
-                    boolean success = applicationManager.requestWithdrawal(selectedApp.getApplicationId());
+                    boolean success = applicationController.requestWithdrawal(selectedApp);
                     
                     if (success) {
                         System.out.println("\nWithdrawal request submitted successfully! Your request is now pending approval.");
@@ -220,7 +220,7 @@ public class ApplicationView extends BaseView {
     private void processBooking() {
         // Get projects that the officer is in charge of
         User currentUser = getCurrentUser();
-        List<Project> officerProjects = projectManager.getProjectsByOfficer(currentUser.getNric());
+        List<BTOProject> officerProjects = projectController.getProjectsByOfficer(currentUser.getNric());
         
         if (officerProjects.isEmpty()) {
             System.out.println("You are not in charge of any projects.");
@@ -234,7 +234,7 @@ public class ApplicationView extends BaseView {
         System.out.println("----------------------------------");
         
         int index = 1;
-        for (Project project : officerProjects) {
+        for (BTOProject project : officerProjects) {
             System.out.printf("%-5d | %-20s | %-15s\n", 
                             index++, 
                             project.getProjectName(), 
@@ -248,7 +248,7 @@ public class ApplicationView extends BaseView {
             int projectSelection = Integer.parseInt(scanner.nextLine().trim());
             
             if (projectSelection > 0 && projectSelection <= officerProjects.size()) {
-                Project selectedProject = officerProjects.get(projectSelection - 1);
+                BTOProject selectedProject = officerProjects.get(projectSelection - 1);
                 processBookingForProject(selectedProject);
             } else if (projectSelection != 0) {
                 System.out.println("Invalid selection.");
@@ -262,9 +262,9 @@ public class ApplicationView extends BaseView {
      * Processes booking for a specific project
      * @param project Project to process bookings for
      */
-    private void processBookingForProject(Project project) {
+    private void processBookingForProject(BTOProject project) {
         // Get successful applications for the project
-        List<Application> successfulApps = applicationManager.getApplicationsByProjectAndStatus(
+        List<Application> successfulApps = applicationController.getApplicationsByProjectAndStatus(
             project.getProjectId(), ApplicationStatus.SUCCESSFUL);
         
         if (successfulApps.isEmpty()) {
@@ -280,7 +280,7 @@ public class ApplicationView extends BaseView {
         
         int index = 1;
         for (Application app : successfulApps) {
-            User applicant = userManager.getUserByNRIC(app.getApplicantNric());
+            User applicant = userController.getUserByNRIC(app.getApplicant().getNric());
             String applicantNric = (applicant != null) ? applicant.getNric() : "N/A";
             
             System.out.printf("%-5d | %-15s | %-10s | %-15s\n", 
@@ -298,7 +298,7 @@ public class ApplicationView extends BaseView {
             
             if (appSelection > 0 && appSelection <= successfulApps.size()) {
                 Application selectedApp = successfulApps.get(appSelection - 1);
-                User applicant = userManager.getUserByNRIC(selectedApp.getApplicantNric());
+                User applicant = userController.getUserByNRIC(selectedApp.getApplicant().getNric());
                 
                 if (applicant == null) {
                     System.out.println("Error: Applicant data not found.");
@@ -308,7 +308,7 @@ public class ApplicationView extends BaseView {
                 // Display applicant details
                 System.out.println("\n===== APPLICANT DETAILS =====");
                 System.out.println("NRIC: " + applicant.getNric());
-                System.out.println("Age: " + applicant.getAge());
+                System.out.println("Age: " + applicant.calculateAge());
                 System.out.println("Marital Status: " + applicant.getMaritalStatus());
                 System.out.println("Applied For: " + selectedApp.getFlatType().getDisplayName());
                 
@@ -318,7 +318,7 @@ public class ApplicationView extends BaseView {
                 
                 String confirm = scanner.nextLine().trim().toUpperCase();
                 if (confirm.equals("Y")) {
-                    boolean success = applicationManager.processBooking(selectedApp.getApplicationId());
+                    boolean success = applicationController.processBooking(selectedApp);
                     
                     if (success) {
                         System.out.println("\nBooking processed successfully!");
@@ -342,7 +342,7 @@ public class ApplicationView extends BaseView {
      * @param applicantNric Applicant's NRIC
      */
     private void generateAndDisplayReceipt(String applicantNric) {
-        String receipt = applicationManager.generateBookingReceipt(applicantNric);
+        String receipt = applicationController.generateBookingReceipt(applicantNric);
         
         System.out.println("\n" + receipt);
         
@@ -358,7 +358,7 @@ public class ApplicationView extends BaseView {
                 filename = "receipt.txt";
             }
             
-            boolean saved = applicationManager.saveReceiptToFile(receipt, filename);
+            boolean saved = applicationController.saveReceiptToFile(receipt, filename);
             
             if (saved) {
                 System.out.println("Receipt saved to " + filename + " successfully.");

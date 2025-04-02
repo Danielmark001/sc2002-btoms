@@ -1,10 +1,16 @@
 package models;
 
 import java.time.LocalDate;
+import java.util.Objects;
+import models.User;
+import models.BTOProject;
+
+import enumeration.RegistrationStatus;
+import enumeration.UserStatus;
 
 public class Registration {
     private User officer;
-    private Project project;
+    private BTOProject project;
     private RegistrationStatus status;
     private LocalDate registrationDate;
 
@@ -18,7 +24,7 @@ public class Registration {
     // Constructors
     public Registration() {}
 
-    public Registration(User officer, Project project) {
+    public Registration(User officer, BTOProject project) {
         this.officer = officer;
         this.project = project;
         this.status = RegistrationStatus.PENDING;
@@ -34,11 +40,11 @@ public class Registration {
         this.officer = officer;
     }
 
-    public Project getProject() {
+    public BTOProject getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(BTOProject project) {
         this.project = project;
     }
 

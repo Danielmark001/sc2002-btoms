@@ -20,9 +20,15 @@ public class NRICValidator {
         if (nric == null || nric.length() != 9) {
             return false;
         }
-        
+
         return NRIC_PATTERN.matcher(nric).matches();
     }
+    
+    public static boolean isValidNRIC(String nric) {
+        return isValid(nric);
+    }
+    
+    
 }
 
 // File: bto_management_system/util/DataLoader.java

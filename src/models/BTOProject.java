@@ -1,37 +1,103 @@
 package models;
 
+import enumeration.FlatType;
 import java.time.LocalDate;
-import java.util.List;
-import models.enumeration.FlatType;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import enumeration.MaritalStatus; // Ensure MaritalStatus is imported
+import enumeration.ApplicationStatus; // Ensure ApplicationStatus is imported
 
 public class BTOProject {
+    // Unique identifier for the project
+    private String projectId;
+
+    // Project details
     private String projectName;
     private String neighborhood;
-    private List<FlatType> flatTypes;
+
+    // Project dates
     private LocalDate applicationOpeningDate;
     private LocalDate applicationClosingDate;
-    private User hdbManager;
+
+    // Flat type and unit information
+    private Map<FlatType, Integer> flatTypes;
+
+    // Project management details
+    private HDBManager hdbManager;
     private int availableHDBOfficerSlots;
     private boolean visibility;
 
-    // Constructors
-    public BTOProject() {}
+    // Lists to track applications and registrations
+    private List<Application> applications;
+    private List<Registration> registrations;
 
-    public BTOProject(String projectName, String neighborhood, LocalDate applicationOpeningDate, LocalDate applicationClosingDate) {
+    // Constructors
+    public BTOProject(String projectName, String neighborhood, 
+                      LocalDate applicationOpeningDate, LocalDate applicationClosingDate) {
+        // Validate inputs
+        validateProjectName(projectName);
+        validateNeighborhood(neighborhood);
+        validateDates(applicationOpeningDate, applicationClosingDate);
+
+        // Generate unique project ID
+        this.projectId = generateUniqueProjectId();
+        
+        // Initialize project details
         this.projectName = projectName;
         this.neighborhood = neighborhood;
         this.applicationOpeningDate = applicationOpeningDate;
         this.applicationClosingDate = applicationClosingDate;
-        this.visibility = true; // default to visible
-        this.availableHDBOfficerSlots = 10; // max 10 slots as per requirement
+
+        // Initialize collections
+        this.flatTypes = new ConcurrentHashMap<>();
+        this.applications = Collections.synchronizedList(new ArrayList<>());
+        this.registrations = Collections.synchronizedList(new ArrayList<>());
+
+        // Default initializations
+        this.availableHDBOfficerSlots = 10; // Default max officer slots
+        this.visibility = true; // Default to visible
+    }
+
+    // Validation methods
+    private void validateProjectName(String projectName) {
+        if (projectName == null || projectName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Project name cannot be empty");
+        }
+    }
+
+    private void validateNeighborhood(String neighborhood) {
+        if (neighborhood == null || neighborhood.trim().isEmpty()) {
+            throw new IllegalArgumentException("Neighborhood cannot be empty");
+        }
+    }
+
+    private void validateDates(LocalDate openingDate, LocalDate closingDate) {
+        if (openingDate == null || closingDate == null) {
+            throw new IllegalArgumentException("Dates cannot be null");
+        }
+
+        if (openingDate.isAfter(closingDate)) {
+            throw new IllegalArgumentException("Opening date must be before closing date");
+        }
+    }
+
+    // Generate unique project ID
+    private String generateUniqueProjectId() {
+        return "PROJ-" + System.currentTimeMillis() + 
+               "-" + UUID.randomUUID().toString().substring(0, 8);
     }
 
     // Getters and Setters
+    public String getProjectId() {
+        return projectId;
+    }
+
     public String getProjectName() {
         return projectName;
     }
 
     public void setProjectName(String projectName) {
+        validateProjectName(projectName);
         this.projectName = projectName;
     }
 
@@ -40,15 +106,8 @@ public class BTOProject {
     }
 
     public void setNeighborhood(String neighborhood) {
+        validateNeighborhood(neighborhood);
         this.neighborhood = neighborhood;
-    }
-
-    public List<FlatType> getFlatTypes() {
-        return flatTypes;
-    }
-
-    public void setFlatTypes(List<FlatType> flatTypes) {
-        this.flatTypes = flatTypes;
     }
 
     public LocalDate getApplicationOpeningDate() {
@@ -56,6 +115,7 @@ public class BTOProject {
     }
 
     public void setApplicationOpeningDate(LocalDate applicationOpeningDate) {
+        validateDates(applicationOpeningDate, this.applicationClosingDate);
         this.applicationOpeningDate = applicationOpeningDate;
     }
 
@@ -64,25 +124,71 @@ public class BTOProject {
     }
 
     public void setApplicationClosingDate(LocalDate applicationClosingDate) {
+        validateDates(this.applicationOpeningDate, applicationClosingDate);
         this.applicationClosingDate = applicationClosingDate;
     }
 
-    public User getHdbManager() {
+    // Flat Types Management
+    public Map<FlatType, Integer> getFlatTypes() {
+        return new HashMap<>(flatTypes);
+    }
+
+    public void setFlatTypes(Map<FlatType, Integer> flatTypes) {
+        // Validate input
+        if (flatTypes == null) {
+            throw new IllegalArgumentException("Flat types cannot be null");
+        }
+
+        // Validate unit counts
+        flatTypes.forEach((type, count) -> {
+            if (count < 0) {
+                throw new IllegalArgumentException("Unit count cannot be negative for " + type);
+            }
+        });
+
+        // Replace existing flat types
+        this.flatTypes.clear();
+        this.flatTypes.putAll(flatTypes);
+    }
+
+    // Available Units Management
+    public int getAvailableUnits(FlatType flatType) {
+        // Calculate available units by subtracting booked applications
+        Integer totalUnits = flatTypes.getOrDefault(flatType, 0);
+        
+        long bookedUnits = applications.stream()
+            .filter(app -> app.getFlatType() == flatType && 
+                           app.getStatus() == ApplicationStatus.BOOKED)
+            .count();
+        
+        return Math.max(0, totalUnits - (int)bookedUnits);
+    }
+
+    // HDB Manager Management
+    public HDBManager getHdbManager() {
         return hdbManager;
     }
 
-    public void setHdbManager(User hdbManager) {
+    public void setHdbManager(HDBManager hdbManager) {
+        if (hdbManager == null) {
+            throw new IllegalArgumentException("HDB Manager cannot be null");
+        }
         this.hdbManager = hdbManager;
     }
 
+    // Officer Slots Management
     public int getAvailableHDBOfficerSlots() {
         return availableHDBOfficerSlots;
     }
 
     public void setAvailableHDBOfficerSlots(int availableHDBOfficerSlots) {
+        if (availableHDBOfficerSlots < 0 || availableHDBOfficerSlots > 10) {
+            throw new IllegalArgumentException("Officer slots must be between 0 and 10");
+        }
         this.availableHDBOfficerSlots = availableHDBOfficerSlots;
     }
 
+    // Visibility Management
     public boolean isVisibility() {
         return visibility;
     }
@@ -91,34 +197,87 @@ public class BTOProject {
         this.visibility = visibility;
     }
 
-    // Method to check project eligibility
+    // Applications Management
+    public List<Application> getApplications() {
+        return new ArrayList<>(applications);
+    }
+
+    public void addApplication(Application application) {
+        if (application != null && !applications.contains(application)) {
+            applications.add(application);
+        }
+    }
+
+    // Registrations Management
+    public List<Registration> getRegistrations() {
+        return new ArrayList<>(registrations);
+    }
+
+    public void addRegistration(Registration registration) {
+        if (registration != null && !registrations.contains(registration)) {
+            registrations.add(registration);
+        }
+    }
+
+    // Applicant Eligibility Check
     public boolean isEligibleForApplicant(User applicant) {
-        // Check visibility
-        if (!this.visibility) {
+        // Check project visibility
+        if (!visibility) {
             return false;
         }
 
-        // Check applicant's age and marital status
+        // Check current date is within application period
+        LocalDate now = LocalDate.now();
+        if (now.isBefore(applicationOpeningDate) || now.isAfter(applicationClosingDate)) {
+            return false;
+        }
+
+        // Check age and marital status
         int age = applicant.calculateAge();
-        
-        // Check age and flat type eligibility
-        if (applicant.getMaritalStatus() == User.MaritalStatus.SINGLE) {
-            return age >= 35 && flatTypes.contains(FlatType.TWO_ROOM);
-        } else if (applicant.getMaritalStatus() == User.MaritalStatus.MARRIED) {
-            return age >= 21 && (flatTypes.contains(FlatType.TWO_ROOM) || flatTypes.contains(FlatType.THREE_ROOM));
+        MaritalStatus maritalStatus = applicant.getMaritalStatus();
+
+        if (maritalStatus == MaritalStatus.SINGLE) {
+            return age >= 35 && flatTypes.containsKey(FlatType.TWO_ROOM);
+        } else if (maritalStatus == MaritalStatus.MARRIED) {
+            return age >= 21 && 
+                   (flatTypes.containsKey(FlatType.TWO_ROOM) || 
+                    flatTypes.containsKey(FlatType.THREE_ROOM));
         }
 
         return false;
     }
 
+    // Equals and HashCode
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BTOProject that = (BTOProject) o;
+        return Objects.equals(projectId, that.projectId) || 
+               Objects.equals(projectName, that.projectName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectId, projectName);
+    }
+
+    // ToString
     @Override
     public String toString() {
-        return "Project{" +
-                "projectName='" + projectName + '\'' +
+        return "BTOProject{" +
+                "projectId='" + projectId + '\'' +
+                ", projectName='" + projectName + '\'' +
                 ", neighborhood='" + neighborhood + '\'' +
-                ", applicationOpeningDate=" + applicationOpeningDate +
-                ", applicationClosingDate=" + applicationClosingDate +
+                ", applicationPeriod=" + applicationOpeningDate + " to " + applicationClosingDate +
+                ", availableHDBOfficerSlots=" + availableHDBOfficerSlots +
                 ", visibility=" + visibility +
                 '}';
     }
+
+    
+    public boolean isVisible() {
+        return visibility;
+    }
+    
 }

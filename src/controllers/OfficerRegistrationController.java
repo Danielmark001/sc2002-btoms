@@ -130,6 +130,17 @@ public class OfficerRegistrationController {
     public boolean canRegisterForProject(HDBOfficer officer, BTOProject project) {
         // Check if officer is already registered for another project
         return project.getAvailableHDBOfficerSlots() > 0 &&
-               officer.getHandlingProject() == null;
+                officer.getHandlingProject() == null;
     }
+    
+    /**
+     * Gets all registrations by status
+     * 
+     * @param status Registration status to filter by
+     * @return List of registrations with the specified status
+     */
+    public List<Registration> getRegistrationByStatus(Registration.RegistrationStatus status) {
+        return projectService.getRegistrationsByStatus(status);
+    }
+    
 }

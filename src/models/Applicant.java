@@ -4,6 +4,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import enumeration.MaritalStatus;
+import enumeration.UserStatus;
+import enumeration.FlatType;
+import enumeration.ApplicationStatus;
+import enumeration.UserType;
 public class Applicant extends User {
     private BTOProject bookedProject;
     private FlatType bookedFlatType;
@@ -15,11 +20,11 @@ public class Applicant extends User {
     }
 
     // Getter and setter for booked project
-    public Project getBookedProject() {
+    public BTOProject getBookedProject() {
         return bookedProject;
     }
 
-    public void setBookedProject(Project bookedProject) {
+    public void setBookedProject(BTOProject bookedProject) {
         this.bookedProject = bookedProject;
     }
 
@@ -86,16 +91,23 @@ public class Applicant extends User {
     }
 
     // Determine flat type based on project and applicant's eligibility
-    private FlatType determineFlatType(Project project) {
+    private FlatType determineFlatType(BTOProject project) {
         // Logic to determine the appropriate flat type
-        if (project.getFlatTypes().contains(FlatType.TWO_ROOM) && 
-            isEligibleForFlatType(FlatType.TWO_ROOM)) {
+        if (project.getFlatTypes().contains(FlatType.TWO_ROOM) &&
+                isEligibleForFlatType(FlatType.TWO_ROOM)) {
             return FlatType.TWO_ROOM;
-        } else if (project.getFlatTypes().contains(FlatType.THREE_ROOM) && 
-                   isEligibleForFlatType(FlatType.THREE_ROOM)) {
+        } else if (project.getFlatTypes().contains(FlatType.THREE_ROOM) &&
+                isEligibleForFlatType(FlatType.THREE_ROOM)) {
             return FlatType.THREE_ROOM;
         }
-        
+
         throw new IllegalArgumentException("No eligible flat type found");
     }
+
+ 
+    
+    
+    
+
+
 }

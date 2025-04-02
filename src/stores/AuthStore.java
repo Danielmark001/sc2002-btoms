@@ -95,7 +95,7 @@ public class AuthStore {
      */
     public boolean changePassword(String oldPassword, String newPassword) {
         if (currentUser != null && currentUser.authenticate(oldPassword)) {
-            currentUser.setPassword(newPassword);
+            currentUser.setPassword(oldPassword, newPassword);
             dataStore.updateUser(currentUser);
             return true;
         }

@@ -7,6 +7,8 @@ import stores.DataStore;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import enumeration.ApplicationStatus;
+import interfaces.IReportService;
 
 public class ReportService implements IReportService {
     private DataStore dataStore;

@@ -1,10 +1,10 @@
-package models.services;
+package services;
 
 import models.Application;
-import models.Project;
+import models.BTOProject;
 import models.User;
-import models.enumeration.ApplicationStatus;
-import models.enumeration.FlatType;
+import enumeration.ApplicationStatus;
+import enumeration.FlatType;
 import stores.DataStore;
 
 import java.time.LocalDate;
@@ -61,7 +61,7 @@ public class BookingService {
      * @param project Project
      * @param flatType Flat type booked
      */
-    private void updateProjectFlatAvailability(Project project, FlatType flatType) {
+    private void updateProjectFlatAvailability(BTOProject project, FlatType flatType) {
         // Placeholder method to update flat availability
         // In a real system, this would decrement the count of available flats
     }

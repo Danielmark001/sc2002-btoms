@@ -12,10 +12,10 @@ public enum UserType {
     /**
      * HDB Officer user
      */  
-    HDB_OFFICER,
+    OFFICER,
     
     /**
      * HDB Manager user
      */
-    HDB_MANAGER;
+    MANAGER;
 }

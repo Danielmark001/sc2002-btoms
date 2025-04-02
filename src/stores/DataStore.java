@@ -1,6 +1,7 @@
 package stores;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,9 @@ import java.util.Map;
 import models.User;
 import services.CsvDataService;
 import util.FilePathsUtils;
+import enumeration.UserType;
+import enumeration.MaritalStatus;
+import enumeration.UserStatus;
 
 /**
  * Central data store for the application. Manages loading and saving data.
@@ -107,23 +111,6 @@ public class DataStore {
      * @param user User to update
      * @return true if updated successfully, false if user doesn't exist
      */
-    public boolean updateUser(User user) {
-        if (user == null) {
-            return false;
-        }
-
-        List<String[]> users = allData.getOrDefault("users", List.of());
-        for (int i = 0; i < users.size(); i++) {
-            String[] userData = users.get(i);
-            if (userData.length > 0 && userData[0].equals(user.getNric())) {
-                // Convert User object to string array
-                users.set(i, convertUserToData(user));
-                saveData();
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Gets all users
@@ -190,4 +177,90 @@ public class DataStore {
         // This is a placeholder
         return null;
     }
+
+    public boolean deleteUser(String nric) {
+        List<String[]> users = allData.getOrDefault("users", new ArrayList<>());
+
+        boolean removed = users.removeIf(userData -> userData[1].equals(nric));
+
+        if (removed) {
+            allData.put("users", users);
+            saveData();
+        }
+
+        return removed;
+    }
+
+    public boolean updateUser(User user) {
+        List<String[]> users = allData.getOrDefault("users", new ArrayList<>());
+
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i)[1].equals(user.getNric())) {
+                users.set(i, new String[] {
+                        user.getName(),
+                        user.getNric(),
+                        String.valueOf(user.calculateAge()),
+                        user.getMaritalStatus().toString(),
+                        user.getPassword()
+                });
+                allData.put("users", users);
+                saveData();
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    public List<User> getUsersByType(UserType userType) {
+        List<String[]> users = allData.getOrDefault("users", new ArrayList<>());
+        List<User> filteredUsers = new ArrayList<>();
+
+        for (String[] userData : users) {
+            if (userData[3].equals(userType)) {
+                filteredUsers.add(createUserFromData(userData));
+            }
+        }
+
+        return filteredUsers;
+    }
+    
+    public List<String[]> getApplicationsByProject(String projectId) {
+        List<String[]> applications = allData.getOrDefault("applications", new ArrayList<>());
+        List<String[]> filteredApplications = new ArrayList<>();
+
+        for (String[] applicationData : applications) {
+            if (applicationData[1].equals(projectId)) {
+                filteredApplications.add(applicationData);
+            }
+        }
+
+        return filteredApplications;
+    }
+
+    
+    public List<String[]> getApplications() {
+        return allData.getOrDefault("applications", new ArrayList<>());
+    }
+    public List<String[]> getProjects() {
+        return allData.getOrDefault("projects", new ArrayList<>());
+    }
+    
+    public List<String[]> getHDBOfficers() {
+        return allData.getOrDefault("hdb_officers", new ArrayList<>());
+    }
+
+    public List<String[]> getHDBManagers() {
+        return allData.getOrDefault("hdb_managers", new ArrayList<>());
+    }
+
+    public static List<String[]> getAllApplications() {
+        DataStore store = getInstance();
+        return store.allData.getOrDefault("applications", new ArrayList<>());
+    }
+    public List<String[]> getAllProjects() {
+        return allData.getOrDefault("projects", new ArrayList<>());
+    }
+
+
 }

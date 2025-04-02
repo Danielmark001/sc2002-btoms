@@ -82,6 +82,24 @@ public class LoginController {
      * Logs out the current user  
      */
     public void logout() {
-        userService.logout();  
+        userService.logout();
+    }
+    
+    
+    public static LoginController getInstance() {
+        return new LoginController(new LoginView());
+    }
+    
+    public User getCurrentUser() {
+        return userService.getCurrentUser();
+    }
+    public boolean isApplicant() {
+        return userService.isApplicant();
+    }
+    public boolean isHdbOfficer() {
+        return userService.isHdbOfficer();
+    }
+    public boolean isHdbManager() {
+        return userService.isHdbManager();
     }
 }

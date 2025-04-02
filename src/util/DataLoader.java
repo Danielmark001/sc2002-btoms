@@ -2,7 +2,7 @@ package util;
 
 import models.BTOProject;
 import models.User;
-import models.enumeration.MaritalStatus;
+import enumeration.MaritalStatus;
 
 import java.io.File;
 import java.io.FileInputStream;

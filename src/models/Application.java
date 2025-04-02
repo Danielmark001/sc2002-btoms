@@ -1,11 +1,14 @@
 package models;
 
+import enumeration.ApplicationStatus;
+import enumeration.FlatType;
 public class Application {
     private String applicationId;
     private Applicant applicant;
     private BTOProject project;
     private ApplicationStatus status;
     private String bookingReceipt;
+    private FlatType flatType; // Added flatType variable
 
     public Application(String applicationId, Applicant applicant, BTOProject project) {
         this.applicationId = applicationId;
@@ -54,4 +57,13 @@ public class Application {
         this.bookingReceipt = bookingReceipt;
 
     }
+
+    public FlatType getFlatType() {
+        return flatType;
+    }
+    
+    public void setFlatType(FlatType flatType) {
+        this.flatType = flatType;
+    }
+    
 }

@@ -197,5 +197,29 @@ public class ProjectController {
     public BTOProject getProjectByName(String projectName) {
         return projectService.getProjectByName(projectName);
     }
+
+    /**
+     * Gets a project by ID
+     * 
+     * @param projectId ID of the project
+     * @return Project if found, null otherwise
+     */
+    public BTOProject getProjectById(String projectId) {
+        return projectService.getProjectById(projectId);
+    }
+    /**
+     * Gets a project by its index
+     * 
+     * @param index Index of the project
+     * @return Project if found, null otherwise
+     */
+    public BTOProject getProjectByIndex(int index) {
+        List<BTOProject> projects = projectService.getAllProjects();
+        if (index < 0 || index >= projects.size()) {
+            return null;
+        }
+        return projects.get(index);
+
+    
     
 }

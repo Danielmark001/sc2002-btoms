@@ -1,8 +1,8 @@
 package view;
 
-import controller.OfficerRegistrationController;
-import models.Project;
-import models.enumeration.ApplicationStatus;
+import controllers.OfficerRegistrationController;
+import models.BTOProject;
+import enumeration.ApplicationStatus;
 
 import java.util.List;
 import java.util.Scanner;
@@ -66,7 +66,7 @@ public class RegistrationView {
     private void manageRegistrations() {
         System.out.println("Enter project name:");
         String projectName = scanner.nextLine();
-        Project project = getProjectByName(projectName);
+        BTOProject project = getProjectByName(projectName);
 
         if (project == null) {
             System.out.println("Project not found.");

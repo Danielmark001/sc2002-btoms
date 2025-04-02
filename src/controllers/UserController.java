@@ -131,4 +131,6 @@ public class UserController {
         // Implement logout logic here
         userView.displayMessage("User logged out successfully");
     }
+
+    
 }
