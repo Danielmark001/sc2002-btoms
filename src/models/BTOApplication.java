@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 public class BTOApplication {
     private User applicant;
-    private Project project;
-    private Project.FlatType flatType;
+    private BTOProject project;
+    private BTOProject.FlatType flatType;
     private ApplicationStatus status;
     private LocalDate applicationDate;
 

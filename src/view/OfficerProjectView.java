@@ -1,7 +1,7 @@
 package view;
 
-import controller.ProjectController;
-import models.Project;
+import controllers.ProjectController;
+import models.BTOProject;
 
 import java.util.List;
 import java.util.Scanner;

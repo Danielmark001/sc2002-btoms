@@ -1,6 +1,6 @@
 package view;
 
-import controller.LoginController;
+import controllers.LoginController;
 import stores.AuthStore;
 
 public class MainView {

@@ -1,7 +1,7 @@
 package services;
 
 import models.Enquiry;
-import models.Project;
+import models.BTOProject;
 import models.User;
 import stores.DataStore;
 
@@ -14,7 +14,7 @@ public class EnquiryService implements IEnquiryService {
         this.dataStore = DataStore.getInstance();
     }
 
-    public Enquiry createEnquiry(User user, Project project, String content) {
+    public Enquiry createEnquiry(User user, BTOProject project, String content) {
         Enquiry enquiry = new Enquiry(user, project, content);
         dataStore.addEnquiry(enquiry);
         return enquiry;

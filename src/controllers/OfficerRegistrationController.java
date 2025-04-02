@@ -4,19 +4,19 @@ import models.BTOProject;
 import models.HDBManager;
 import models.HDBOfficer;
 import models.User;
-import models.enumeration.UserStatus;
+import enumeration.UserStatus;
 import services.ProjectService;
 import services.UserService;
-import views.OfficerRegistrationView;
+import view.OfficerProjectView;
 
 import java.time.LocalDate;
 
 public class OfficerRegistrationController {
     private UserService userService;
     private ProjectService projectService;
-    private OfficerRegistrationView view;
+    private OfficerProjectView view;
 
-    public OfficerRegistrationController(OfficerRegistrationView view) {
+    public OfficerRegistrationController(OfficerProjectView view) {
         this.userService = UserService.getInstance();
         this.projectService = ProjectService.getInstance();
         this.view = view;

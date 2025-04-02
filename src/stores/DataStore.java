@@ -18,14 +18,14 @@ import java.util.stream.Collectors;
 
 import models.Application;
 import models.Enquiry;
-import models.Project;
+import models.BTOProject;
 import models.Registration;
 import models.User;
-import models.enumeration.ApplicationStatus;
-import models.enumeration.FlatType;
-import models.enumeration.MaritalStatus;
-import models.enumeration.RegistrationStatus;
-import models.enumeration.UserType;
+import enumeration.ApplicationStatus;
+import enumeration.FlatType;
+import enumeration.MaritalStatus;
+import enumeration.RegistrationStatus;
+import enumeration.UserType;
 import util.DataLoader;
 
 /**
@@ -37,7 +37,7 @@ public class DataStore {
     
     // Data collections
     private Map<String, User> users;                 // NRIC -> User
-    private Map<String, Project> projects;           // ProjectID -> Project
+    private Map<String, BTOProject> projects;           // ProjectID -> Project
     private Map<String, Application> applications;   // ApplicationID -> Application
     private Map<String, Enquiry> enquiries;          // EnquiryID -> Enquiry
     private Map<String, Registration> registrations; // RegistrationID -> Registration
@@ -321,7 +321,7 @@ public class DataStore {
      */
     private void saveProjects() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(PROJECTS_FILE))) {
-            for (Project project : projects.values()) {
+            for (BTOProject project : projects.values()) {
                 // Join officer IDs with semicolon
                 String officerIdsStr = String.join(";", project.getOfficerIds());
                 
@@ -359,7 +359,7 @@ public class DataStore {
      * Gets all projects
      * @return List of all projects
      */
-    public List<Project> getAllProjects() {
+    public List<BTOProject> getAllProjects() {
         return new ArrayList<>(projects.values());
     }
     
@@ -367,7 +367,7 @@ public class DataStore {
      * Gets all visible projects
      * @return List of visible projects
      */
-    public List<Project> getVisibleProjects() {
+    public List<BTOProject> getVisibleProjects() {
         return projects.values().stream()
                 .filter(Project::isVisible)
                 .collect(Collectors.toList());
@@ -378,7 +378,7 @@ public class DataStore {
      * @param managerNric Manager's NRIC
      * @return List of projects managed by the manager
      */
-    public List<Project> getProjectsByManager(String managerNric) {
+    public List<BTOProject> getProjectsByManager(String managerNric) {
         return projects.values().stream()
                 .filter(p -> p.getManagerInCharge().equals(managerNric))
                 .collect(Collectors.toList());
@@ -389,7 +389,7 @@ public class DataStore {
      * @param project Project to add
      * @return true if added successfully
      */
-    public boolean addProject(Project project) {
+    public boolean addProject(BTOProject project) {
         projects.put(project.getProjectId(), project);
         saveProjects();
         return true;
@@ -400,7 +400,7 @@ public class DataStore {
      * @param project Project to update
      * @return true if updated successfully, false if project doesn't exist
      */
-    public boolean updateProject(Project project) {
+    public boolean updateProject(BTOProject project) {
         if (!projects.containsKey(project.getProjectId())) {
             return false;
         }

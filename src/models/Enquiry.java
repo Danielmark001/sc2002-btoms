@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class Enquiry {
     private String id;
     private User submitter;
-    private Project project;
+    private BTOProject project;
     private String enquiryText;
     private String response;
     private User respondent;
@@ -50,11 +50,11 @@ public class Enquiry {
         this.submitter = submitter;
     }
 
-    public Project getProject() {
+    public BTOProject getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(BTOProject project) {
         this.project = project;
     }
 
@@ -120,4 +120,20 @@ public class Enquiry {
                 ", submissionDate=" + submissionDate +
                 '}';
     }
+
+    // Method to check if enquiry is open
+    public boolean isOpen() {
+        return this.status == EnquiryStatus.SUBMITTED || this.status == EnquiryStatus.RESPONDED;
+    }
+
+    // Method to check if enquiry is closed
+    public boolean isClosed() {
+        return this.status == EnquiryStatus.CLOSED;
+    }
+    
+    // Method to check if enquiry is responded
+    public boolean isResponded() {
+        return this.status == EnquiryStatus.RESPONDED;
+    }
+    
 }

@@ -1,11 +1,11 @@
 // File: bto_management_system/controller/LoginController.java
-package controller;
+package controllers;
 
 import models.Applicant;
 import models.HDBManager;
 import models.HDBOfficer;
 import models.User;  
-import models.enumeration.MaritalStatus;
+import enumeration.MaritalStatus;
 import services.UserService;
 import view.LoginView;
 

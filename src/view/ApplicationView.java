@@ -1,16 +1,16 @@
-package views;
+package view;
 
 import java.util.List;
 import java.util.Scanner;
 
 import models.Application;
-import models.Project;
+import models.BTOProject;
 import models.User;
-import models.enumeration.ApplicationStatus;
-import models.enumeration.FlatType;
-import models.manager.ApplicationManager;
-import models.manager.ProjectManager;
-import models.manager.UserManager;
+import enumeration.ApplicationStatus;
+import enumeration.FlatType;
+import manager.ApplicationManager;
+import manager.ProjectManager;
+import manager.UserManager;
 
 /**
  * View for handling application-related operations for applicants

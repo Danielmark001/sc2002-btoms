@@ -3,8 +3,8 @@ package interfaces;
 import java.util.List;
 
 import models.User;
-import models.enumeration.MaritalStatus;
-import models.enumeration.UserType;
+import enumeration.MaritalStatus;
+import enumeration.UserType;
 
 /**
  * Interface for the User Service

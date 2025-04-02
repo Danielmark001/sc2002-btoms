@@ -1,4 +1,4 @@
-package models.enumeration;
+package enumeration;
 
 /**
  * Enumeration representing marital statuses for BTO applicants

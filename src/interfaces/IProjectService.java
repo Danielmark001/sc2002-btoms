@@ -3,9 +3,9 @@ package interfaces;
 import java.time.LocalDate;
 import java.util.List;
 
-import models.Project;
+import models.BTOProject;
 import models.Registration;
-import models.enumeration.RegistrationStatus;
+import enumeration.RegistrationStatus;
 
 /**
  * Interface for the Project Service
@@ -32,7 +32,7 @@ public interface IProjectService {
      * @param officerSlots Number of HDB Officer slots
      * @return Created project or null if creation failed
      */
-    Project createProject(String projectName, String neighborhood, 
+    BTOProject createProject(String projectName, String neighborhood, 
                        int twoRoomUnits, int threeRoomUnits,
                        LocalDate openingDate, LocalDate closingDate, 
                        int officerSlots);
@@ -42,7 +42,7 @@ public interface IProjectService {
      * @param project Project to update
      * @return true if update successful, false otherwise
      */
-    boolean updateProject(Project project);
+    boolean updateProject(BTOProject project);
     
     /**
      * Deletes a project
@@ -64,31 +64,31 @@ public interface IProjectService {
      * @param projectId Project ID
      * @return Project object if found, null otherwise
      */
-    Project getProjectById(String projectId);
+    BTOProject getProjectById(String projectId);
     
     /**
      * Gets all projects
      * @return List of all projects
      */
-    List<Project> getAllProjects();
+    List<BTOProject> getAllProjects();
     
     /**
      * Gets all visible projects
      * @return List of visible projects
      */
-    List<Project> getVisibleProjects();
+    List<BTOProject> getVisibleProjects();
     
     /**
      * Gets projects eligible for the current user
      * @return List of eligible projects
      */
-    List<Project> getEligibleProjects();
+    List<BTOProject> getEligibleProjects();
     
     /**
      * Gets projects managed by the current user
      * @return List of managed projects
      */
-    List<Project> getProjectsByCurrentManager();
+    List<BTOProject> getProjectsByCurrentManager();
     
     /**
      * Registers a user as an HDB Officer for a project

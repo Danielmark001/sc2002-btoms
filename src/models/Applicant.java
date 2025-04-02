@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Applicant extends User {
-    private Project bookedProject;
+    private BTOProject bookedProject;
     private FlatType bookedFlatType;
 
     // Constructor

@@ -1,4 +1,4 @@
-package models.enumeration;
+package enumeration;
 
 /**
  * Enumeration representing the possible statuses of an officer registration  

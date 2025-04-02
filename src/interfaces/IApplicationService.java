@@ -4,9 +4,9 @@ import models.Application;
 import models.Applicant;
 import models.HDBManager;
 import models.HDBOfficer;
-import models.Project;
-import models.enumeration.ApplicationStatus;
-import models.enumeration.FlatType;
+import models.BTOProject;
+import enumeration.ApplicationStatus;
+import enumeration.FlatType;
 
 import java.util.List;
 
@@ -15,12 +15,12 @@ import java.util.List;
  * Defines methods for application-related operations
  */
 public interface IApplicationService {
-    Application createApplication(Applicant applicant, Project project);
+    Application createApplication(Applicant applicant, BTOProject project);
     boolean approveApplication(Application application, HDBManager manager);
     boolean rejectApplication(Application application, HDBManager manager);
     boolean processWithdrawal(Application application, HDBManager manager, boolean approve);
     boolean bookFlat(Application application, HDBOfficer officer, FlatType flatType);
-    List<Application> getApplicationsByProject(Project project);
-    List<Application> getApplicationsByStatus(Project project, ApplicationStatus status);
+    List<Application> getApplicationsByProject(BTOProject project);
+    List<Application> getApplicationsByStatus(BTOProject project, ApplicationStatus status);
     String generateBookingReceipt(String applicantNric);
 }

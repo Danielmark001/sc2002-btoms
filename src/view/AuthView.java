@@ -1,4 +1,4 @@
-package views;
+package view;
 
 public class AuthView {
     public void displayError(String message) {

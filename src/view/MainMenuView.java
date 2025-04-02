@@ -1,6 +1,6 @@
 package view;
 
-import controller.UserController;
+import controllers.UserController;
 import models.User;
 
 import java.util.Scanner;

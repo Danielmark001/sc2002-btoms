@@ -1,5 +1,5 @@
 // File: bto_management_system/controller/EnquiryController.java
-package controller;
+package controllers;
 
 import models.BTOProject;
 import models.Enquiry;

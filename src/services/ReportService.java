@@ -1,7 +1,7 @@
 package services;
 
 import models.Application;
-import models.Project;
+import models.BTOProject;
 import stores.DataStore;
 
 import java.util.List;

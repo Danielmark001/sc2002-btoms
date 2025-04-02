@@ -1,4 +1,4 @@
-package models.enumeration;
+package enumeration;
 
 /**
  * Enumeration representing the types of users in the system

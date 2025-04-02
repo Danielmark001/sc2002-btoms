@@ -2,10 +2,10 @@ package controllers;
 
 import models.User;
 import models.Applicant;
-import models.enumeration.UserStatus;
-import models.enumeration.MaritalStatus;
+import enumeration.UserStatus;
+import enumeration.MaritalStatus;
 import services.UserService;
-import views.UserView;
+import view.UserView;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -103,8 +103,32 @@ public class UserController {
             // Implement eligibility logic based on age and marital status
             int age = applicant.calculateAge();
             return (applicant.getMaritalStatus() == MaritalStatus.SINGLE && age >= 35) ||
-                   (applicant.getMaritalStatus() == MaritalStatus.MARRIED && age >= 21);
+                    (applicant.getMaritalStatus() == MaritalStatus.MARRIED && age >= 21);
         }
         return false;
+    }
+    
+    /**
+     * Deletes a user
+     * 
+     * @param nric User's NRIC
+     * @return true if deletion succeeds
+     */
+    public boolean deleteUser(String nric) {
+        try {
+            userService.deleteUser(nric);
+            userView.displaySuccess("User deleted successfully");
+            return true;
+        } catch (Exception e) {
+            userView.displayError("Failed to delete user: " + e.getMessage());
+            return false;
+        }
+        
+
+    }
+
+    public void logout() {
+        // Implement logout logic here
+        userView.displayMessage("User logged out successfully");
     }
 }

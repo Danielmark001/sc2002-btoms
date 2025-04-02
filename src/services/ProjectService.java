@@ -3,7 +3,7 @@ package services;
 import models.BTOProject;
 import models.HDBManager;
 import models.User;
-import models.enumeration.FlatType;
+import enumeration.FlatType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

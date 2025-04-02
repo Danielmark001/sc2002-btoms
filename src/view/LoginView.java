@@ -1,8 +1,8 @@
 package view;
 
-import controller.LoginController;
+import controllers.LoginController;
 import models.User;
-import models.enumeration.MaritalStatus;
+import enumeration.MaritalStatus;
 
 import java.util.Scanner;
 

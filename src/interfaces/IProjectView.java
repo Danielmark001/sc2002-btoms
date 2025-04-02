@@ -1,6 +1,6 @@
 package interfaces;
 
-import models.Project;
+import models.BTOProject;
 
 /**
  * The {@link IProjectView} interface defines a contract for displaying project
@@ -10,8 +10,8 @@ public interface IProjectView {
 	/**
 	 * Displays information about the given project.
 	 *
-	 * @param project the {@link Project} object whose information should be
+	 * @param project the {@link BTOProject} object whose information should be
 	 *                displayed
 	 */
-	public void displayProjectInfo(Project project);
+	public void displayProjectInfo(BTOProject project);
 }

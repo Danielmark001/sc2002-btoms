@@ -1,8 +1,8 @@
 package view;
 
-import controller.EnquiryController;
+import controllers.EnquiryController;
 import models.Enquiry;
-import models.Project;
+import models.BTOProject;
 import models.User;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class EnquiryView {
     private void createEnquiry() {
         System.out.println("Enter project name:");
         String projectName = scanner.nextLine();
-        Project project = getProjectByName(projectName);
+        BTOProject project = getProjectByName(projectName);
 
         if (project == null) {
             System.out.println("Project not found.");
@@ -70,7 +70,7 @@ public class EnquiryView {
     private void viewProjectEnquiries() {
         System.out.println("Enter project name:");
         String projectName = scanner.nextLine();
-        Project project = getProjectByName(projectName);
+        BTOProject project = getProjectByName(projectName);
 
         if (project == null) {
             System.out.println("Project not found.");
@@ -122,7 +122,7 @@ public class EnquiryView {
         }
     }
 
-    private Project getProjectByName(String projectName) {
+    private BTOProject getProjectByName(String projectName) {
         // Assuming there's a method in the controller to get a project by name
         return null;
     }

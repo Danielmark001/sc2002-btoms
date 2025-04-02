@@ -1,7 +1,7 @@
 package interfaces;
 
 import models.Enquiry;
-import models.Project;
+import models.BTOProject;
 import models.User;
 
 import java.util.List;
@@ -11,11 +11,11 @@ import java.util.List;
  * Defines methods for enquiry-related operations  
  */
 public interface IEnquiryService {
-    Enquiry createEnquiry(User user, Project project, String content);
+    Enquiry createEnquiry(User user, BTOProject project, String content);
     boolean editEnquiry(Enquiry enquiry, User user, String newContent);
     boolean deleteEnquiry(Enquiry enquiry, User user);
     boolean replyToEnquiry(Enquiry enquiry, User user, String replyContent);
-    List<Enquiry> getEnquiriesByProject(Project project);
+    List<Enquiry> getEnquiriesByProject(BTOProject project);
     List<Enquiry> getEnquiriesByUser(User user); 
     List<Enquiry> getAllEnquiries();
     List<Enquiry> getUnansweredEnquiries();

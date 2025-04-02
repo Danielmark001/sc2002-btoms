@@ -12,12 +12,12 @@
  */
 module sc2002_btoms {
     exports controllers;
-    exports enums;
+    exports enumeration;
     exports interfaces;
     exports main;
     exports models;
     exports services;
     exports stores;
-    exports utils;
-    exports views;
+    exports util;
+    exports view;
 }

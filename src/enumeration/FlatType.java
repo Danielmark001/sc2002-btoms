@@ -1,4 +1,4 @@
-package models.enumeration;
+package enumeration;
 
 /**
  * Enumeration representing the types of BTO flats available

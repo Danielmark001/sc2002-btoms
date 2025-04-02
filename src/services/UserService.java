@@ -21,13 +21,16 @@ public class UserService implements IUserService {
         return instance;
     }
 
-    private UserService() {}
+    private UserService() {
+    }
 
     @Override
     public boolean changePassword(String oldPassword, String newPassword) {
         User user = AuthStore.getCurrentUser();
-        if (user == null) return false;
-        if (!user.setPassword(oldPassword, newPassword)) return false;
+        if (user == null)
+            return false;
+        if (!user.setPassword(oldPassword, newPassword))
+            return false;
 
         DataStore.saveData(); // Save new password to database
         return true;
@@ -47,9 +50,9 @@ public class UserService implements IUserService {
     @Override
     public User getUserByNRIC(String nric) {
         return DataStore.getUsers().stream()
-            .filter(user -> user.getNric().equals(nric))
-            .findFirst()
-            .orElse(null);
+                .filter(user -> user.getNric().equals(nric))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -72,7 +75,8 @@ public class UserService implements IUserService {
 
     @Override
     public User createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType) {
-        if (!validateNRIC(nric)) return null;
+        if (!validateNRIC(nric))
+            return null;
 
         User newUser = new User(nric, password, age, maritalStatus, userType);
         DataStore.addUser(newUser);
@@ -88,7 +92,46 @@ public class UserService implements IUserService {
     @Override
     public List<User> getUsersByType(UserType userType) {
         return DataStore.getUsers().stream()
-            .filter(user -> user.getUserType() == userType)
-            .collect(Collectors.toList());
+                .filter(user -> user.getUserType() == userType)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean registerApplicant(String nric, String password, int age, MaritalStatus maritalStatus) {
+        if (!validateNRIC(nric))
+            return false;
+
+        User newUser = new User(nric, password, age, maritalStatus, UserType.APPLICANT);
+        DataStore.addUser(newUser);
+        DataStore.saveData();
+        return true;
+    }
+
+    @Override
+    public boolean isValidPassword(String password) {
+        return password != null && password.length() >= 8 && password.matches(".*[A-Z].*")
+                && password.matches(".*[0-9].*");
+    }
+
+    @Override
+    public boolean authenticateUser(String nric, String password) {
+        User user = getUserByNRIC(nric);
+        if (user != null && user.getPassword().equals(password)) {
+            AuthStore.setCurrentUser(user);
+            return true;
+        }
+        return false;
+
+    }
+    @Override
+    public boolean updateUser(String nric, String name, String contactNumber, String email) {
+        User user = getUserByNRIC(nric);
+        if (user == null)
+            return false;
+
+        user.setName(name);
+        user.setContactNumber(contactNumber);
+        user.setEmail(email);
+        return updateUser(user);
     }
 }
