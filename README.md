@@ -13,8 +13,8 @@
 
 
 **Docs:** [Report](https://github.com/Danielmark001/sc2002-btoms/blob/main/report.pdf) | 
-[UML Class Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20class%20diagram/uml-class-diagram.jpg)
-[UML Sequence Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20class%20diagram/uml-sequence-diagram.png) | |
+[UML Class Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-class-diagram.jpg) |
+[UML Sequence Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-sequence-diagram.png) | 
 [Java Docs](https://Danielmark001.github.io/sc2002_btoms/module-summary.html)
 
 A Java-based application for managing **final year projects (FYP)** for students in tertiary institutions. It features authentication, user management, project management, and communications between students, supervisors, and fyp coordinators. This README file provides instructions on how to clone, compile, and run the project.
