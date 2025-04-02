@@ -2,6 +2,7 @@ package services;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,6 +21,17 @@ public class CsvDataService {
      */
     public List<String[]> readData(String filePath) throws IOException {
         List<String[]> data = new ArrayList<>();
+        
+        // Check if file exists, create if it doesn't
+        File file = new File(filePath);
+        if (!file.exists()) {
+            File directory = file.getParentFile();
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            file.createNewFile();
+            return data; // Return empty data for a new file
+        }
         
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -44,9 +56,22 @@ public class CsvDataService {
      * @throws IOException If there's an error writing to the file
      */
     public void writeData(String filePath, List<String[]> data) throws IOException {
+        // Create directory if it doesn't exist
+        File file = new File(filePath);
+        File directory = file.getParentFile();
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
             for (String[] row : data) {
-                bw.write(String.join(",", row));
+                // Handle null values in the row
+                String[] sanitizedRow = new String[row.length];
+                for (int i = 0; i < row.length; i++) {
+                    sanitizedRow[i] = row[i] != null ? row[i] : "";
+                }
+                
+                bw.write(String.join(",", sanitizedRow));
                 bw.newLine();
             }
         }
@@ -81,23 +106,6 @@ public class CsvDataService {
     }
 
     /**
-     * Converts a map of data to CSV format for writing.
-     * 
-     * @param dataMap Map of data to convert
-     * @return List of string arrays representing CSV rows
-     */
-    public List<String[]> convertMapToCSV(Map<String, List<String[]>> dataMap) {
-        List<String[]> csvData = new ArrayList<>();
-        
-        // Add headers and data for each entity type
-        for (Map.Entry<String, List<String[]>> entry : dataMap.entrySet()) {
-            csvData.addAll(entry.getValue());
-        }
-        
-        return csvData;
-    }
-
-    /**
      * Reads all CSV files specified in the file paths.
      * 
      * @param filePaths Map of file types to file paths
@@ -116,7 +124,8 @@ public class CsvDataService {
                 allData.put(fileType, fileData);
             } catch (IOException e) {
                 System.err.println("Error reading " + fileType + " file: " + e.getMessage());
-                throw e;
+                // Initialize with empty list if file can't be read
+                allData.put(fileType, new ArrayList<>());
             }
         }
         
