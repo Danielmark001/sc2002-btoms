@@ -1,15 +1,15 @@
 // File: bto_management_system/controller/OfficerRegistrationController.java
-package bto_management_system.controller;
+package controller;
 
-import bto_management_system.model.entity.BTOProject;
-import bto_management_system.model.entity.HDBManager;
-import bto_management_system.model.entity.HDBOfficer;
-import bto_management_system.model.entity.OfficerRegistration;
-import bto_management_system.model.entity.User;
-import bto_management_system.model.enumeration.ApplicationStatus;
-import bto_management_system.model.manager.RegistrationManager;
-import bto_management_system.model.manager.UserManager;
-import bto_management_system.view.RegistrationView;
+import models.entity.BTOProject;
+import models.entity.HDBManager;
+import models.entity.HDBOfficer;
+import models.entity.OfficerRegistration;
+import models.entity.User;
+import models.enumeration.ApplicationStatus;
+import models.manager.RegistrationManager;
+import models.manager.UserManager;
+import view.RegistrationView;
 
 import java.util.List;
 

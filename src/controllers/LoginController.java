@@ -1,13 +1,13 @@
 // File: bto_management_system/controller/LoginController.java
-package bto_management_system.controller;
+package controller;
 
-import bto_management_system.model.entity.Applicant;
-import bto_management_system.model.entity.HDBManager;
-import bto_management_system.model.entity.HDBOfficer;
-import bto_management_system.model.entity.User;
-import bto_management_system.model.enumeration.MaritalStatus;
-import bto_management_system.model.manager.UserManager;
-import bto_management_system.view.LoginView;
+import models.entity.Applicant;
+import models.entity.HDBManager;
+import models.entity.HDBOfficer;
+import models.entity.User;
+import models.enumeration.MaritalStatus;
+import models.manager.UserManager;
+import view.LoginView;
 
 /**
  * Controller for handling login-related operations

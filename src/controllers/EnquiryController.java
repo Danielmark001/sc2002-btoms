@@ -1,13 +1,13 @@
 // File: bto_management_system/controller/EnquiryController.java
-package bto_management_system.controller;
+package controller;
 
-import bto_management_system.model.entity.BTOProject;
-import bto_management_system.model.entity.Enquiry;
-import bto_management_system.model.entity.HDBManager;
-import bto_management_system.model.entity.User;
-import bto_management_system.model.manager.EnquiryManager;
-import bto_management_system.model.manager.UserManager;
-import bto_management_system.view.EnquiryView;
+import models.entity.BTOProject;
+import models.entity.Enquiry;
+import models.entity.HDBManager;
+import models.entity.User;
+import models.manager.EnquiryManager;
+import models.manager.UserManager;
+import view.EnquiryView;
 
 import java.util.List;
 

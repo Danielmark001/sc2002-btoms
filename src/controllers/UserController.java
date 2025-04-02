@@ -1,9 +1,9 @@
-package bto_management_system.controller;
+package controller;
 
-import bto_management_system.model.entity.HDBManager;
-import bto_management_system.model.entity.User;
-import bto_management_system.model.manager.UserManager;
-import bto_management_system.view.MainMenuView;
+import models.entity.HDBManager;
+import models.entity.User;
+import models.manager.UserManager;
+import view.MainMenuView;
 
 /**
  * Controller for handling user-related operations

@@ -1,7 +1,7 @@
-package bto_management_system.util;
+package util;
 
-import bto_management_system.model.entity.BTOProject;
-import bto_management_system.model.entity.User;
+import models.entity.BTOProject;
+import models.entity.User;
 
 import java.io.File;
 import java.io.FileOutputStream;

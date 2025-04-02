@@ -1,8 +1,8 @@
-package bto_management_system.util;
+package util;
 
-import bto_management_system.model.entity.BTOProject;
-import bto_management_system.model.entity.User;
-import bto_management_system.model.enumeration.MaritalStatus;
+import models.entity.BTOProject;
+import models.entity.User;
+import models.enumeration.MaritalStatus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -102,11 +102,11 @@ public class DataLoader {
         // Create appropriate user type
         switch (type.toUpperCase()) {
             case "APPLICANT":
-                return new bto_management_system.model.entity.Applicant(nric, password, age, maritalStatus);
+                return new models.entity.Applicant(nric, password, age, maritalStatus);
             case "OFFICER":
-                return new bto_management_system.model.entity.HDBOfficer(nric, password, age, maritalStatus);
+                return new models.entity.HDBOfficer(nric, password, age, maritalStatus);
             case "MANAGER":
-                return new bto_management_system.model.entity.HDBManager(nric, password, age, maritalStatus);
+                return new models.entity.HDBManager(nric, password, age, maritalStatus);
             default:
                 return null;
         }

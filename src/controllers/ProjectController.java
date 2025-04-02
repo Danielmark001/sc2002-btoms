@@ -1,13 +1,13 @@
 // File: bto_management_system/controller/ProjectController.java (continued)
-package bto_management_system.controller;
+package controller;
 
-import bto_management_system.model.entity.BTOProject;
-import bto_management_system.model.entity.HDBManager;
-import bto_management_system.model.entity.User;
-import bto_management_system.model.enumeration.FlatType;
-import bto_management_system.model.manager.ProjectManager;
-import bto_management_system.model.manager.UserManager;
-import bto_management_system.view.ProjectView;
+import models.entity.BTOProject;
+import models.entity.HDBManager;
+import models.entity.User;
+import models.enumeration.FlatType;
+import models.manager.ProjectManager;
+import models.manager.UserManager;
+import view.ProjectView;
 
 import java.time.LocalDate;
 import java.util.HashMap;

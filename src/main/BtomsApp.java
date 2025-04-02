@@ -1,11 +1,10 @@
 package main;
 
 import controllers.AuthController;
-import controllers.FYPCoordinatorController;
-import controllers.StudentController;
-import controllers.SupervisorController;
-import models.User;
-import services.CsvDataService;
+import controllers.ProjectController;
+import controllers.UserController;
+import models.entity.User;
+import models.services.CsvDataService;
 import stores.AuthStore;
 import stores.DataStore;
 import utils.FilePathsUtils;
@@ -25,7 +24,7 @@ public class BtomsApp {
 	 * Private constructor to prevent instantiation of the class.
 	 */
 	private BtomsApp() {
-	};
+	}
 
 	/**
 	 * The entry point for the BTOMS application. This method is responsible for
@@ -50,14 +49,14 @@ public class BtomsApp {
 				// Start session
 				User user = AuthStore.getCurrentUser();
 				switch (user.getRole()) {
-					case STUDENT:
-						new StudentController().start();
+					case APPLICANT:
+						new UserController().start();
 						break;
-					case SUPERVISOR:
-						new SupervisorController().start();
+					case OFFICER:
+						new ProjectController().start();
 						break;
-					case FYPCOORDINATOR:
-						new FYPCoordinatorController().start();
+					case MANAGER:
+						new ProjectController().start();
 						break;
 				}
 			} while (true);

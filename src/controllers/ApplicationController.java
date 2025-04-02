@@ -1,17 +1,17 @@
 // File: bto_management_system/controller/ApplicationController.java
-package bto_management_system.controller;
+package controller;
 
-import bto_management_system.model.entity.Applicant;
-import bto_management_system.model.entity.BTOApplication;
-import bto_management_system.model.entity.BTOProject;
-import bto_management_system.model.entity.HDBManager;
-import bto_management_system.model.entity.HDBOfficer;
-import bto_management_system.model.entity.User;
-import bto_management_system.model.enumeration.ApplicationStatus;
-import bto_management_system.model.enumeration.FlatType;
-import bto_management_system.model.manager.ApplicationManager;
-import bto_management_system.model.manager.UserManager;
-import bto_management_system.view.ApplicationView;
+import models.entity.Applicant;
+import models.entity.BTOApplication;
+import models.entity.BTOProject;
+import models.entity.HDBManager;
+import models.entity.HDBOfficer;
+import models.entity.User;
+import models.enumeration.ApplicationStatus;
+import models.enumeration.FlatType;
+import models.manager.ApplicationManager;
+import models.manager.UserManager;
+import view.ApplicationView;
 
 import java.util.List;
 

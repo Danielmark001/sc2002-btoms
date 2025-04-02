@@ -1,5 +1,5 @@
 // File: bto_management_system/util/NRICValidator.java
-package bto_management_system.util;
+package util;
 
 import java.util.regex.Pattern;
 
