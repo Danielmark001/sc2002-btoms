@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 import controllers.LoginController;
 import interfaces.IRequestView;
-import models.entity.User;
+import models.User;
 
 /**
  * Abstract base class for all views in the BTO Management System

@@ -2,7 +2,7 @@ package stores;
 
 import java.util.HashMap;
 import java.util.Map;
-import models.entity.User;
+import models.User;
 import models.enumeration.UserType;
 import util.NRICValidator;
 

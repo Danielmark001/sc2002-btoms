@@ -1,8 +1,8 @@
 package services;
 
-import models.entity.Enquiry;
-import models.entity.Project;
-import models.entity.User;
+import models.Enquiry;
+import models.Project;
+import models.User;
 import stores.DataStore;
 
 import java.util.List;

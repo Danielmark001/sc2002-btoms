@@ -1,8 +1,8 @@
 package interfaces;
 
-import models.entity.Enquiry;
-import models.entity.Project;
-import models.entity.User;
+import models.Enquiry;
+import models.Project;
+import models.User;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package util;
 
-import models.entity.BTOProject;
-import models.entity.User;
+import models.BTOProject;
+import models.User;
 import models.enumeration.MaritalStatus;
 
 import java.io.File;
@@ -102,11 +102,11 @@ public class DataLoader {
         // Create appropriate user type
         switch (type.toUpperCase()) {
             case "APPLICANT":
-                return new models.entity.Applicant(nric, password, age, maritalStatus);
+                return new models.Applicant(nric, password, age, maritalStatus);
             case "OFFICER":
-                return new models.entity.HDBOfficer(nric, password, age, maritalStatus);
+                return new models.HDBOfficer(nric, password, age, maritalStatus);
             case "MANAGER":
-                return new models.entity.HDBManager(nric, password, age, maritalStatus);
+                return new models.HDBManager(nric, password, age, maritalStatus);
             default:
                 return null;
         }

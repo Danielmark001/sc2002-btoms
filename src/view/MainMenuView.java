@@ -1,7 +1,7 @@
 package view;
 
 import controller.UserController;
-import models.entity.User;
+import models.User;
 
 import java.util.Scanner;
 

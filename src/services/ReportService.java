@@ -1,7 +1,7 @@
 package services;
 
-import models.entity.Application;
-import models.entity.Project;
+import models.Application;
+import models.Project;
 import stores.DataStore;
 
 import java.util.List;

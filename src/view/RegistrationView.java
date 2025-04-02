@@ -1,7 +1,7 @@
 package view;
 
 import controller.OfficerRegistrationController;
-import models.entity.Project;
+import models.Project;
 import models.enumeration.ApplicationStatus;
 
 import java.util.List;

@@ -1,9 +1,9 @@
 package controllers;
 
-import models.entity.User;
-import models.enumeration.UserStatus;
+import models.User;
+import enumeration.UserStatus;
 import services.UserService;
-import views.AuthView;
+import view.AuthView;
 
 public class AuthController {
     private UserService userService;

@@ -16,11 +16,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import models.entity.Application;
-import models.entity.Enquiry;
-import models.entity.Project;
-import models.entity.Registration;
-import models.entity.User;
+import models.Application;
+import models.Enquiry;
+import models.Project;
+import models.Registration;
+import models.User;
 import models.enumeration.ApplicationStatus;
 import models.enumeration.FlatType;
 import models.enumeration.MaritalStatus;

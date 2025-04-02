@@ -1,10 +1,10 @@
 // File: bto_management_system/controller/EnquiryController.java
 package controller;
 
-import models.entity.BTOProject;
-import models.entity.Enquiry;
-import models.entity.HDBManager;
-import models.entity.User;
+import models.BTOProject;
+import models.Enquiry;
+import models.HDBManager;
+import models.User;
 import services.EnquiryService;
 import services.UserService;
 import view.EnquiryView;

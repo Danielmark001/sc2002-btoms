@@ -1,11 +1,11 @@
 // File: bto_management_system/controller/ApplicationController.java
 package controller;
 
-import models.entity.BTOApplication;
-import models.entity.BTOProject;
-import models.entity.HDBManager;
-import models.entity.HDBOfficer;
-import models.entity.User;
+import models.BTOApplication;
+import models.BTOProject;
+import models.HDBManager;
+import models.HDBOfficer;
+import models.User;
 import models.enumeration.ApplicationStatus;
 import models.enumeration.FlatType;
 import services.ApplicationService;

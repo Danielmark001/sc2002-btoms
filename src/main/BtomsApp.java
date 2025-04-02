@@ -3,12 +3,12 @@ package main;
 import controllers.AuthController;
 import controllers.ProjectController;
 import controllers.UserController;
-import models.entity.User;
-import models.services.CsvDataService;
+import models.User;
+import services.CsvDataService;
 import stores.AuthStore;
 import stores.DataStore;
-import utils.FilePathsUtils;
-import views.CommonView;
+import util.FilePathsUtils;
+import view.CommonView;
 
 /**
  * The main class responsible for running the BTOMS application.

@@ -3,8 +3,8 @@ package interfaces;
 import java.time.LocalDate;
 import java.util.List;
 
-import models.entity.Project;
-import models.entity.Registration;
+import models.Project;
+import models.Registration;
 import models.enumeration.RegistrationStatus;
 
 /**

@@ -1,7 +1,7 @@
 package controllers;
 
-import models.entity.User;
-import models.entity.Applicant;
+import models.User;
+import models.Applicant;
 import models.enumeration.UserStatus;
 import models.enumeration.MaritalStatus;
 import services.UserService;

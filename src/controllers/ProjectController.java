@@ -1,8 +1,8 @@
 package controllers;
 
-import models.entity.BTOProject;
-import models.entity.HDBManager;
-import models.entity.User;
+import models.BTOProject;
+import models.HDBManager;
+import models.User;
 import models.enumeration.FlatType;
 import services.ProjectService;
 import services.UserService;

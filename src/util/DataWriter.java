@@ -1,7 +1,7 @@
 package util;
 
-import models.entity.BTOProject;
-import models.entity.User;
+import models.BTOProject;
+import models.User;
 
 import java.io.File;
 import java.io.FileOutputStream;

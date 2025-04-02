@@ -1,8 +1,8 @@
 package models.services;
 
-import models.entity.Application;
-import models.entity.Project;
-import models.entity.User;
+import models.Application;
+import models.Project;
+import models.User;
 import models.enumeration.ApplicationStatus;
 import models.enumeration.FlatType;
 import stores.DataStore;

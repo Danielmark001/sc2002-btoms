@@ -3,9 +3,9 @@ package views;
 import java.util.List;
 import java.util.Scanner;
 
-import models.entity.Application;
-import models.entity.Project;
-import models.entity.User;
+import models.Application;
+import models.Project;
+import models.User;
 import models.enumeration.ApplicationStatus;
 import models.enumeration.FlatType;
 import models.manager.ApplicationManager;

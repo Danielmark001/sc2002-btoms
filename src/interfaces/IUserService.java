@@ -2,7 +2,7 @@ package interfaces;
 
 import java.util.List;
 
-import models.entity.User;
+import models.User;
 import models.enumeration.MaritalStatus;
 import models.enumeration.UserType;
 

@@ -1,7 +1,7 @@
 package view;
 
 import controller.ProjectController;
-import models.entity.Project;
+import models.Project;
 
 import java.util.List;
 import java.util.Scanner;

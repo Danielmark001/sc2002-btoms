@@ -1,10 +1,10 @@
 package services;
 
-import models.entity.Application;
-import models.entity.Applicant;
-import models.entity.HDBManager;
-import models.entity.HDBOfficer;
-import models.entity.Project;
+import models.Application;
+import models.Applicant;
+import models.HDBManager;
+import models.HDBOfficer;
+import models.Project;
 import models.enumeration.ApplicationStatus;
 import models.enumeration.FlatType;
 import stores.DataStore;

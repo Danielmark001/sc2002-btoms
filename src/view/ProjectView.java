@@ -3,8 +3,8 @@ package views;
 import java.util.List;
 import java.util.Scanner;
 
-import models.entity.Project;
-import models.entity.User;
+import models.Project;
+import models.User;
 import models.enumeration.FlatType;
 import models.manager.ApplicationManager;
 import models.manager.ProjectManager;
