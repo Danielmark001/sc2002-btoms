@@ -2,7 +2,8 @@ package view;
 
 import controllers.OfficerRegistrationController;
 import models.BTOProject;
-import enumeration.ApplicationStatus;
+import models.Registration;
+import enumeration.RegistrationStatus;
 
 import java.util.List;
 import java.util.Scanner;
@@ -39,7 +40,7 @@ public class RegistrationView {
     private void registerForProject() {
         System.out.println("Enter project name:");
         String projectName = scanner.nextLine();
-        Project project = getProjectByName(projectName);
+        BTOProject project = getProjectByName(projectName);
 
         if (project == null) {
             System.out.println("Project not found.");
@@ -55,7 +56,7 @@ public class RegistrationView {
     }
 
     private void viewRegistrationStatus() {
-        ApplicationStatus status = registrationController.getCurrentRegistrationStatus();
+        RegistrationStatus status = registrationController.getCurrentRegistrationStatus();
         if (status != null) {
             System.out.println("Current registration status: " + status);
         } else {
@@ -74,7 +75,7 @@ public class RegistrationView {
         }
         
         List<Registration> pendingRegistrations = registrationController
-            .getRegistrationsByStatus(project, ApplicationStatus.PENDING);
+            .getRegistrationsByStatus(project, RegistrationStatus.PENDING);
         
         if (pendingRegistrations.isEmpty()) {
             System.out.println("No pending registrations for this project.");
@@ -122,13 +123,15 @@ public class RegistrationView {
         }
     }
     
-    private Project getProjectByName(String projectName) {
-        // Assuming there's a method in the controller to get a project by name
+    private BTOProject getProjectByName(String projectName) {
+        // This method would normally call the controller
+        // For now, returning null as a placeholder
         return null;
     }
     
     private Registration getRegistrationById(String registrationId) {
-        // Assuming there's a method in the controller to get a registration by ID
+        // This method would normally call the controller
+        // For now, returning null as a placeholder
         return null; 
     }
 }

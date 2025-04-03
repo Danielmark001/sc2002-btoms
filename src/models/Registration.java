@@ -1,12 +1,7 @@
 package models;
 
 import java.time.LocalDate;
-import java.util.Objects;
-import models.User;
-import models.BTOProject;
 
-import enumeration.RegistrationStatus;
-import enumeration.UserStatus;
 
 public class Registration {
     private User officer;
@@ -29,6 +24,7 @@ public class Registration {
         this.project = project;
         this.status = RegistrationStatus.PENDING;
         this.registrationDate = LocalDate.now();
+        generateRegistrationId();
     }
 
     // Getters and Setters
@@ -101,4 +97,57 @@ public class Registration {
                 ", registrationDate=" + registrationDate +
                 '}';
     }
+    /**
+ * Check if registration is eligible
+ * @return true if eligible, false otherwise
+ */
+    public boolean isEligible() {
+        // Check if officer has already applied for this project
+        if (hasAppliedForProject()) {
+            return false;
+        }
+
+        // Check if officer is already registered for another project in the same period
+        if (isRegisteredForAnotherProject()) {
+            return false;
+        }
+
+        // Check if project has available officer slots
+        return project.getAvailableHDBOfficerSlots() > 0;
+    }
+/**
+ * Unique identifier for registration
+ */
+private String registrationId;
+
+/**
+ * Gets the registration ID
+ * @return Registration ID
+ */
+public String getRegistrationId() {
+    return registrationId;
+}
+
+/**
+ * Sets the registration ID
+ * @param registrationId Registration ID
+ */
+public void setRegistrationId(String registrationId) {
+    this.registrationId = registrationId;
+}
+
+/**
+ * Generates a unique registration ID
+ */
+private void generateRegistrationId() {
+    this.registrationId = "REG-" + System.currentTimeMillis() + "-" + 
+                          officer.getNric().substring(1, 5);
+}
+
+/**
+ * Constructor with automatic ID generation
+ * @param officer Officer registering
+ * @param project Project to register for
+ */
+
 }

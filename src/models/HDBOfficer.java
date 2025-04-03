@@ -52,5 +52,11 @@ public class HDBOfficer extends User {
                 '}';
     }
 
+    // Constructor for HDBOfficer
+    public HDBOfficer(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus) {
+        super(nric, name, dateOfBirth, maritalStatus);
+        this.processedApplications = new ArrayList<>();
+    }
+
 
 }

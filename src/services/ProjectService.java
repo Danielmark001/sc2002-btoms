@@ -3,6 +3,7 @@ package services;
 import models.BTOProject;
 import models.HDBManager;
 import models.User;
+import enumeration.ApplicationStatus;
 import enumeration.FlatType;
 
 import java.time.LocalDate;
@@ -157,6 +158,65 @@ public class ProjectService {
                 .findFirst()
                 .orElse(null);
     }
+    /**
+ * Get projects visible to a specific user
+ * @param user User to check visibility for
+ * @return List of visible projects
+ */
+public List<BTOProject> getVisibleProjects(User user) {
+    if (user == null) {
+        return new ArrayList<>();
+    }
+    
+    // HDB Managers can see all projects
+    if (user instanceof HDBManager) {
+        return getAllProjects();
+    }
+    
+    // Filter projects that are visible and match user eligibility
+    return projects.stream()
+        .filter(BTOProject::isVisibility)  // Only visible projects
+        .filter(project -> project.isEligibleForApplicant(user))  // Projects the user is eligible for
+        .collect(Collectors.toList());
+}
+
+/**
+ * Get projects by manager
+ * @param manager HDB Manager
+ * @return List of projects created by the manager
+ */
+public List<BTOProject> getProjectsByManager(HDBManager manager) {
+    if (manager == null) {
+        return new ArrayList<>();
+    }
+    
+    return projects.stream()
+        .filter(project -> project.getHdbManager() != null && 
+                project.getHdbManager().equals(manager))
+        .collect(Collectors.toList());
+}
+
+/**
+ * Delete a project
+ * @param project Project to delete
+ * @return true if deletion succeeds
+ */
+public boolean deleteProject(BTOProject project) {
+    if (project == null) {
+        return false;
+    }
+    
+    // Check if there are any booked applications for this project
+    boolean hasBookedApplications = project.getApplications().stream()
+        .anyMatch(app -> app.getStatus() == ApplicationStatus.BOOKED);
+    
+    if (hasBookedApplications) {
+        // Cannot delete project with booked applications
+        return false;
+    }
+    
+    return projects.remove(project);
+}
 
     // Rest of the methods remain the same as in the previous implementation
     // ... (getProjectByName, getAllProjects, etc.)

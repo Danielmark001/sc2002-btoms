@@ -1,11 +1,15 @@
 package services;
 
 import interfaces.IUserService;
+import models.Applicant;
+import models.HDBManager;
+import models.HDBOfficer;
 import models.User;
 import stores.AuthStore;
 import stores.DataStore;
 import enumeration.UserType;
 import enumeration.MaritalStatus;
+import enumeration.UserStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,10 +61,6 @@ public class UserService implements IUserService {
             return false;
         }
         return authStore.changePassword(oldPassword, newPassword);
-    }
-
-    private boolean isValidPassword(String password) {
-        return password != null && password.length() >= MIN_PASSWORD_LENGTH && PASSWORD_PATTERN.matcher(password).matches();
     }
 
     @Override
@@ -140,18 +140,85 @@ public class UserService implements IUserService {
         return login(nric, password);
     }
 
-    public boolean updateUser(String nric, String name, String contactNumber, String email) {
-        User user = getUserByNRIC(nric);
-        if (user == null) {
-            return false;
-        }
-
-        user.setName(name);
-        user.setContactNumber(contactNumber);
-        user.setEmail(email);
-
-        return updateUser(user);
+    /**
+ * Creates a new user with full details including date of birth
+ * 
+ * @param nric User's NRIC
+ * @param name User's name
+ * @param dateOfBirth User's date of birth
+ * @param maritalStatus User's marital status
+ * @param userStatus User's status
+ * @return Created user
+ */
+public User createUser(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, UserStatus userStatus) {
+    // Validate inputs
+    if (!validateNRIC(nric)) {
+        throw new IllegalArgumentException("Invalid NRIC format");
     }
+    
+    User existingUser = getUserByNRIC(nric);
+    if (existingUser != null) {
+        throw new IllegalArgumentException("User with this NRIC already exists");
+    }
+    
+    // Create appropriate user type based on status
+    User newUser;
+    switch (userStatus) {
+        case APPLICANT:
+            newUser = new Applicant(nric, name, dateOfBirth, maritalStatus);
+            break;
+        case OFFICER:
+            newUser = new HDBOfficer(nric, name, dateOfBirth, maritalStatus);
+            break;
+        case MANAGER:
+            newUser = new HDBManager(nric, name, dateOfBirth);
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid user status");
+    }
+    
+    // Set default password
+    newUser.setPassword("password");
+    
+    // Add to data store
+    DataStore.addUser(newUser);
+    
+    return newUser;
+}
+
+/**
+ * Updates a user with new profile information
+ * 
+ * @param nric User's NRIC
+ * @param name User's name
+ * @param contactNumber User's contact number
+ * @param email User's email
+ * @return Updated user
+ */
+ public User updateUser(String nric, String name, String contactNumber, String email) {
+    User user = getUserByNRIC(nric);
+    if (user == null) {
+        throw new IllegalArgumentException("User not found");
+    }
+    
+    // Update fields if provided
+    if (name != null && !name.isEmpty()) {
+        user.setName(name);
+    }
+    
+    if (contactNumber != null) {
+        user.setContactNumber(contactNumber);
+    }
+    
+    if (email != null) {
+        user.setEmail(email);
+    }
+    
+    // Update in data store
+    dataStore.updateUser(user);
+    
+    return user;
+}
 
     // Additional utility methods
     public boolean deleteUser(String nric) {
@@ -169,5 +236,4 @@ public class UserService implements IUserService {
     public void setCurrentUser(User user) {
         AuthStore.setCurrentUser(user);
     }
-    
 }

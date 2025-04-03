@@ -1,5 +1,6 @@
 package view;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -343,23 +344,23 @@ public class ApplicationView extends BaseView {
      */
     private void generateAndDisplayReceipt(String applicantNric) {
         String receipt = applicationController.generateBookingReceipt(applicantNric);
-        
+
         System.out.println("\n" + receipt);
-        
+
         // Offer to save the receipt to a file
         System.out.print("\nDo you want to save this receipt to a file? (Y/N): ");
         String saveChoice = scanner.nextLine().trim().toUpperCase();
-        
+
         if (saveChoice.equals("Y")) {
             System.out.print("Enter filename (default: receipt.txt): ");
             String filename = scanner.nextLine().trim();
-            
+
             if (filename.isEmpty()) {
                 filename = "receipt.txt";
             }
-            
+
             boolean saved = applicationController.saveReceiptToFile(receipt, filename);
-            
+
             if (saved) {
                 System.out.println("Receipt saved to " + filename + " successfully.");
             } else {
@@ -367,4 +368,50 @@ public class ApplicationView extends BaseView {
             }
         }
     }
+    /**
+ * Creates a new method in ApplicationController to get applications by user NRIC
+ */
+public List<Application> getApplicationsByUser(String nric) {
+    List<Application> result = new ArrayList<>();
+    
+    // Get all applications
+    List<Application> allApplications = getAllApplications();
+    
+    // Filter by user NRIC
+    for (Application app : allApplications) {
+        if (app.getApplicant().getNric().equals(nric)) {
+            result.add(app);
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Gets applications by project and status
+ */
+public List<Application> getApplicationsByProjectAndStatus(String projectId, ApplicationStatus status) {
+    List<Application> result = new ArrayList<>();
+    
+    // Get all applications
+    List<Application> allApplications = getAllApplications();
+    
+    // Filter by project ID and status
+    for (Application app : allApplications) {
+        if (app.getProject().getProjectId().equals(projectId) && app.getStatus() == status) {
+            result.add(app);
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Gets all applications
+ */
+private List<Application> getAllApplications() {
+    // This would typically retrieve from DataStore
+    // For testing, return an empty list
+    return new ArrayList<>();
+}
 }

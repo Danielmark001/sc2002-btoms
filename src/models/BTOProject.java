@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import enumeration.MaritalStatus; // Ensure MaritalStatus is imported
 import enumeration.ApplicationStatus; // Ensure ApplicationStatus is imported
+import enumeration.RegistrationStatus; // Ensure RegistrationStatus is imported
+import enumeration.UserStatus; // Ensure UserStatus is imported
 
 public class BTOProject {
     // Unique identifier for the project
@@ -189,13 +191,7 @@ public class BTOProject {
     }
 
     // Visibility Management
-    public boolean isVisibility() {
-        return visibility;
-    }
-
-    public void setVisibility(boolean visibility) {
-        this.visibility = visibility;
-    }
+    
 
     // Applications Management
     public List<Application> getApplications() {
@@ -274,10 +270,93 @@ public class BTOProject {
                 ", visibility=" + visibility +
                 '}';
     }
+    /**
+ * Gets the visibility of the project
+ * @return true if project is visible, false otherwise
+ */
+public boolean isVisible() {
+    return visibility;
+}
+
+/**
+ * Sets the visibility of the project
+ * @param visible true to set project visible, false otherwise
+ */
+public void setVisible(boolean visible) {
+    this.visibility = visible;
+}
+
+/**
+ * Alias for isVisible() to maintain compatibility
+ * @return true if project is visible, false otherwise
+ */
+public boolean isVisibility() {
+    return isVisible();
+}
+
+/**
+ * Alias for setVisible() to maintain compatibility
+ * @param visibility true to set project visible, false otherwise
+ */
+public void setVisibility(boolean visibility) {
+    setVisible(visibility);
+}
+/**
+ * Gets the total number of units for a specific flat type
+ * @param flatType Flat type to check
+ * @return Total number of units
+ */
+public int getTotalUnits(FlatType flatType) {
+    return flatTypes.getOrDefault(flatType, 0);
+}
+
+/**
+ * Gets the manager in charge of the project
+ * @return HDB Manager in charge
+ */
+public HDBManager getManagerInCharge() {
+    return hdbManager;
+}
+
+/**
+ * Gets the list of HDB Officer IDs assigned to the project
+ * @return List of officer IDs
+ */
+public List<String> getOfficerIds() {
+    List<String> officerIds = new ArrayList<>();
+    for (Registration reg : registrations) {
+        if (reg.getStatus() == RegistrationStatus.APPROVED) {
+            officerIds.add(reg.getOfficer().getNric());
+        }
+    }
+    return officerIds;
+}
+
+/**
+ * Gets the officer slots available for the project
+ * @return Number of officer slots
+ */
+public int getOfficerSlots() {
+    return availableHDBOfficerSlots;
+}
+
+/**
+ * Gets the opening date for applications
+ * @return Opening date
+ */
+public LocalDate getOpeningDate() {
+    return applicationOpeningDate;
+}
+
+/**
+ * Gets the closing date for applications
+ * @return Closing date
+ */
+public LocalDate getClosingDate() {
+    return applicationClosingDate;
+}
 
     
-    public boolean isVisible() {
-        return visibility;
-    }
     
+
 }

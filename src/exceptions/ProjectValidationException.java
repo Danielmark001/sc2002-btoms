@@ -86,13 +86,21 @@ public class ProjectValidationException extends BTOSystemException {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("ProjectValidationException: ").append(getMessage());
-        
+
         // Add error code details if available
         if (getErrorCode() != null) {
             sb.append("\nError Code: ").append(getErrorCode().getCode());
-              
+
         }
-        
+
         return sb.toString();
     }
+    /**
+ * Gets the project-specific error code
+ * @return Error code
+ */
+@Override
+public BTOSystemException.ErrorCode getErrorCode() {
+    return errorCode;
+}
 }
