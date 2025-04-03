@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 
 public class ReportService {
     private DataStore dataStore;
-    private ApplicationService applicationService;
+    private BTOApplicationService applicationService;
     private ProjectService projectService;
     private UserService userService;
 
     public ReportService() {
         this.dataStore = DataStore.getInstance();
-        this.applicationService = ApplicationService.getInstance();
+        this.applicationService = BTOApplicationService.getInstance();
         this.projectService = ProjectService.getInstance();
         this.userService = UserService.getInstance();
     }

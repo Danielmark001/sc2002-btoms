@@ -1,6 +1,7 @@
 package models;
 
 import java.time.LocalDate;
+import enumeration.RegistrationStatus; 
 
 
 public class Registration {
@@ -8,13 +9,6 @@ public class Registration {
     private BTOProject project;
     private RegistrationStatus status;
     private LocalDate registrationDate;
-
-    // Enum for registration status
-    public enum RegistrationStatus {
-        PENDING,    // Initial status of registration
-        APPROVED,   // Registration approved by HDB Manager
-        REJECTED    // Registration rejected by HDB Manager
-    }
 
     // Constructors
     public Registration() {}
