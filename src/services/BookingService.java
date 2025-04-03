@@ -1,6 +1,6 @@
 package services;
 
-import models.Application;
+import models.BTOApplication;
 import models.BTOProject;
 import models.User;
 import enumeration.ApplicationStatus;
@@ -29,7 +29,7 @@ public class BookingService {
      * @param unitNumber Unit number for the flat
      * @return Booked application
      */
-    public Application processBooking(Application application, FlatType flatType, String unitNumber) {
+    public BTOApplication processBooking(BTOApplication application, FlatType flatType, String unitNumber) {
         // Validate booking eligibility
         if (!isEligibleForBooking(application)) {
             throw new IllegalStateException("Application is not eligible for booking");
@@ -52,7 +52,7 @@ public class BookingService {
      * @param application Application to check
      * @return True if eligible for booking
      */
-    public boolean isEligibleForBooking(Application application) {
+    public boolean isEligibleForBooking(BTOApplication application) {
         return application.getStatus() == ApplicationStatus.SUCCESSFUL;
     }
 
@@ -73,7 +73,7 @@ public class BookingService {
      * @param flatType Booked flat type
      * @param unitNumber Booked unit number
      */
-    private void updateUserProfileWithBooking(User user, Application application, FlatType flatType, String unitNumber) {
+    private void updateUserProfileWithBooking(User user, BTOApplication application, FlatType flatType, String unitNumber) {
         // Placeholder method to update user profile
         // Could involve setting booked project, flat type, etc.
     }
@@ -83,7 +83,7 @@ public class BookingService {
      * @param application Booked application
      * @return Booking receipt details as a string
      */
-    public String generateBookingReceipt(Application application) {
+    public String generateBookingReceipt(BTOApplication application) {
         if (application.getStatus() != ApplicationStatus.BOOKED) {
             throw new IllegalStateException("Cannot generate receipt for non-booked application");
         }

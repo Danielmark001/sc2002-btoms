@@ -538,7 +538,7 @@ public class ProjectService implements IProjectService {
         ApplicationService applicationService = ApplicationService.getInstance();
         
         // Get officer's applications
-        List<Application> applications = applicationService.getApplicationsByApplicantNric(officer.getNric());
+        List<BTOApplication> applications = applicationService.getApplicationsByApplicantNric(officer.getNric());
         
         // Check if any application is for this project
         return applications.stream()

@@ -50,14 +50,12 @@ public class OfficerProjectView {
             for (Enquiry enquiry : enquiries) {
                 System.out.println("ID: " + enquiry.getId());
                 System.out.println("Submitter: " + enquiry.getSubmitter().getName());
-                System.out.println("Content: " + enquiry.getEnquiryText()); 
+                System.out.println("Content: " + enquiry.getEnquiryText());
                 System.out.println("Status: " + enquiry.getStatus());
                 System.out.println("-------------------------");
             }
         }
     }
-
-
 
     public void handleUserInput() {
         int choice = scanner.nextInt();
@@ -84,6 +82,16 @@ public class OfficerProjectView {
     private void processBooking() {
         // Navigate to ApplicationView for booking process
     }
+    public void displayError(String message) {
+        System.out.println("Error: " + message);
+    }
+    public void displaySuccess(String message) {
+        System.out.println("Success: " + message);
+    }
+    public void displayMessage(String message) {
+        System.out.println(message);
+    }
+}
 
 
    

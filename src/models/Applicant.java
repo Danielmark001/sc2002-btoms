@@ -62,16 +62,16 @@ public class Applicant extends User {
          * Gets the current active application for this applicant
          * @return Current application or null if none exists
          */
-        public Application getCurrentApplication() {
+        public BTOApplication getCurrentApplication() {
             // Check if there are any applications
             if (getApplications().isEmpty()) {
                 return null;
             }
             
             // Look for the most recent active application (not unsuccessful)
-            Optional<Application> activeApp = getApplications().stream()
+            Optional<BTOApplication> activeApp = getApplications().stream()
                 .filter(app -> app.getStatus() != ApplicationStatus.UNSUCCESSFUL)
-                .max(Comparator.comparing(Application::getApplicationDate));
+                .max(Comparator.comparing(BTOApplication::getApplicationDate));
             
             return activeApp.orElse(null);
         }
@@ -81,7 +81,7 @@ public class Applicant extends User {
          * @return true if withdrawal request was made, false otherwise
          */
         public boolean requestWithdrawal() {
-            Application currentApp = getCurrentApplication();
+            BTOApplication currentApp = getCurrentApplication();
 
             if (currentApp == null) {
                 return false;

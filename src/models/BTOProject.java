@@ -30,7 +30,7 @@ public class BTOProject {
     private boolean visibility;
 
     // Lists to track applications and registrations
-    private List<Application> applications;
+    private List<BTOApplication> applications;
     private List<Registration> registrations;
 
     // Constructors
@@ -217,11 +217,11 @@ public class BTOProject {
     
 
     // Applications Management
-    public List<Application> getApplications() {
+    public List<BTOApplication> getApplications() {
         return new ArrayList<>(applications);
     }
 
-    public void addApplication(Application application) {
+    public void addApplication(BTOApplication application) {
         if (application != null && !applications.contains(application)) {
             applications.add(application);
         }

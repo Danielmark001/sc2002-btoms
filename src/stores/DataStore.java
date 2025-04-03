@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import models.Applicant;
-import models.Application;
+import models.BTOApplication;
 import models.BTOProject;
 import models.Enquiry;
 import models.HDBManager;
@@ -46,7 +46,7 @@ public class DataStore {
     // Maps to cache objects and avoid repeated creation
     private final Map<String, User> userCache = new ConcurrentHashMap<>();
     private final Map<String, BTOProject> projectCache = new ConcurrentHashMap<>();
-    private final Map<String, Application> applicationCache = new ConcurrentHashMap<>();
+    private final Map<String, BTOApplication> applicationCache = new ConcurrentHashMap<>();
     
     // Formatter for date handling
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -403,7 +403,7 @@ public class DataStore {
      * @param projectId ID of the project
      * @return List of applications for the project
      */
-    public List<Application> getApplicationsByProject(String projectId) {
+    public List<BTOApplication> getApplicationsByProject(String projectId) {
         if (projectId == null) {
             return Collections.emptyList();
         }
@@ -411,11 +411,11 @@ public class DataStore {
         lock.readLock().lock();
         try {
             List<String[]> applications = allData.getOrDefault("applications", Collections.emptyList());
-            List<Application> filteredApplications = new ArrayList<>();
+            List<BTOApplication> filteredApplications = new ArrayList<>();
 
             for (String[] applicationData : applications) {
                 if (applicationData.length > 2 && applicationData[2].equals(projectId)) {
-                    Application application = createApplicationFromData(applicationData);
+                    BTOApplication application = createApplicationFromData(applicationData);
                     if (application != null) {
                         filteredApplications.add(application);
                     }
@@ -433,14 +433,14 @@ public class DataStore {
      * 
      * @return List of all applications
      */
-    public List<Application> getAllApplications() {
+    public List<BTOApplication> getAllApplications() {
         lock.readLock().lock();
         try {
             List<String[]> applicationsData = allData.getOrDefault("applications", Collections.emptyList());
-            List<Application> applications = new ArrayList<>();
+            List<BTOApplication> applications = new ArrayList<>();
             
             for (String[] applicationData : applicationsData) {
-                Application application = createApplicationFromData(applicationData);
+                BTOApplication application = createApplicationFromData(applicationData);
                 if (application != null) {
                     applications.add(application);
                     
@@ -630,7 +630,7 @@ public class DataStore {
      * @param applicationData CSV data row for an application
      * @return Application object, or null if data is invalid
      */
-    private Application createApplicationFromData(String[] applicationData) {
+    private BTOApplication createApplicationFromData(String[] applicationData) {
         if (applicationData == null || applicationData.length < 6) {
             return null;
         }
@@ -651,7 +651,7 @@ public class DataStore {
                 Applicant applicant = (Applicant) applicantUser;
                 
                 // Create application
-                Application application = new Application(applicationId, applicant, project);
+                BTOApplication application = new BTOApplication(applicationId, applicant, project);
                 
                 // Set flat type
                 FlatType flatType = FlatType.valueOf(flatTypeStr);
@@ -1018,7 +1018,7 @@ public class DataStore {
      * @param application Application to add
      * @return true if added successfully
      */
-    public boolean addApplication(Application application) {
+    public boolean addApplication(BTOApplication application) {
         if (application == null) {
             return false;
         }
@@ -1055,7 +1055,7 @@ public class DataStore {
      * @param application Application to update
      * @return true if updated successfully, false if application doesn't exist
      */
-    public boolean updateApplication(Application application) {
+    public boolean updateApplication(BTOApplication application) {
         if (application == null) {
             return false;
         }
@@ -1096,7 +1096,7 @@ public class DataStore {
      * @param application Application object
      * @return CSV data row for the application
      */
-    private String[] convertApplicationToData(Application application) {
+    private String[] convertApplicationToData(BTOApplication application) {
         if (application == null) {
             return null;
         }

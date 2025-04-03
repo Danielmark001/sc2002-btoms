@@ -12,7 +12,7 @@ import enumeration.ApplicationStatus;
 
 public class HDBOfficer extends User {
     private BTOProject handlingProject;
-    private List<Application> processedApplications;
+    private List<BTOApplication> processedApplications;
 
     // Constructor
     public HDBOfficer(String nric, String name, LocalDate dateOfBirth) {
@@ -31,13 +31,13 @@ public class HDBOfficer extends User {
     }
 
     // Methods for managing processed applications
-    public void addProcessedApplication(Application application) {
+    public void addProcessedApplication(BTOApplication application) {
         if (!processedApplications.contains(application)) {
             processedApplications.add(application);
         }
     }
 
-    public List<Application> getProcessedApplications() {
+    public List<BTOApplication> getProcessedApplications() {
         return new ArrayList<>(processedApplications);
     }
 

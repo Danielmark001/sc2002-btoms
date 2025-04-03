@@ -7,7 +7,7 @@ import java.util.Scanner;
 import controllers.ApplicationController;
 import controllers.ProjectController;
 import controllers.UserController;
-import models.Application;
+import models.BTOApplication;
 import models.BTOProject;
 import models.User;
 import enumeration.ApplicationStatus;
@@ -77,7 +77,7 @@ public class ApplicationView extends BaseView {
      */
     private void viewMyApplications() {
         User currentUser = getCurrentUser();
-        List<Application> applications = applicationController.getApplicationsByUser(currentUser.getNric());
+        List<BTOApplication> applications = applicationController.getApplicationsByUser(currentUser.getNric());
         
         if (applications.isEmpty()) {
             System.out.println("You have no applications.");
@@ -91,7 +91,7 @@ public class ApplicationView extends BaseView {
         System.out.println("---------------------------------------------------------------------------");
         
         int index = 1;
-        for (Application app : applications) {
+        for (BTOApplication app : applications) {
             BTOProject project = projectController.getProjectById(app.getProject().getProjectId());
             String projectName = (project != null) ? project.getProjectName() : "N/A";
             
@@ -123,7 +123,7 @@ public class ApplicationView extends BaseView {
      * Displays detailed information about a specific application
      * @param application Application to display
      */
-    private void displayApplicationDetails(Application application) {
+    private void displayApplicationDetails(BTOApplication application) {
         BTOProject project = application.getProject();
         String projectName = (project != null) ? project.getProjectName() : "N/A";
         String neighborhood = (project != null) ? project.getNeighborhood() : "N/A";
@@ -149,7 +149,7 @@ public class ApplicationView extends BaseView {
      */
     private void requestWithdrawal() {
         User currentUser = getCurrentUser();
-        List<Application> applications = applicationController.getApplicationsByUser(currentUser.getNric());
+        List<BTOApplication> applications = applicationController.getApplicationsByUser(currentUser.getNric());
         
         if (applications.isEmpty()) {
             System.out.println("You have no applications to withdraw.");
@@ -163,7 +163,7 @@ public class ApplicationView extends BaseView {
         System.out.println("---------------------------------------------------------------------------");
         
         int index = 1;
-        for (Application app : applications) {
+        for (BTOApplication app : applications) {
             // Skip applications that already have withdrawal requested
             if (app.isWithdrawalRequested()) {
                 continue;
@@ -187,7 +187,7 @@ public class ApplicationView extends BaseView {
             int selection = Integer.parseInt(scanner.nextLine().trim());
             
             if (selection > 0 && selection <= applications.size()) {
-                Application selectedApp = applications.get(selection - 1);
+                BTOApplication selectedApp = applications.get(selection - 1);
                 
                 // Confirm withdrawal request
                 System.out.println("\nYou are about to request withdrawal for your application.");
@@ -265,7 +265,7 @@ public class ApplicationView extends BaseView {
      */
     private void processBookingForProject(BTOProject project) {
         // Get successful applications for the project
-        List<Application> successfulApps = applicationController.getApplicationsByProjectAndStatus(
+        List<BTOApplication> successfulApps = applicationController.getApplicationsByProjectAndStatus(
             project.getProjectId(), ApplicationStatus.SUCCESSFUL);
         
         if (successfulApps.isEmpty()) {
@@ -280,7 +280,7 @@ public class ApplicationView extends BaseView {
         System.out.println("--------------------------------------------------");
         
         int index = 1;
-        for (Application app : successfulApps) {
+        for (BTOApplication app : successfulApps) {
             User applicant = userController.getUserByNRIC(app.getApplicant().getNric());
             String applicantNric = (applicant != null) ? applicant.getNric() : "N/A";
             
@@ -298,7 +298,7 @@ public class ApplicationView extends BaseView {
             int appSelection = Integer.parseInt(scanner.nextLine().trim());
             
             if (appSelection > 0 && appSelection <= successfulApps.size()) {
-                Application selectedApp = successfulApps.get(appSelection - 1);
+                BTOApplication selectedApp = successfulApps.get(appSelection - 1);
                 User applicant = userController.getUserByNRIC(selectedApp.getApplicant().getNric());
                 
                 if (applicant == null) {
@@ -371,14 +371,14 @@ public class ApplicationView extends BaseView {
     /**
  * Creates a new method in ApplicationController to get applications by user NRIC
  */
-public List<Application> getApplicationsByUser(String nric) {
-    List<Application> result = new ArrayList<>();
+public List<BTOApplication> getApplicationsByUser(String nric) {
+    List<BTOApplication> result = new ArrayList<>();
     
     // Get all applications
-    List<Application> allApplications = getAllApplications();
+    List<BTOApplication> allApplications = getAllApplications();
     
     // Filter by user NRIC
-    for (Application app : allApplications) {
+    for (BTOApplication app : allApplications) {
         if (app.getApplicant().getNric().equals(nric)) {
             result.add(app);
         }
@@ -390,14 +390,14 @@ public List<Application> getApplicationsByUser(String nric) {
 /**
  * Gets applications by project and status
  */
-public List<Application> getApplicationsByProjectAndStatus(String projectId, ApplicationStatus status) {
-    List<Application> result = new ArrayList<>();
+public List<BTOApplication> getApplicationsByProjectAndStatus(String projectId, ApplicationStatus status) {
+    List<BTOApplication> result = new ArrayList<>();
     
     // Get all applications
-    List<Application> allApplications = getAllApplications();
+    List<BTOApplication> allApplications = getAllApplications();
     
     // Filter by project ID and status
-    for (Application app : allApplications) {
+    for (BTOApplication app : allApplications) {
         if (app.getProject().getProjectId().equals(projectId) && app.getStatus() == status) {
             result.add(app);
         }
@@ -409,7 +409,7 @@ public List<Application> getApplicationsByProjectAndStatus(String projectId, App
 /**
  * Gets all applications
  */
-private List<Application> getAllApplications() {
+private List<BTOApplication> getAllApplications() {
     // This would typically retrieve from DataStore
     // For testing, return an empty list
     return new ArrayList<>();

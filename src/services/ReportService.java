@@ -1,6 +1,6 @@
 package services;
 
-import models.Application;
+import models.BTOApplication;
 import models.BTOProject;
 import models.User;
 import enumeration.ApplicationStatus;
@@ -37,7 +37,7 @@ public class ReportService {
             return "Project not found";
         }
         
-        List<Application> applications = applicationService.getApplicationsByProject(project);
+        List<BTOApplication> applications = applicationService.getApplicationsByProject(project);
         
         StringBuilder report = new StringBuilder();
         report.append(String.format("Report for Project: %s\n", project.getProjectName()));
@@ -50,7 +50,7 @@ public class ReportService {
         
         // Count by status
         Map<ApplicationStatus, Long> statusCounts = applications.stream()
-            .collect(Collectors.groupingBy(Application::getStatus, Collectors.counting()));
+            .collect(Collectors.groupingBy(BTOApplication::getStatus, Collectors.counting()));
         
         report.append("\nApplication Status:\n");
         for (ApplicationStatus status : ApplicationStatus.values()) {
@@ -61,7 +61,7 @@ public class ReportService {
         
         // Count by flat type
         Map<FlatType, Long> flatTypeCounts = applications.stream()
-            .collect(Collectors.groupingBy(Application::getFlatType, Collectors.counting()));
+            .collect(Collectors.groupingBy(BTOApplication::getFlatType, Collectors.counting()));
         
         report.append("\nFlat Type Distribution:\n");
         for (FlatType flatType : FlatType.values()) {
@@ -110,8 +110,8 @@ public class ReportService {
             return "Invalid flat type. Please use TWO_ROOM or THREE_ROOM.";
         }
         
-        List<Application> allApplications = applicationService.getAllApplications();
-        List<Application> filteredApplications = allApplications.stream()
+        List<BTOApplication> allApplications = applicationService.getAllApplications();
+        List<BTOApplication> filteredApplications = allApplications.stream()
             .filter(app -> app.getFlatType() == flatType)
             .collect(Collectors.toList());
         
@@ -121,11 +121,11 @@ public class ReportService {
         report.append(String.format("Total Applications: %d\n", filteredApplications.size()));
         
         // Group by project
-        Map<BTOProject, List<Application>> projectGroups = filteredApplications.stream()
-            .collect(Collectors.groupingBy(Application::getProject));
+        Map<BTOProject, List<BTOApplication>> projectGroups = filteredApplications.stream()
+            .collect(Collectors.groupingBy(BTOApplication::getProject));
         
         report.append("\nDistribution by Project:\n");
-        for (Map.Entry<BTOProject, List<Application>> entry : projectGroups.entrySet()) {
+        for (Map.Entry<BTOProject, List<BTOApplication>> entry : projectGroups.entrySet()) {
             report.append(String.format("  %s: %d applications\n", 
                                        entry.getKey().getProjectName(), 
                                        entry.getValue().size()));
@@ -133,7 +133,7 @@ public class ReportService {
         
         // Count by status
         Map<ApplicationStatus, Long> statusCounts = filteredApplications.stream()
-            .collect(Collectors.groupingBy(Application::getStatus, Collectors.counting()));
+            .collect(Collectors.groupingBy(BTOApplication::getStatus, Collectors.counting()));
         
         report.append("\nApplication Status:\n");
         for (ApplicationStatus status : ApplicationStatus.values()) {
@@ -183,8 +183,8 @@ public class ReportService {
             return "Invalid marital status. Please use SINGLE or MARRIED.";
         }
         
-        List<Application> allApplications = applicationService.getAllApplications();
-        List<Application> filteredApplications = allApplications.stream()
+        List<BTOApplication> allApplications = applicationService.getAllApplications();
+        List<BTOApplication> filteredApplications = allApplications.stream()
             .filter(app -> app.getApplicant().getMaritalStatus() == maritalStatus)
             .collect(Collectors.toList());
         
@@ -195,7 +195,7 @@ public class ReportService {
         
         // Count by flat type
         Map<FlatType, Long> flatTypeCounts = filteredApplications.stream()
-            .collect(Collectors.groupingBy(Application::getFlatType, Collectors.counting()));
+            .collect(Collectors.groupingBy(BTOApplication::getFlatType, Collectors.counting()));
         
         report.append("\nFlat Type Distribution:\n");
         for (FlatType flatType : FlatType.values()) {
@@ -206,7 +206,7 @@ public class ReportService {
         
         // Count by status
         Map<ApplicationStatus, Long> statusCounts = filteredApplications.stream()
-            .collect(Collectors.groupingBy(Application::getStatus, Collectors.counting()));
+            .collect(Collectors.groupingBy(BTOApplication::getStatus, Collectors.counting()));
         
         report.append("\nApplication Status:\n");
         for (ApplicationStatus status : ApplicationStatus.values()) {
@@ -216,11 +216,11 @@ public class ReportService {
         }
         
         // Group by project
-        Map<BTOProject, List<Application>> projectGroups = filteredApplications.stream()
-            .collect(Collectors.groupingBy(Application::getProject));
+        Map<BTOProject, List<BTOApplication>> projectGroups = filteredApplications.stream()
+            .collect(Collectors.groupingBy(BTOApplication::getProject));
         
         report.append("\nDistribution by Project:\n");
-        for (Map.Entry<BTOProject, List<Application>> entry : projectGroups.entrySet()) {
+        for (Map.Entry<BTOProject, List<BTOApplication>> entry : projectGroups.entrySet()) {
             report.append(String.format("  %s: %d applications\n", 
                                        entry.getKey().getProjectName(), 
                                        entry.getValue().size()));
@@ -263,7 +263,7 @@ public class ReportService {
      * @return Report as a string
      */
     public String generateApplicationStatusReport() {
-        List<Application> allApplications = applicationService.getAllApplications();
+        List<BTOApplication> allApplications = applicationService.getAllApplications();
         
         StringBuilder report = new StringBuilder();
         report.append("Application Status Report\n\n");
@@ -271,12 +271,12 @@ public class ReportService {
         report.append(String.format("Total Applications: %d\n", allApplications.size()));
         
         // Count by status
-        Map<ApplicationStatus, List<Application>> statusGroups = allApplications.stream()
-            .collect(Collectors.groupingBy(Application::getStatus));
+        Map<ApplicationStatus, List<BTOApplication>> statusGroups = allApplications.stream()
+            .collect(Collectors.groupingBy(BTOApplication::getStatus));
         
         report.append("\nApplication Status Breakdown:\n");
         for (ApplicationStatus status : ApplicationStatus.values()) {
-            List<Application> apps = statusGroups.getOrDefault(status, List.of());
+            List<BTOApplication> apps = statusGroups.getOrDefault(status, List.of());
             report.append(String.format("  %s: %d (%.2f%%)\n", 
                                        status.toString(), 
                                        apps.size(),
@@ -287,8 +287,8 @@ public class ReportService {
         // Analyze by project
         Map<BTOProject, Map<ApplicationStatus, Long>> projectStatusCounts = allApplications.stream()
             .collect(Collectors.groupingBy(
-                Application::getProject,
-                Collectors.groupingBy(Application::getStatus, Collectors.counting())
+                BTOApplication::getProject,
+                Collectors.groupingBy(BTOApplication::getStatus, Collectors.counting())
             ));
         
         report.append("\nStatus by Project:\n");
@@ -306,7 +306,7 @@ public class ReportService {
         
         // Withdrawal analysis
         long withdrawalRequests = allApplications.stream()
-            .filter(Application::isWithdrawalRequested)
+            .filter(BTOApplication::isWithdrawalRequested)
             .count();
         
         report.append(String.format("\nTotal Withdrawal Requests: %d (%.2f%%)\n", 
@@ -340,7 +340,7 @@ public class ReportService {
      */
     public String generateProjectApplicationReport() {
         List<BTOProject> allProjects = projectService.getAllProjects();
-        List<Application> allApplications = applicationService.getAllApplications();
+        List<BTOApplication> allApplications = applicationService.getAllApplications();
         
         StringBuilder report = new StringBuilder();
         report.append("Project Application Report\n\n");
@@ -349,15 +349,15 @@ public class ReportService {
         report.append(String.format("Total Applications: %d\n", allApplications.size()));
         
         // Group applications by project
-        Map<BTOProject, List<Application>> projectApplications = allApplications.stream()
-            .collect(Collectors.groupingBy(Application::getProject));
+        Map<BTOProject, List<BTOApplication>> projectApplications = allApplications.stream()
+            .collect(Collectors.groupingBy(BTOApplication::getProject));
         
         report.append("\nProjects by Application Count:\n");
         projectApplications.entrySet().stream()
             .sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
             .forEach(entry -> {
                 BTOProject project = entry.getKey();
-                List<Application> apps = entry.getValue();
+                List<BTOApplication> apps = entry.getValue();
                 
                 report.append(String.format("  %s: %d applications\n", 
                                            project.getProjectName(), 
@@ -366,7 +366,7 @@ public class ReportService {
         
         // Flat type demand across all projects
         Map<FlatType, Long> flatTypeCounts = allApplications.stream()
-            .collect(Collectors.groupingBy(Application::getFlatType, Collectors.counting()));
+            .collect(Collectors.groupingBy(BTOApplication::getFlatType, Collectors.counting()));
         
         report.append("\nOverall Flat Type Demand:\n");
         for (FlatType flatType : FlatType.values()) {
@@ -384,7 +384,7 @@ public class ReportService {
             .filter(entry -> !entry.getValue().isEmpty())
             .map(entry -> {
                 BTOProject project = entry.getKey();
-                List<Application> apps = entry.getValue();
+                List<BTOApplication> apps = entry.getValue();
                 
                 long bookedApps = apps.stream()
                     .filter(app -> app.getStatus() == ApplicationStatus.BOOKED)
@@ -404,7 +404,7 @@ public class ReportService {
         // Application status summary by project
         report.append("\nApplication Status by Project:\n");
         for (BTOProject project : allProjects) {
-            List<Application> apps = projectApplications.getOrDefault(project, List.of());
+            List<BTOApplication> apps = projectApplications.getOrDefault(project, List.of());
             
             if (apps.isEmpty()) {
                 report.append(String.format("  %s: No applications\n", project.getProjectName()));
@@ -414,7 +414,7 @@ public class ReportService {
             report.append(String.format("  %s:\n", project.getProjectName()));
             
             Map<ApplicationStatus, Long> statusCounts = apps.stream()
-                .collect(Collectors.groupingBy(Application::getStatus, Collectors.counting()));
+                .collect(Collectors.groupingBy(BTOApplication::getStatus, Collectors.counting()));
             
             for (ApplicationStatus status : ApplicationStatus.values()) {
                 long count = statusCounts.getOrDefault(status, 0L);
@@ -428,7 +428,7 @@ public class ReportService {
         }
         
         // Project popularity by neighborhood
-        Map<String, List<Application>> neighborhoodApplications = allApplications.stream()
+        Map<String, List<BTOApplication>> neighborhoodApplications = allApplications.stream()
             .collect(Collectors.groupingBy(app -> app.getProject().getNeighborhood()));
         
         report.append("\nNeighborhood Popularity:\n");
@@ -436,7 +436,7 @@ public class ReportService {
             .sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
             .forEach(entry -> {
                 String neighborhood = entry.getKey();
-                List<Application> apps = entry.getValue();
+                List<BTOApplication> apps = entry.getValue();
                 
                 report.append(String.format("  %s: %d applications (%.2f%%)\n", 
                                            neighborhood, 

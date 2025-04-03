@@ -21,7 +21,7 @@ public class User {
     private MaritalStatus maritalStatus;
     
     // Bug Fix: Use defensive copying for collections
-    private List<Application> applications;
+    private List<BTOApplication> applications;
     private List<Registration> registrations;
 
     // Regex patterns for validation
@@ -69,7 +69,7 @@ public class User {
         this.email = email;
     }
     public User(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, String password,
-            UserType userType, String contactNumber, String email, List<Application> applications,
+            UserType userType, String contactNumber, String email, List<BTOApplication> applications,
             List<Registration> registrations) {
         this(nric, name, dateOfBirth, maritalStatus);
         this.password = password;
@@ -80,7 +80,7 @@ public class User {
         this.registrations = registrations;
     }
     public User(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, String password,
-            UserType userType, String contactNumber, String email, List<Application> applications,
+            UserType userType, String contactNumber, String email, List<BTOApplication> applications,
             List<Registration> registrations, String status) {
         this(nric, name, dateOfBirth, maritalStatus);
         this.password = password;
@@ -172,7 +172,7 @@ public class User {
     }
 
     // Defensive copy methods
-    public List<Application> getApplications() {
+    public List<BTOApplication> getApplications() {
         return new ArrayList<>(applications);
     }
 
@@ -181,7 +181,7 @@ public class User {
     }
 
     // Bug Fix: Safe method for adding applications
-    public void addApplication(Application application) {
+    public void addApplication(BTOApplication application) {
         if (application != null && !applications.contains(application)) {
             applications.add(application);
         }
@@ -296,7 +296,7 @@ public class User {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public void setApplications(List<Application> applications) {
+    public void setApplications(List<BTOApplication> applications) {
         this.applications = new ArrayList<>(applications);
     }
 

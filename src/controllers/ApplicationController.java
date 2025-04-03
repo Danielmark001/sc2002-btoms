@@ -4,7 +4,6 @@ import models.*;
 import enumeration.*;
 import services.*;
 import view.ApplicationView;
-import util.InputValidator;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -13,14 +12,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import services.BTOApplicationService;
 
 /**
  * Controller for handling application-related operations
  */
 public class ApplicationController {
     private ApplicationView applicationView;
-    private ApplicationService applicationService;
+    private BTOApplicationService applicationService;
     private UserService userService;
     private ProjectService projectService;
     
@@ -81,8 +80,7 @@ public class ApplicationController {
             Applicant applicant = (Applicant) currentUser;
             
             // Check if already applied for a project
-            Application currentApplication = applicant.getCurrentApplication();
-            if (currentApplication != null) {
+            if (applicant.hasActiveApplication()) {
                 if (applicationView != null) {
                     applicationView.displayError("You already have an active application");
                 }
@@ -106,7 +104,7 @@ public class ApplicationController {
             }
             
             // Create the application
-            Application application = applicationService.createApplication(applicant, project);
+            BTOApplication application = applicationService.createApplication(applicant, project);
             
             if (applicationView != null) {
                 applicationView.displaySuccess("Application submitted successfully");
@@ -127,7 +125,7 @@ public class ApplicationController {
      * @param application Application to withdraw
      * @return true if request succeeds
      */
-    public boolean requestWithdrawal(Application application) {
+    public boolean requestWithdrawal(BTOApplication application) {
         try {
             // Validate application
             if (application == null) {
@@ -194,7 +192,7 @@ public class ApplicationController {
      * @param application Application to process
      * @return true if processing succeeds
      */
-    public boolean processBooking(Application application) {
+    public boolean processBooking(BTOApplication application) {
         try {
             // Validate application
             if (application == null) {
@@ -261,7 +259,7 @@ public class ApplicationController {
      * @param application Application to approve
      * @return true if approval succeeds
      */
-    public boolean approveApplication(Application application) {
+    public boolean approveApplication(BTOApplication application) {
         try {
             // Validate application
             if (application == null) {
@@ -327,7 +325,7 @@ public class ApplicationController {
      * @param application Application to reject
      * @return true if rejection succeeds
      */
-    public boolean rejectApplication(Application application) {
+    public boolean rejectApplication(BTOApplication application) {
         try {
             // Validate application
             if (application == null) {
@@ -394,7 +392,7 @@ public class ApplicationController {
      * @param approve Whether to approve or reject the withdrawal
      * @return true if processing succeeds
      */
-    public boolean processWithdrawal(Application application, boolean approve) {
+    public boolean processWithdrawal(BTOApplication application, boolean approve) {
         try {
             // Validate application
             if (application == null) {
@@ -460,7 +458,7 @@ public class ApplicationController {
      * @param project Project to get applications for
      * @return List of applications
      */
-    public List<Application> getApplicationsByProject(BTOProject project) {
+    public List<BTOApplication> getApplicationsByProject(BTOProject project) {
         try {
             if (project == null) {
                 return new ArrayList<>();
@@ -481,7 +479,7 @@ public class ApplicationController {
      * @param nric NRIC of the user
      * @return List of applications by the user
      */
-    public List<Application> getApplicationsByUser(String nric) {
+    public List<BTOApplication> getApplicationsByUser(String nric) {
         try {
             if (nric == null || nric.trim().isEmpty()) {
                 return new ArrayList<>();
@@ -503,7 +501,7 @@ public class ApplicationController {
      * @param status Status to filter by
      * @return List of applications with the specified project and status
      */
-    public List<Application> getApplicationsByProjectAndStatus(String projectId, ApplicationStatus status) {
+    public List<BTOApplication> getApplicationsByProjectAndStatus(String projectId, ApplicationStatus status) {
         try {
             if (projectId == null || projectId.trim().isEmpty() || status == null) {
                 return new ArrayList<>();
@@ -514,7 +512,16 @@ public class ApplicationController {
                 return new ArrayList<>();
             }
             
-            return applicationService.getApplicationsByStatus(project, status);
+            List<BTOApplication> allApplications = applicationService.getApplicationsByProject(project);
+            List<BTOApplication> filteredApplications = new ArrayList<>();
+            
+            for (BTOApplication app : allApplications) {
+                if (app.getStatus() == status) {
+                    filteredApplications.add(app);
+                }
+            }
+            
+            return filteredApplications;
         } catch (Exception e) {
             if (applicationView != null) {
                 applicationView.displayError("Error retrieving applications: " + e.getMessage());
@@ -583,7 +590,7 @@ public class ApplicationController {
      * 
      * @return Current application or null if none
      */
-    public Application getCurrentApplication() {
+    public BTOApplication getCurrentApplication() {
         try {
             User currentUser = userService.getCurrentUser();
             if (!(currentUser instanceof Applicant)) {
@@ -597,6 +604,22 @@ public class ApplicationController {
                 applicationView.displayError("Error retrieving current application: " + e.getMessage());
             }
             return null;
+        }
+    }
+    
+    /**
+     * Gets all applications in the system
+     * 
+     * @return List of all applications
+     */
+    public List<BTOApplication> getAllApplications() {
+        try {
+            return applicationService.getAllApplications();
+        } catch (Exception e) {
+            if (applicationView != null) {
+                applicationView.displayError("Error retrieving applications: " + e.getMessage());
+            }
+            return new ArrayList<>();
         }
     }
 }

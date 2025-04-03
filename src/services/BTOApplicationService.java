@@ -1,6 +1,6 @@
 package services;
 
-import interfaces.IApplicationService;
+import interfaces.IBTOApplicationService;
 import models.*;
 import enumeration.*;
 import stores.AuthStore;
@@ -10,34 +10,33 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import services.UserService;
 
 /**
  * Service for managing BTO applications
  */
-public class ApplicationService implements IApplicationService {
-    private static ApplicationService instance;
+public class BTOApplicationService implements IBTOApplicationService {
+    private static BTOApplicationService instance;
     private DataStore dataStore;
     private AuthStore authStore;
 
-    private ApplicationService() {
+    private BTOApplicationService() {
         this.dataStore = DataStore.getInstance();
         this.authStore = AuthStore.getInstance();
     }
 
     /**
-     * Gets the singleton instance of ApplicationService
-     * @return ApplicationService instance
+     * Gets the singleton instance of BTOApplicationService
+     * @return BTOApplicationService instance
      */
-    public static synchronized ApplicationService getInstance() {
+    public static synchronized BTOApplicationService getInstance() {
         if (instance == null) {
-            instance = new ApplicationService();
+            instance = new BTOApplicationService();
         }
         return instance;
     }
 
     @Override
-    public Application createApplication(Applicant applicant, BTOProject project) {
+    public BTOApplication createApplication(Applicant applicant, BTOProject project) {
         // Validate inputs
         if (applicant == null || project == null) {
             throw new IllegalArgumentException("Applicant and project cannot be null");
@@ -62,14 +61,14 @@ public class ApplicationService implements IApplicationService {
         FlatType flatType = determineFlatType(applicant, project);
 
         // Create application with generated ID
-        Application application = new Application(
-            generateUniqueApplicationId(),
+        BTOApplication application = new BTOApplication(
+            BTOApplication.generateUniqueId(),
             applicant,
-            project
+            project,
+            flatType
         );
         
         // Set initial properties
-        application.setFlatType(flatType);
         application.setStatus(ApplicationStatus.PENDING);
         application.setApplicationDate(LocalDateTime.now());
 
@@ -86,7 +85,7 @@ public class ApplicationService implements IApplicationService {
     }
 
     @Override
-    public boolean approveApplication(Application application, HDBManager manager) {
+    public boolean approveApplication(BTOApplication application, HDBManager manager) {
         // Validate inputs
         if (application == null || manager == null) {
             return false;
@@ -125,7 +124,7 @@ public class ApplicationService implements IApplicationService {
     }
 
     @Override
-    public boolean rejectApplication(Application application, HDBManager manager) {
+    public boolean rejectApplication(BTOApplication application, HDBManager manager) {
         // Validate inputs
         if (application == null || manager == null) {
             return false;
@@ -151,7 +150,7 @@ public class ApplicationService implements IApplicationService {
     }
 
     @Override
-    public boolean processWithdrawal(Application application, HDBManager manager, boolean approve) {
+    public boolean processWithdrawal(BTOApplication application, HDBManager manager, boolean approve) {
         // Validate inputs
         if (application == null || manager == null) {
             return false;
@@ -169,8 +168,8 @@ public class ApplicationService implements IApplicationService {
 
         // Process based on approval decision
         if (approve) {
-            // Set application status to UNSUCCESSFUL to indicate withdrawal
-            application.setStatus(ApplicationStatus.UNSUCCESSFUL);
+            // Set application status to WITHDRAWN to indicate withdrawal
+            application.setStatus(ApplicationStatus.WITHDRAWN);
             
             // If already booked, update unit count
             if (application.getStatus() == ApplicationStatus.BOOKED) {
@@ -178,8 +177,7 @@ public class ApplicationService implements IApplicationService {
             }
         } else {
             // Reset withdrawal request flag
-            // This requires adding a method to reset withdrawal in the Application class
-            resetWithdrawalRequest(application);
+            application.resetWithdrawalRequest();
         }
 
         // Save updated application
@@ -189,7 +187,7 @@ public class ApplicationService implements IApplicationService {
     }
 
     @Override
-    public boolean bookFlat(Application application, HDBOfficer officer, FlatType flatType) {
+    public boolean bookFlat(BTOApplication application, HDBOfficer officer, FlatType flatType) {
         // Validate inputs
         if (application == null || officer == null || flatType == null) {
             return false;
@@ -217,12 +215,16 @@ public class ApplicationService implements IApplicationService {
             return false;
         }
 
+        // Generate unit number (simplified implementation)
+        String unitNumber = generateUnitNumber(flatType);
+
         // Update application
         application.setStatus(ApplicationStatus.BOOKED);
         application.setFlatType(flatType);
+        application.setBookedUnit(unitNumber);
 
         // Generate booking receipt
-        String receipt = generateBookingReceipt(application.getApplicant().getNric());
+        String receipt = generateBookingReceipt(application);
         application.setBookingReceipt(receipt);
 
         // Add to officer's processed applications
@@ -235,7 +237,7 @@ public class ApplicationService implements IApplicationService {
     }
 
     @Override
-    public List<Application> getApplicationsByProject(BTOProject project) {
+    public List<BTOApplication> getApplicationsByProject(BTOProject project) {
         if (project == null) {
             return new ArrayList<>();
         }
@@ -244,7 +246,7 @@ public class ApplicationService implements IApplicationService {
     }
 
     @Override
-    public List<Application> getApplicationsByStatus(BTOProject project, ApplicationStatus status) {
+    public List<BTOApplication> getApplicationsByStatus(BTOProject project, ApplicationStatus status) {
         if (project == null || status == null) {
             return new ArrayList<>();
         }
@@ -270,7 +272,7 @@ public class ApplicationService implements IApplicationService {
         Applicant applicant = (Applicant) user;
         
         // Find booked application
-        Optional<Application> bookedApp = applicant.getApplications().stream()
+        Optional<BTOApplication> bookedApp = applicant.getApplications().stream()
             .filter(app -> app.getStatus() == ApplicationStatus.BOOKED)
             .findFirst();
         
@@ -278,10 +280,26 @@ public class ApplicationService implements IApplicationService {
             return null;
         }
         
-        Application application = bookedApp.get();
+        BTOApplication application = bookedApp.get();
         BTOProject project = application.getProject();
         
         // Generate receipt
+        return generateBookingReceipt(application);
+    }
+    
+    /**
+     * Generates a booking receipt for an application
+     * @param application Application to generate receipt for
+     * @return Booking receipt as a string
+     */
+    private String generateBookingReceipt(BTOApplication application) {
+        if (application == null || application.getStatus() != ApplicationStatus.BOOKED) {
+            return null;
+        }
+        
+        Applicant applicant = application.getApplicant();
+        BTOProject project = application.getProject();
+        
         return String.format(
             "BOOKING RECEIPT\n" +
             "----------------\n" +
@@ -295,7 +313,8 @@ public class ApplicationService implements IApplicationService {
             "PROJECT DETAILS\n" +
             "Project Name: %s\n" +
             "Neighborhood: %s\n" +
-            "Flat Type: %s\n\n" +
+            "Flat Type: %s\n" +
+            "Unit Number: %s\n\n" +
             "This receipt confirms your successful booking of a BTO flat.\n" +
             "Please retain this receipt for your records.",
             "RCPT-" + System.currentTimeMillis(),
@@ -306,7 +325,8 @@ public class ApplicationService implements IApplicationService {
             applicant.getMaritalStatus(),
             project.getProjectName(),
             project.getNeighborhood(),
-            application.getFlatType()
+            application.getFlatType(),
+            application.getBookedUnit()
         );
     }
 
@@ -314,7 +334,7 @@ public class ApplicationService implements IApplicationService {
      * Gets all applications
      * @return List of all applications
      */
-    public List<Application> getAllApplications() {
+    public List<BTOApplication> getAllApplications() {
         return dataStore.getAllApplications();
     }
 
@@ -323,7 +343,7 @@ public class ApplicationService implements IApplicationService {
      * @param applicationId Application ID to look up
      * @return Application if found, null otherwise
      */
-    public Application getApplicationById(String applicationId) {
+    public BTOApplication getApplicationById(String applicationId) {
         if (applicationId == null) {
             return null;
         }
@@ -339,7 +359,7 @@ public class ApplicationService implements IApplicationService {
      * @param applicant Applicant to find applications for
      * @return List of applications for the applicant
      */
-    public List<Application> getApplicationsByApplicant(Applicant applicant) {
+    public List<BTOApplication> getApplicationsByApplicant(Applicant applicant) {
         if (applicant == null) {
             return new ArrayList<>();
         }
@@ -354,7 +374,7 @@ public class ApplicationService implements IApplicationService {
      * @param nric NRIC of the applicant
      * @return List of applications for the applicant
      */
-    public List<Application> getApplicationsByApplicantNric(String nric) {
+    public List<BTOApplication> getApplicationsByApplicantNric(String nric) {
         if (nric == null) {
             return new ArrayList<>();
         }
@@ -408,173 +428,26 @@ public class ApplicationService implements IApplicationService {
     }
 
     /**
-     * Generates a unique application ID
-     * @return Unique application ID
+     * Generates a unit number for a booked flat
+     * @param flatType Flat type being booked
+     * @return Generated unit number
      */
-    private String generateUniqueApplicationId() {
-        return "APP-" + System.currentTimeMillis() + "-" + 
-               UUID.randomUUID().toString().substring(0, 8);
+    private String generateUnitNumber(FlatType flatType) {
+        // Simple unit number generator (should be more sophisticated in a real system)
+        String typePrefix = flatType == FlatType.TWO_ROOM ? "2R-" : "3R-";
+        return typePrefix + (100 + new Random().nextInt(900));
     }
 
     /**
-     * Resets withdrawal request flag for an application
-     * @param application Application to reset withdrawal for
+     * Updates an existing application
+     * @param application Application to update
+     * @return true if update was successful
      */
-    private void resetWithdrawalRequest(Application application) {
-        // This requires adding these methods to the Application class
-        if (application != null) {
-            // Set withdrawal requested to false
-            // Implementation depends on the Application class having this method
-            if (application instanceof Applicant) {
-                ((Applicant) application).setWithdrawalRequest(false);
-            }
+    public boolean updateApplication(BTOApplication application) {
+        if (application == null) {
+            return false;
         }
+        
+        return dataStore.updateApplication(application);
     }
-
-    public boolean updateApplication(Application application) {
-    if (application == null) {
-        return false;
-    }
-    
-    // Save to data store
-    return dataStore.updateApplication(application);
-}
-
-/**
- * Missing method to add setWithdrawalRequest to Applicant class
- */
-public void setWithdrawalRequest(boolean requested) {
-    // Find the current application
-    Application currentApp = getCurrentApplication();
-    if (currentApp != null) {
-        // Update the withdrawal request status
-        // This assumes the Application class has a method to update the withdrawal status directly
-        // If not, we would need to call requestWithdrawal() or reset the flag
-        if (requested) {
-            currentApp.requestWithdrawal();
-        } else {
-            // Reset the withdrawal request flag - requires adding this method to Application
-            if (currentApp instanceof Application) {
-                // Cast and access the field directly, or call a method if available
-                Field withdrawalRequestedField;
-                try {
-                    withdrawalRequestedField = Application.class.getDeclaredField("withdrawalRequested");
-                    withdrawalRequestedField.setAccessible(true);
-                    withdrawalRequestedField.set(currentApp, false);
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    // Log error but continue
-                    System.err.println("Error resetting withdrawal request: " + e.getMessage());
-                }
-            }
-        }
-    }
-}
-
-/**
- * Missing method to get the current project for HDBOfficer class
- */
-public BTOProject getHandlingProject() {
-    return handlingProject;
-}
-
-/**
- * Missing method to check if a user is an HDB Manager in User class
- */
-public boolean isHdbManager() {
-    return this instanceof HDBManager;
-}
-
-/**
- * Missing method in ProjectController to get enquiries by project
- */
-public List<Enquiry> getEnquiriesByProject(BTOProject project) {
-    EnquiryService enquiryService = EnquiryService.getInstance();
-    return enquiryService.getEnquiriesByProject(project);
-}
-
-/**
- * Missing method for getEnquiryData in DataStore class
- */
-public List<String[]> getEnquiryData() {
-    lock.readLock().lock();
-    try {
-        return new ArrayList<>(allData.getOrDefault("enquiries", new ArrayList<>()));
-    } finally {
-        lock.readLock().unlock();
-    }
-}
-
-/**
- * Missing getOfficerIds method in BTOProject class
- */
-public List<String> getOfficerIds() {
-    List<String> officerIds = new ArrayList<>();
-    for (Registration reg : registrations) {
-        if (reg.getStatus() == RegistrationStatus.APPROVED) {
-            officerIds.add(reg.getOfficer().getNric());
-        }
-    }
-    return officerIds;
-}
-
-/**
- * Missing utility method in UserController to generate reports
- */
-public String generateReport(String filter, String value) {
-    // Create the report service
-    ReportService reportService = new ReportService();
-    
-    // Generate the appropriate report
-    switch (filter.toLowerCase()) {
-        case "project":
-            return reportService.generateProjectReport(value);
-        case "flat-type":
-            return reportService.generateFlatTypeReport(value);
-        case "marital-status":
-            return reportService.generateMaritalStatusReport(value);
-        case "application-status":
-            return reportService.generateApplicationStatusReport();
-        case "project-application":
-            return reportService.generateProjectApplicationReport();
-        default:
-            return "Invalid filter criteria. Please use project, flat-type, marital-status, application-status, or project-application.";
-    }
-}
-
-/**
- * Missing utility method to change password in UserController
- */
-public boolean changePassword(String oldPassword, String newPassword) {
-    // Validate input
-    if (oldPassword == null || newPassword == null || 
-        oldPassword.trim().isEmpty() || newPassword.trim().isEmpty()) {
-        return false;
-    }
-    
-    // Validate new password complexity
-    if (newPassword.length() < 8) {
-        return false;
-    }
-    
-    // Get current user
-    User currentUser = userService.getCurrentUser();
-    if (currentUser == null) {
-        return false;
-    }
-    
-    // Change password
-    return userService.changePassword(oldPassword, newPassword);
-}
-
-/**
- * Missing method to get applications for a project in ProjectController
- */
-public List<Application> getApplicationsForProject(BTOProject project) {
-    if (project == null) {
-        return new ArrayList<>();
-    }
-    
-    ApplicationService applicationService = ApplicationService.getInstance();
-    return applicationService.getApplicationsByProject(project);
-}
 }

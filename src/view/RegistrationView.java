@@ -112,7 +112,16 @@ public class RegistrationView {
             System.out.println("Failed to " + action + " registration.");
         }
     }
-    public void displayError(string message)
+
+    public void displayError(String message) {
+        System.out.println("Error: " + message);
+    }
+    public void displaySuccess(String message) {
+        System.out.println("Success: " + message);
+    }
+    public void displayMessage(String message) {
+        System.out.println(message);
+    }
     
     private void displayRegistrations(List<Registration> registrations) {
         for (Registration registration : registrations) {
