@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 import models.Enquiry;
 import enumeration.FlatType;
-import models.User;
-import enumeration.UserStatus;
-import enumeration.ApplicationStatus;
+
 
 
 public class OfficerProjectView {

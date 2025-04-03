@@ -10,8 +10,6 @@ import java.util.Scanner;
 
 import controllers.ProjectController;
 import models.BTOProject;
-import models.HDBManager;
-import models.User;
 import enumeration.FlatType;
 
 /**

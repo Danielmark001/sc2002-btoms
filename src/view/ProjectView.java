@@ -12,7 +12,7 @@ import models.Registration;
 import models.User;
 import enumeration.FlatType;
 import enumeration.MaritalStatus;
-import enumeration.RegistrationStatus;
+
 
 /**
  * View for displaying and handling project-related operations for applicants

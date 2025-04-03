@@ -3,7 +3,6 @@ package services;
 import interfaces.IProjectService;
 import models.*;
 import enumeration.*;
-import exceptions.ProjectValidationException;
 import stores.AuthStore;
 import stores.DataStore;
 

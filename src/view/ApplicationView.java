@@ -11,7 +11,7 @@ import models.BTOApplication;
 import models.BTOProject;
 import models.User;
 import enumeration.ApplicationStatus;
-import enumeration.FlatType;
+
 
 /**
  * View for handling application-related operations for applicants

@@ -3,7 +3,7 @@ package view;
 import controllers.EnquiryController;
 import models.Enquiry;
 import models.BTOProject;
-import models.User;
+
 
 import java.util.List;
 import java.util.Scanner;

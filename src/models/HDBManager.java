@@ -4,9 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import enumeration.MaritalStatus;
-import enumeration.UserStatus;
-import enumeration.UserType;
-import models.BTOProject;
 
 public class HDBManager extends User {
     private List<BTOProject> managedProjects;

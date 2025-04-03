@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import enumeration.MaritalStatus; // Ensure MaritalStatus is imported
 import enumeration.ApplicationStatus; // Ensure ApplicationStatus is imported
 import enumeration.RegistrationStatus; // Ensure RegistrationStatus is imported
-import enumeration.UserStatus; // Ensure UserStatus is imported
+
 
 public class BTOProject {
     // Unique identifier for the project

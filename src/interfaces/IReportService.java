@@ -1,6 +1,5 @@
 package interfaces;
 
-import java.util.Map;
 
 /**
  * Interface for the Report Service
