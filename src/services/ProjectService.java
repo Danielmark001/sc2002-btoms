@@ -277,7 +277,7 @@ public class ProjectService implements IProjectService {
         
         // Create registration
         Registration registration = new Registration(officer, project);
-        registration.setStatus(Registration.RegistrationStatus.PENDING);
+        registration.setStatus(RegistrationStatus.PENDING);
         registration.setRegistrationDate(LocalDate.now());
         
         // Add to officer's registrations
@@ -313,7 +313,7 @@ public class ProjectService implements IProjectService {
         }
         
         // Check if registration is pending
-        if (registration.getStatus() != Registration.RegistrationStatus.PENDING) {
+        if (registration.getStatus() != RegistrationStatus.PENDING) {
             return false;
         }
         
@@ -326,7 +326,7 @@ public class ProjectService implements IProjectService {
             }
             
             // Approve registration
-            registration.setStatus(Registration.RegistrationStatus.APPROVED);
+            registration.setStatus(RegistrationStatus.APPROVED);
             
             // Assign project to officer
             HDBOfficer officer = (HDBOfficer) registration.getOfficer();
@@ -336,7 +336,7 @@ public class ProjectService implements IProjectService {
             project.setAvailableHDBOfficerSlots(project.getAvailableHDBOfficerSlots() - 1);
         } else {
             // Reject registration
-            registration.setStatus(Registration.RegistrationStatus.REJECTED);
+            registration.setStatus(RegistrationStatus.REJECTED);
         }
         
         // Update in data store
@@ -362,7 +362,7 @@ public class ProjectService implements IProjectService {
         for (BTOProject project : managedProjects) {
             pendingRegistrations.addAll(
                 project.getRegistrations().stream()
-                    .filter(r -> r.getStatus() == Registration.RegistrationStatus.PENDING)
+                    .filter(r -> r.getStatus() == RegistrationStatus.PENDING)
                     .collect(Collectors.toList())
             );
         }
@@ -519,8 +519,8 @@ public class ProjectService implements IProjectService {
         
         return officer.getRegistrations().stream()
             .anyMatch(r -> r.getProject().equals(project) && 
-                     (r.getStatus() == Registration.RegistrationStatus.PENDING || 
-                      r.getStatus() == Registration.RegistrationStatus.APPROVED));
+                     (r.getStatus() == RegistrationStatus.PENDING || 
+                      r.getStatus() == RegistrationStatus.APPROVED));
     }
 
     /**
@@ -557,7 +557,7 @@ public class ProjectService implements IProjectService {
         }
         
         return officer.getRegistrations().stream()
-            .filter(r -> r.getStatus() == Registration.RegistrationStatus.APPROVED)
+            .filter(r -> r.getStatus() == RegistrationStatus.APPROVED)
             .map(Registration::getProject)
             .anyMatch(p -> datesOverlap(
                 p.getApplicationOpeningDate(), p.getApplicationClosingDate(),

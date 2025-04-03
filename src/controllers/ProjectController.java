@@ -381,7 +381,7 @@ public class ProjectController {
      * @param status Status to filter by
      * @return List of registrations with the specified status
      */
-    public List<Registration> getRegistrationsByStatus(Registration.RegistrationStatus status) {
+    public List<Registration> getRegistrationsByStatus(RegistrationStatus status) {
         return projectService.getRegistrationsByStatus(status);
     }
     

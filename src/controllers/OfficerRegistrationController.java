@@ -145,7 +145,7 @@ public class OfficerRegistrationController {
      * @param status Registration status to filter by
      * @return List of registrations with the specified status
      */
-    public List<Registration> getRegistrationByStatus(Registration.RegistrationStatus status) {
+    public List<Registration> getRegistrationByStatus(RegistrationStatus status) {
         return projectService.getRegistrationsByStatus(status);
     }
     public boolean removeUser(User user) {

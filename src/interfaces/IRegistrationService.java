@@ -49,7 +49,7 @@ public interface IRegistrationService {
      * @param status The registration status to filter by
      * @return List of registrations with the specified status
      */
-    List<Registration> getRegistrationsByStatus(Registration.RegistrationStatus status);
+    List<Registration> getRegistrationsByStatus(RegistrationStatus status);
 
     /**
      * Get all registrations for a specific HDB Officer

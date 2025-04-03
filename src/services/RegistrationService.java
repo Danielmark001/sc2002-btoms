@@ -48,7 +48,7 @@ public class RegistrationService implements IRegistrationService {
         }
         
         // Set initial status
-        registration.setStatus(Registration.RegistrationStatus.PENDING);
+        registration.setStatus(RegistrationStatus.PENDING);
         registration.setRegistrationDate(LocalDate.now());
         
         // Add to officer's registrations
@@ -76,7 +76,7 @@ public class RegistrationService implements IRegistrationService {
         }
         
         // Check registration status
-        if (registration.getStatus() != Registration.RegistrationStatus.PENDING) {
+        if (registration.getStatus() != RegistrationStatus.PENDING) {
             return false;
         }
         
@@ -86,7 +86,7 @@ public class RegistrationService implements IRegistrationService {
         }
         
         // Update registration status
-        registration.setStatus(Registration.RegistrationStatus.APPROVED);
+        registration.setStatus(RegistrationStatus.APPROVED);
         
         // Update officer - set handling project
         if (registration.getOfficer() instanceof HDBOfficer) {
@@ -117,12 +117,12 @@ public class RegistrationService implements IRegistrationService {
         }
         
         // Check registration status
-        if (registration.getStatus() != Registration.RegistrationStatus.PENDING) {
+        if (registration.getStatus() != RegistrationStatus.PENDING) {
             return false;
         }
         
         // Update registration status
-        registration.setStatus(Registration.RegistrationStatus.REJECTED);
+        registration.setStatus(RegistrationStatus.REJECTED);
         
         // Save to data store
         dataStore.updateRegistration(registration);
@@ -140,7 +140,7 @@ public class RegistrationService implements IRegistrationService {
     }
     
     @Override
-    public List<Registration> getRegistrationsByStatus(Registration.RegistrationStatus status) {
+    public List<Registration> getRegistrationsByStatus(RegistrationStatus status) {
         if (status == null) {
             return new ArrayList<>();
         }
@@ -172,7 +172,7 @@ public class RegistrationService implements IRegistrationService {
      * @param status Status to filter by
      * @return List of registrations with the specified project and status
      */
-    public List<Registration> getRegistrationsByProjectAndStatus(BTOProject project, Registration.RegistrationStatus status) {
+    public List<Registration> getRegistrationsByProjectAndStatus(BTOProject project, RegistrationStatus status) {
         if (project == null || status == null) {
             return new ArrayList<>();
         }

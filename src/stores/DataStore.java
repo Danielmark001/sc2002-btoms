@@ -26,6 +26,7 @@ import enumeration.FlatType;
 import enumeration.MaritalStatus;
 import enumeration.UserStatus;
 import enumeration.UserType;
+import enumeration.RegistrationStatus;
 import enumeration.ApplicationStatus;
 import services.CsvDataService;
 import util.FilePathsUtils;
@@ -806,7 +807,7 @@ public class DataStore {
                 registration.setRegistrationDate(registrationDate);
                 
                 // Set status
-                Registration.RegistrationStatus status = Registration.RegistrationStatus.valueOf(statusStr);
+                RegistrationStatus status = RegistrationStatus.valueOf(statusStr);
                 registration.setStatus(status);
                 
                 return registration;
