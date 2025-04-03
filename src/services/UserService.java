@@ -11,6 +11,9 @@ import enumeration.UserType;
 import enumeration.MaritalStatus;
 import enumeration.UserStatus;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,28 +97,50 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType) {
-        // Comprehensive validation
-        if (!validateNRIC(nric)) {
-            throw new IllegalArgumentException("Invalid NRIC format");
-        }
-
-        if (!isValidPassword(password)) {
-            throw new IllegalArgumentException("Invalid password");
-        }
-
-        if (age < 21) {
-            throw new IllegalArgumentException("User must be at least 21 years old");
-        }
-
-        User existingUser = getUserByNRIC(nric);
-        if (existingUser != null) {
-            throw new IllegalArgumentException("User with this NRIC already exists");
-        }
-
-        User newUser = new User(nric, password, age, maritalStatus, userType);
-        return DataStore.addUser(newUser);
+public boolean createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType) {
+    // Comprehensive validation
+    if (!validateNRIC(nric)) {
+        throw new IllegalArgumentException("Invalid NRIC format");
     }
+
+    if (!isValidPassword(password)) {
+        throw new IllegalArgumentException("Invalid password");
+    }
+
+    if (age < 21) {
+        throw new IllegalArgumentException("User must be at least 21 years old");
+    }
+
+    User existingUser = getUserByNRIC(nric);
+    if (existingUser != null) {
+        throw new IllegalArgumentException("User with this NRIC already exists");
+    }
+
+    // Calculate date of birth from age
+    LocalDate dateOfBirth = LocalDate.now().minusYears(age);
+    
+    // Create appropriate user type
+    User newUser;
+    switch (userType) {
+        case APPLICANT:
+            newUser = new Applicant(nric, null, dateOfBirth, maritalStatus);
+            break;
+        case OFFICER:
+            newUser = new HDBOfficer(nric, null, dateOfBirth, maritalStatus);
+            break;
+        case MANAGER:
+            newUser = new HDBManager(nric, null, dateOfBirth);
+            break;
+        default:
+            throw new IllegalArgumentException("Invalid user type");
+    }
+    
+    // Set password and default name (can be updated later)
+    newUser.setPassword(password);
+    newUser.setName("User " + nric); // Set a default name
+    
+    return DataStore.addUser(newUser);
+}
 
     @Override
     public boolean updateUser(User user) {
@@ -236,4 +261,42 @@ public User createUser(String nric, String name, LocalDate dateOfBirth, MaritalS
     public void setCurrentUser(User user) {
         AuthStore.setCurrentUser(user);
     }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedHash = digest.digest(
+                    password.getBytes(StandardCharsets.UTF_8));
+
+            // Convert bytes to hexadecimal
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : encodedHash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            // Fallback to plain text if hashing is not available
+            System.err.println("Warning: Secure password hashing not available");
+            return password;
+        }
+    }
+public boolean authenticate(User user, String password) {
+    if (user == null || password == null) {
+        return false;
+    }
+    
+    // For existing accounts with unhashed passwords, check direct match first
+    if (user.getPassword().equals(password)) {
+        // Update to hashed password for future authentications
+        user.setPassword(hashPassword(password));
+        return true;
+    }
+    
+    // Otherwise, check against hashed password
+    return user.getPassword().equals(hashPassword(password));
+}
 }

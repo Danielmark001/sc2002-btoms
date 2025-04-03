@@ -37,19 +37,7 @@ public class Applicant extends User {
         }
 
         // Method to check if applicant is eligible for a specific flat type
-        public boolean isEligibleForFlatType(FlatType flatType) {
-            int age = calculateAge();
-            
-            switch (flatType) {
-                case TWO_ROOM:
-                    return (this.getMaritalStatus() == MaritalStatus.SINGLE && age >= 35) ||
-                        (this.getMaritalStatus() == MaritalStatus.MARRIED && age >= 21);
-                case THREE_ROOM:
-                    return this.getMaritalStatus() == MaritalStatus.MARRIED && age >= 21;
-                default:
-                    return false;
-            }
-        }
+       
 
         // Method to check if applicant has an active application
         public boolean hasActiveApplication() {
@@ -108,5 +96,26 @@ public class Applicant extends User {
 
             return false;
         }
+
+        public boolean isEligibleForFlatType(FlatType flatType) {
+    int age = calculateAge();
+    
+    if (flatType == null) {
+        return false;
+    }
+    
+    switch (flatType) {
+        case TWO_ROOM:
+            // Singles 35 years and older, or Married 21 years and older
+            return (this.getMaritalStatus() == MaritalStatus.SINGLE && age >= 35) ||
+                   (this.getMaritalStatus() == MaritalStatus.MARRIED && age >= 21);
+        case THREE_ROOM:
+            // Only Married 21 years and older
+            return this.getMaritalStatus() == MaritalStatus.MARRIED && age >= 21;
+        default:
+            return false;
+    }
+}
+
 
 }

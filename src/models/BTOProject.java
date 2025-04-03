@@ -117,18 +117,41 @@ public class BTOProject {
     }
 
     public void setApplicationOpeningDate(LocalDate applicationOpeningDate) {
-        validateDates(applicationOpeningDate, this.applicationClosingDate);
-        this.applicationOpeningDate = applicationOpeningDate;
+    if (applicationOpeningDate == null) {
+        throw new IllegalArgumentException("Opening date cannot be null");
     }
+    
+    // Check if opening date is after current date
+    if (applicationOpeningDate.isBefore(LocalDate.now())) {
+        throw new IllegalArgumentException("Opening date cannot be in the past");
+    }
+    
+    // Check if opening date is before closing date
+    if (this.applicationClosingDate != null && applicationOpeningDate.isAfter(this.applicationClosingDate)) {
+        throw new IllegalArgumentException("Opening date must be before closing date");
+    }
+    
+    this.applicationOpeningDate = applicationOpeningDate;
+}
+
 
     public LocalDate getApplicationClosingDate() {
         return applicationClosingDate;
     }
 
     public void setApplicationClosingDate(LocalDate applicationClosingDate) {
-        validateDates(this.applicationOpeningDate, applicationClosingDate);
+        if (applicationClosingDate == null) {
+            throw new IllegalArgumentException("Closing date cannot be null");
+        }
+
+        // Check if closing date is after opening date
+        if (this.applicationOpeningDate != null && applicationClosingDate.isBefore(this.applicationOpeningDate)) {
+            throw new IllegalArgumentException("Closing date must be after opening date");
+        }
+
         this.applicationClosingDate = applicationClosingDate;
     }
+
 
     // Flat Types Management
     public Map<FlatType, Integer> getFlatTypes() {
@@ -216,32 +239,6 @@ public class BTOProject {
     }
 
     // Applicant Eligibility Check
-    public boolean isEligibleForApplicant(User applicant) {
-        // Check project visibility
-        if (!visibility) {
-            return false;
-        }
-
-        // Check current date is within application period
-        LocalDate now = LocalDate.now();
-        if (now.isBefore(applicationOpeningDate) || now.isAfter(applicationClosingDate)) {
-            return false;
-        }
-
-        // Check age and marital status
-        int age = applicant.calculateAge();
-        MaritalStatus maritalStatus = applicant.getMaritalStatus();
-
-        if (maritalStatus == MaritalStatus.SINGLE) {
-            return age >= 35 && flatTypes.containsKey(FlatType.TWO_ROOM);
-        } else if (maritalStatus == MaritalStatus.MARRIED) {
-            return age >= 21 && 
-                   (flatTypes.containsKey(FlatType.TWO_ROOM) || 
-                    flatTypes.containsKey(FlatType.THREE_ROOM));
-        }
-
-        return false;
-    }
 
     // Equals and HashCode
     @Override
@@ -354,6 +351,52 @@ public LocalDate getOpeningDate() {
  */
 public LocalDate getClosingDate() {
     return applicationClosingDate;
+}
+public boolean isInApplicationPeriod() {
+    LocalDate now = LocalDate.now();
+    return !now.isBefore(applicationOpeningDate) && !now.isAfter(applicationClosingDate);
+}
+
+/**
+ * Checks if the project is open for applications
+ * @return true if the project is visible and within its application period
+ */
+public boolean isOpenForApplications() {
+    return isVisible() && isInApplicationPeriod();
+}
+public boolean isEligibleForApplicant(User applicant) {
+    // Check project visibility
+    if (!visibility) {
+        return false;
+    }
+
+    // Check current date is within application period
+    LocalDate now = LocalDate.now();
+    if (now.isBefore(applicationOpeningDate) || now.isAfter(applicationClosingDate)) {
+        return false;
+    }
+
+    // Check if applicant is null
+    if (applicant == null) {
+        return false;
+    }
+
+    // Check age and marital status
+    int age = applicant.calculateAge();
+    MaritalStatus maritalStatus = applicant.getMaritalStatus();
+
+    // Singles 35 years and older can only apply for 2-Room
+    if (maritalStatus == MaritalStatus.SINGLE) {
+        return age >= 35 && flatTypes.containsKey(FlatType.TWO_ROOM);
+    } 
+    // Married 21 years and older can apply for 2-Room or 3-Room
+    else if (maritalStatus == MaritalStatus.MARRIED) {
+        return age >= 21 && 
+              (flatTypes.containsKey(FlatType.TWO_ROOM) || 
+               flatTypes.containsKey(FlatType.THREE_ROOM));
+    }
+
+    return false;
 }
 
     

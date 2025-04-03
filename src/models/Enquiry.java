@@ -96,19 +96,25 @@ public class Enquiry {
         return status;
     }
 
-    public void setStatus(EnquiryStatus status) {
-        this.status = status;
-    }
+ 
 
     // Method to close the enquiry
     public void closeEnquiry() {
         this.status = EnquiryStatus.CLOSED;
     }
+    private LocalDateTime statusUpdateDate;
 
-    // Method to check if enquiry can be modified
-    public boolean canModify() {
-        return this.status == EnquiryStatus.SUBMITTED;
-    }
+public void setStatus(EnquiryStatus status) {
+    this.status = status;
+    this.statusUpdateDate = LocalDateTime.now();
+}
+
+public LocalDateTime getStatusUpdateDate() {
+    return statusUpdateDate;
+}
+
+
+  
 
     @Override
     public String toString() {
@@ -135,5 +141,13 @@ public class Enquiry {
     public boolean isResponded() {
         return this.status == EnquiryStatus.RESPONDED;
     }
+
+    public boolean canModify() {
+    // Enquiry can only be modified when in SUBMITTED status and no response yet
+    return this.status == EnquiryStatus.SUBMITTED && 
+           this.response == null && 
+           this.responseDate == null &&
+           this.respondent == null;
+}
 
 }

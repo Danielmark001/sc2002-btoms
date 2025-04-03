@@ -165,11 +165,7 @@ public class User {
         return true;
     }
 
-    // Enhanced password validation
-    private boolean isPasswordValid(String password) {
-        return password != null && password.length() >= 8;
-    }
-
+    
     // Enhanced authentication
     public boolean authenticate(String inputPassword) {
         return this.password != null && this.password.equals(inputPassword);
@@ -344,6 +340,76 @@ public class User {
         OFFICER,
         MANAGER
     }
-    // Removed duplicate method
+    public Applicant toApplicant() {
+    if (this instanceof Applicant) {
+        return (Applicant) this;
+    }
+    
+    Applicant applicant = new Applicant(getNric(), getName(), getDateOfBirth(), getMaritalStatus());
+    applicant.setContactNumber(getContactNumber());
+    applicant.setEmail(getEmail());
+    applicant.setPassword(getPassword());
+    return applicant;
+}
+
+/**
+ * Converts this user to an HDBOfficer
+ * @return HDBOfficer version of this user
+ */
+public HDBOfficer toHDBOfficer() {
+    if (this instanceof HDBOfficer) {
+        return (HDBOfficer) this;
+    }
+    
+    HDBOfficer officer = new HDBOfficer(getNric(), getName(), getDateOfBirth(), getMaritalStatus());
+    officer.setContactNumber(getContactNumber());
+    officer.setEmail(getEmail());
+    officer.setPassword(getPassword());
+    return officer;
+}
+
+/**
+ * Converts this user to an HDBManager
+ * @return HDBManager version of this user
+ */
+public HDBManager toHDBManager() {
+    if (this instanceof HDBManager) {
+        return (HDBManager) this;
+    }
+
+    HDBManager manager = new HDBManager(getNric(), getName(), getDateOfBirth());
+    manager.setContactNumber(getContactNumber());
+    manager.setEmail(getEmail());
+    manager.setPassword(getPassword());
+    return manager;
+}
+private boolean isPasswordValid(String password) {
+    // Password must:
+    // 1. Be at least 8 characters long
+    // 2. Contain at least one uppercase letter
+    // 3. Contain at least one digit
+    if (password == null || password.length() < 8) {
+        return false;
+    }
+    
+    boolean hasUppercase = false;
+    boolean hasDigit = false;
+    
+    for (char c : password.toCharArray()) {
+        if (Character.isUpperCase(c)) {
+            hasUppercase = true;
+        } else if (Character.isDigit(c)) {
+            hasDigit = true;
+        }
+        
+        if (hasUppercase && hasDigit) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+
 
 }

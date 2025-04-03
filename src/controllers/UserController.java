@@ -5,9 +5,11 @@ import models.Applicant;
 import enumeration.UserStatus;
 import enumeration.MaritalStatus;
 import services.UserService;
+import util.InputValidator;
 import view.UserView;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 public class UserController {
@@ -39,21 +41,63 @@ public class UserController {
      * @return Created user
      */
     public User createApplicant(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus) {
-        try {
-            User newUser = userService.createUser(
-                nric, 
-                name, 
-                dateOfBirth, 
-                maritalStatus, 
-                UserStatus.APPLICANT
-            );
-            userView.displaySuccess("Applicant created successfully");
-            return newUser;
-        } catch (IllegalArgumentException e) {
-            userView.displayError("Failed to create applicant: " + e.getMessage());
-            return null;
+    try {
+        // Validate NRIC
+        if (!InputValidator.isValidNRIC(nric)) {
+            throw new IllegalArgumentException("Invalid NRIC format");
         }
+        
+        // Validate name
+        InputValidator.validateNonEmpty(name, "Name cannot be empty");
+        InputValidator.validateLength(name, 2, 100, "Name must be between 2 and 100 characters");
+        
+        // Validate date of birth
+        if (dateOfBirth == null) {
+            throw new IllegalArgumentException("Date of birth cannot be empty");
+        }
+        
+        if (dateOfBirth.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("Date of birth cannot be in the future");
+        }
+        
+        // Calculate age
+        int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
+        
+        // Validate age based on marital status
+        if (maritalStatus == MaritalStatus.SINGLE && age < 35) {
+            throw new IllegalArgumentException("Single applicants must be at least 35 years old");
+        }
+        
+        if (maritalStatus == MaritalStatus.MARRIED && age < 21) {
+            throw new IllegalArgumentException("Married applicants must be at least 21 years old");
+        }
+        
+        // Create user
+        User newUser = userService.createUser(
+            nric, 
+            name, 
+            dateOfBirth, 
+            maritalStatus, 
+            UserStatus.APPLICANT
+        );
+        
+        if (userView != null) {
+            userView.displaySuccess("Applicant created successfully");
+        }
+        
+        return newUser;
+    } catch (IllegalArgumentException e) {
+        if (userView != null) {
+            userView.displayError("Failed to create applicant: " + e.getMessage());
+        }
+        return null;
+    } catch (Exception e) {
+        if (userView != null) {
+            userView.displayError("An unexpected error occurred: " + e.getMessage());
+        }
+        return null;
     }
+}
 
     /**
      * Updates user profile
@@ -146,6 +190,7 @@ public class UserController {
     public void start() {
         userView.displayMessage("UserController started");
     }
+    
 
     
 }

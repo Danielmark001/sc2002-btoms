@@ -2,6 +2,11 @@
 package stores;
 
 import models.User;
+import services.UserService;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import enumeration.UserType;
 import util.NRICValidator;
 
@@ -31,30 +36,8 @@ public class AuthStore {
         }
         return instance;
     }
+
     
-    /**
-     * Authenticates a user with NRIC and password
-     * @param nric User's NRIC
-     * @param password User's password
-     * @return true if authentication successful, false otherwise
-     */
-    public boolean login(String nric, String password) {
-        // Validate NRIC format
-        if (!NRICValidator.isValidNRIC(nric)) {
-            return false;
-        }
-        
-        // Get user from data store
-        User user = dataStore.getUserByNRIC(nric);
-        
-        // Check if user exists and password matches
-        if (user != null && user.authenticate(password)) {
-            setCurrentUser(user);
-            return true;
-        }
-        
-        return false;
-    }
     
     /**
      * Logs out the current user
@@ -125,4 +108,46 @@ public class AuthStore {
     public static boolean isHdbManager() {
         return currentUser != null && currentUser.getUserType() == UserType.MANAGER;
     }
+    public boolean login(String nric, String password) {
+    // Validate NRIC format
+    if (!NRICValidator.isValidNRIC(nric)) {
+        return false;
+    }
+    
+    // Get user from data store
+    User user = dataStore.getUserByNRIC(nric);
+    
+    if (user == null) {
+        // User not found - but return generic error to prevent user enumeration
+        return false;
+    }
+    
+    // Track login attempts (basic implementation - could be enhanced with a proper attempt tracking system)
+    Integer attempts = loginAttempts.getOrDefault(nric, 0);
+    
+    // Check if account is locked (more than 5 failed attempts)
+    if (attempts >= 5) {
+        // Could implement a timed lockout here
+        System.out.println("Account temporarily locked due to too many failed attempts");
+        return false;
+    }
+    
+    // Check if password matches
+    UserService userService = UserService.getInstance();
+    boolean authenticated = userService.authenticate(user, password);
+    
+    if (authenticated) {
+        // Reset login attempts on successful login
+        loginAttempts.remove(nric);
+        setCurrentUser(user);
+        return true;
+    } else {
+        // Increment failed login attempts
+        loginAttempts.put(nric, attempts + 1);
+        return false;
+    }
+}
+
+// Add a field to track login attempts
+private final Map<String, Integer> loginAttempts = new ConcurrentHashMap<>();
 }

@@ -1,187 +1,127 @@
 package util;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Comprehensive input validation utility
- * Provides robust validation methods for various input types
+ * Utility class for common input validation
  */
-public final class InputValidator {
-    // Regex patterns
+public class InputValidator {
     private static final Pattern NRIC_PATTERN = Pattern.compile("^[ST]\\d{7}[A-Z]$");
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-    private static final Pattern PHONE_PATTERN = Pattern.compile("^(\\+?6?0?)[1-9]\\d{7,9}$");
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$");
-    private static final Pattern NAME_PATTERN = Pattern.compile("^[\\p{L} .'-]+$");
-
-    // Private constructor to prevent instantiation
-    private InputValidator() {
-        throw new AssertionError("Cannot be instantiated");
-    }
-
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\d{8}$"); // Singapore phone number format
+    
     /**
-     * Validate NRIC number
+     * Validate NRIC format
      * @param nric NRIC to validate
-     * @return true if valid, throws IllegalArgumentException if invalid
+     * @return true if valid, false otherwise
      */
-    public static boolean validateNRIC(String nric) {
-        if (nric == null || !NRIC_PATTERN.matcher(nric).matches()) {
-            throw new IllegalArgumentException("Invalid NRIC format. Must start with S or T, followed by 7 digits, and end with a letter.");
-        }
-        return true;
+    public static boolean isValidNRIC(String nric) {
+        return nric != null && NRIC_PATTERN.matcher(nric).matches();
     }
-
+    
     /**
-     * Validate email address
+     * Validate non-empty string
+     * @param value String to validate
+     * @param message Error message if invalid
+     * @throws IllegalArgumentException if value is null or empty
+     */
+    public static void validateNonEmpty(String value, String message) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+    
+    /**
+     * Validate string length
+     * @param value String to validate
+     * @param minLength Minimum allowed length
+     * @param maxLength Maximum allowed length
+     * @param message Error message if invalid
+     * @throws IllegalArgumentException if value length is outside the allowed range
+     */
+    public static void validateLength(String value, int minLength, int maxLength, String message) {
+        if (value == null || value.length() < minLength || value.length() > maxLength) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+    
+    /**
+     * Validate numeric range
+     * @param value Value to validate
+     * @param minValue Minimum allowed value
+     * @param maxValue Maximum allowed value
+     * @param message Error message if invalid
+     * @throws IllegalArgumentException if value is outside the allowed range
+     */
+    public static void validateRange(int value, int minValue, int maxValue, String message) {
+        if (value < minValue || value > maxValue) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+    
+    /**
+     * Validate email format
      * @param email Email to validate
-     * @return true if valid, throws IllegalArgumentException if invalid
+     * @return true if valid, false otherwise
      */
-    public static boolean validateEmail(String email) {
-        if (email == null || !EMAIL_PATTERN.matcher(email).matches()) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
-        return true;
+    public static boolean isValidEmail(String email) {
+        return email != null && EMAIL_PATTERN.matcher(email).matches();
     }
-
+    
     /**
-     * Validate phone number
-     * @param phoneNumber Phone number to validate
-     * @return true if valid, throws IllegalArgumentException if invalid
+     * Validate phone number format
+     * @param phone Phone number to validate
+     * @return true if valid, false otherwise
      */
-    public static boolean validatePhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || !PHONE_PATTERN.matcher(phoneNumber).matches()) {
-            throw new IllegalArgumentException("Invalid phone number format");
-        }
-        return true;
+    public static boolean isValidPhone(String phone) {
+        return phone != null && PHONE_PATTERN.matcher(phone).matches();
     }
-
-    /**
-     * Validate password
-     * @param password Password to validate
-     * @return true if valid, throws IllegalArgumentException if invalid
-     */
-    public static boolean validatePassword(String password) {
-        if (password == null || !PASSWORD_PATTERN.matcher(password).matches()) {
-            throw new IllegalArgumentException("Password must be at least 8 characters long, contain uppercase, lowercase, number, and special character");
-        }
-        return true;
-    }
-
-    /**
-     * Validate name
-     * @param name Name to validate
-     * @return true if valid, throws IllegalArgumentException if invalid
-     */
-    public static boolean validateName(String name) {
-        if (name == null || name.trim().isEmpty() || name.length() > 100 || !NAME_PATTERN.matcher(name).matches()) {
-            throw new IllegalArgumentException("Invalid name format");
-        }
-        return true;
-    }
-
-    /**
-     * Validate date is not in the future
-     * @param date Date to validate
-     * @return true if valid, throws IllegalArgumentException if invalid
-     */
-    public static boolean validatePastOrPresentDate(LocalDate date) {
-        if (date == null || date.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Date cannot be in the future");
-        }
-        return true;
-    }
-
+    
     /**
      * Validate date range
      * @param startDate Start date
      * @param endDate End date
-     * @return true if valid, throws IllegalArgumentException if invalid
+     * @param message Error message if invalid
+     * @throws IllegalArgumentException if end date is before start date
      */
-    public static boolean validateDateRange(LocalDate startDate, LocalDate endDate) {
-        if (startDate == null || endDate == null) {
-            throw new IllegalArgumentException("Dates cannot be null");
+    public static void validateDateRange(LocalDate startDate, LocalDate endDate, String message) {
+        if (startDate == null || endDate == null || endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException(message);
         }
-        if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("Start date must be before or equal to end date");
-        }
-        return true;
     }
-
+    
     /**
-     * Validate that a collection is not null or empty
-     * @param collection Collection to validate
-     * @return true if valid, throws IllegalArgumentException if invalid
+     * Validate future date
+     * @param date Date to validate
+     * @param message Error message if invalid
+     * @throws IllegalArgumentException if date is in the past
      */
-    public static boolean validateCollection(Collection<?> collection) {
-        if (collection == null || collection.isEmpty()) {
-            throw new IllegalArgumentException("Collection cannot be null or empty");
+    public static void validateFutureDate(LocalDate date, String message) {
+        if (date == null || date.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException(message);
         }
-        return true;
     }
-
+    
     /**
-     * Validate that a map is not null or empty
-     * @param map Map to validate
-     * @return true if valid, throws IllegalArgumentException if invalid
+     * Sanitize input string by removing potentially dangerous characters
+     * @param input Input string to sanitize
+     * @return Sanitized string
      */
-    public static boolean validateMap(Map<?, ?> map) {
-        if (map == null || map.isEmpty()) {
-            throw new IllegalArgumentException("Map cannot be null or empty");
-        }
-        return true;
-    }
-
-    /**
-     * Validate that an object is not null
-     * @param object Object to validate
-     * @param message Custom error message
-     * @return true if valid, throws IllegalArgumentException if invalid
-     */
-    public static boolean validateNotNull(Object object, String message) {
-        if (object == null) {
-            throw new IllegalArgumentException(message != null ? message : "Object cannot be null");
-        }
-        return true;
-    }
-
-    /**
-     * Validate numeric range
-     * @param value Numeric value to validate
-     * @param min Minimum allowed value
-     * @param max Maximum allowed value
-     * @return true if valid, throws IllegalArgumentException if invalid
-     */
-    public static boolean validateNumericRange(Number value, Number min, Number max) {
-        if (value == null) {
-            throw new IllegalArgumentException("Value cannot be null");
+    public static String sanitizeInput(String input) {
+        if (input == null) {
+            return null;
         }
         
-        if (value instanceof Integer) {
-            int intValue = (Integer) value;
-            int minInt = min != null ? (Integer) min : Integer.MIN_VALUE;
-            int maxInt = max != null ? (Integer) max : Integer.MAX_VALUE;
-            
-            if (intValue < minInt || intValue > maxInt) {
-                throw new IllegalArgumentException(
-                    String.format("Value must be between %d and %d", minInt, maxInt)
-                );
-            }
-        } else if (value instanceof Double) {
-            double doubleValue = (Double) value;
-            double minDouble = min != null ? (Double) min : Double.MIN_VALUE;
-            double maxDouble = max != null ? (Double) max : Double.MAX_VALUE;
-            
-            if (doubleValue < minDouble || doubleValue > maxDouble) {
-                throw new IllegalArgumentException(
-                    String.format("Value must be between %f and %f", minDouble, maxDouble)
-                );
-            }
-        }
+        // Remove HTML tags and characters that could be used for injection
+        String sanitized = input.replaceAll("<[^>]*>", "")
+                               .replaceAll("&", "&amp;")
+                               .replaceAll("<", "&lt;")
+                               .replaceAll(">", "&gt;")
+                               .replaceAll("\"", "&quot;")
+                               .replaceAll("'", "&#x27;")
+                               .replaceAll("/", "&#x2F;");
         
-        return true;
+        return sanitized.trim();
     }
 }

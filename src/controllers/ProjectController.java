@@ -10,11 +10,13 @@ import enumeration.RegistrationStatus;
 import services.ProjectService;
 import services.UserService;
 import view.ProjectView;
+import util.InputValidator;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 /**
@@ -63,48 +65,8 @@ public class ProjectController {
      * @param officerSlots Number of available officer slots
      * @return true if creation succeeds
      */
-    public boolean createProject(String projectName, String neighborhood, 
-            int twoRoomCount, int threeRoomCount, 
-            LocalDate openingDate, LocalDate closingDate, int officerSlots) {
-        
-        User currentUser = userService.getCurrentUser();
-        if (!(currentUser instanceof HDBManager)) {
-            return false;
-        }
-        
-        Map<FlatType, Integer> unitCounts = new HashMap<>();
-        unitCounts.put(FlatType.TWO_ROOM, twoRoomCount);
-        unitCounts.put(FlatType.THREE_ROOM, threeRoomCount);
-        
-        BTOProject project = projectService.createProject(
-                (HDBManager) currentUser, 
-                projectName, 
-                neighborhood, 
-                openingDate, 
-                closingDate
-        );
-        
-        if (project != null) {
-            project.setFlatTypes(unitCounts);
-            project.setAvailableHDBOfficerSlots(officerSlots);
-            return true;
-        }
-        
-        return false;
-    }
     
-    /**
-     * Edits an existing BTO project
-     * 
-     * @param project Project to edit
-     * @param projectName New project name
-     * @param neighborhood New neighborhood
-     * @param twoRoomCount New number of 2-room flats
-     * @param threeRoomCount New number of 3-room flats
-     * @param openingDate New application opening date
-     * @param closingDate New application closing date
-     * @param officerSlots New number of available officer slots
-     * @return true if edit succeeds
+  
      */
     public boolean editProject(BTOProject project, String projectName, String neighborhood, 
             int twoRoomCount, int threeRoomCount, 
@@ -325,7 +287,93 @@ public class ProjectController {
         if (user == null) {
             return new ArrayList<>();
         }
-        
+
         return user.getRegistrations();
     }
+
+    public List<Registration> getRegistrationsByStatus(RegistrationStatus status) {
+        if (status == null) {
+            return new ArrayList<>();
+        }
+
+        // Collect all registrations from all projects
+        List<Registration> allRegistrations = new ArrayList<>();
+        for (BTOProject project : projects) {
+            allRegistrations.addAll(project.getRegistrations());
+        }
+
+        // Filter by status
+        return allRegistrations.stream()
+                .filter(reg -> reg.getStatus() == status)
+                .collect(Collectors.toList());
+    }
+public boolean createProject(String projectName, String neighborhood, 
+        int twoRoomCount, int threeRoomCount, 
+        LocalDate openingDate, LocalDate closingDate, int officerSlots) {
+    
+    // Validate inputs
+    try {
+        InputValidator.validateNonEmpty(projectName, "Project name cannot be empty");
+        InputValidator.validateLength(projectName, 3, 100, "Project name must be between 3 and 100 characters");
+        
+        InputValidator.validateNonEmpty(neighborhood, "Neighborhood cannot be empty");
+        InputValidator.validateLength(neighborhood, 3, 50, "Neighborhood must be between 3 and 50 characters");
+        
+        InputValidator.validateRange(twoRoomCount, 0, 1000, "2-Room count must be between 0 and 1000");
+        InputValidator.validateRange(threeRoomCount, 0, 1000, "3-Room count must be between 0 and 1000");
+        
+        if (twoRoomCount == 0 && threeRoomCount == 0) {
+            throw new IllegalArgumentException("At least one flat type must have units");
+        }
+        
+        InputValidator.validateFutureDate(openingDate, "Opening date must be in the future");
+        InputValidator.validateDateRange(openingDate, closingDate, "Closing date must be after opening date");
+        
+        InputValidator.validateRange(officerSlots, 1, 10, "Officer slots must be between 1 and 10");
+    } catch (IllegalArgumentException e) {
+        if (projectView != null) {
+            projectView.displayError(e.getMessage());
+        }
+        return false;
+    }
+    
+    User currentUser = userService.getCurrentUser();
+    if (!(currentUser instanceof HDBManager)) {
+        if (projectView != null) {
+            projectView.displayError("Only HDB Managers can create projects");
+        }
+        return false;
+    }
+    
+    Map<FlatType, Integer> unitCounts = new HashMap<>();
+    unitCounts.put(FlatType.TWO_ROOM, twoRoomCount);
+    unitCounts.put(FlatType.THREE_ROOM, threeRoomCount);
+    
+    try {
+        BTOProject project = projectService.createProject(
+                (HDBManager) currentUser, 
+                projectName, 
+                neighborhood, 
+                openingDate, 
+                closingDate
+        );
+        
+        if (project != null) {
+            project.setFlatTypes(unitCounts);
+            project.setAvailableHDBOfficerSlots(officerSlots);
+            
+            if (projectView != null) {
+                projectView.displaySuccess("Project created successfully");
+            }
+            return true;
+        }
+    } catch (Exception e) {
+        if (projectView != null) {
+            projectView.displayError("Error creating project: " + e.getMessage());
+        }
+    }
+    
+    return false;
+}
+
 }

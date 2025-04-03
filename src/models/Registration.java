@@ -97,27 +97,8 @@ public class Registration {
                 ", registrationDate=" + registrationDate +
                 '}';
     }
-    /**
- * Check if registration is eligible
- * @return true if eligible, false otherwise
- */
-    public boolean isEligible() {
-        // Check if officer has already applied for this project
-        if (hasAppliedForProject()) {
-            return false;
-        }
-
-        // Check if officer is already registered for another project in the same period
-        if (isRegisteredForAnotherProject()) {
-            return false;
-        }
-
-        // Check if project has available officer slots
-        return project.getAvailableHDBOfficerSlots() > 0;
-    }
-/**
- * Unique identifier for registration
- */
+   
+ 
 private String registrationId;
 
 /**
@@ -144,10 +125,35 @@ private void generateRegistrationId() {
                           officer.getNric().substring(1, 5);
 }
 
-/**
- * Constructor with automatic ID generation
- * @param officer Officer registering
- * @param project Project to register for
- */
+public boolean isEligible() {
+    // If Registration ID alrea dy exists, it's already registered
+    if (registrationId != null && !registrationId.isEmpty()) {
+        return false;
+    }
+    
+    // Check if officer is valid
+    if (officer == null || !(officer instanceof HDBOfficer)) {
+        return false;
+    }
+    
+    // Check if project is valid
+    if (project == null) {
+        return false;
+    }
+
+    // Check if officer has already applied for this project
+    if (hasAppliedForProject()) {
+        return false;
+    }
+
+    // Check if officer is already registered for another project in the same period
+    if (isRegisteredForAnotherProject()) {
+        return false;
+    }
+
+    // Check if project has available officer slots
+    return project.getAvailableHDBOfficerSlots() > 0;
+}
+
 
 }

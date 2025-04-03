@@ -131,4 +131,5 @@ public class EnquiryView {
         // Assuming there's a method in the controller to get an enquiry by ID
         return null;
     }
+
 }

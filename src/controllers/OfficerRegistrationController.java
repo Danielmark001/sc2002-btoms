@@ -8,6 +8,12 @@ import enumeration.UserStatus;
 import services.ProjectService;
 import services.UserService;
 import view.OfficerProjectView;
+import java.util.List;
+import stores.DataStore;
+import models.Registration;
+import enumeration.RegistrationStatus;
+import enumeration.UserType;
+import enumeration.MaritalStatus;
 
 import java.time.LocalDate;
 
@@ -142,5 +148,13 @@ public class OfficerRegistrationController {
     public List<Registration> getRegistrationByStatus(Registration.RegistrationStatus status) {
         return projectService.getRegistrationsByStatus(status);
     }
+    public boolean removeUser(User user) {
+        if (user == null) {
+            return false;
+        }
+        return dataStore.deleteUser(user.getNric());
+    }
+
+
     
 }
