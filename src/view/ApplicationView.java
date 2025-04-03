@@ -414,4 +414,22 @@ private List<Application> getAllApplications() {
     // For testing, return an empty list
     return new ArrayList<>();
 }
+
+    public void displayError(String message) {
+        System.out.println("Error: " + message);
+    }
+
+    /**
+     * Displays a message and waits for user to press Enter
+     * @param message Message to display
+     */
+
+public void displaySuccess(String message) {
+        System.out.println("Success: " + message);
+    }
+
+    public void pressEnterToContinue(String message) {
+        System.out.print(message);
+        scanner.nextLine();
+    }
 }

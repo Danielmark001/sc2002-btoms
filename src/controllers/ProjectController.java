@@ -5,10 +5,12 @@ import models.HDBManager;
 import models.HDBOfficer;
 import models.Registration;
 import models.User;
+import models.Enquiry;
 import enumeration.FlatType;
 import enumeration.RegistrationStatus;
 import services.ProjectService;
 import services.UserService;
+import services.EnquiryService;
 import view.ProjectView;
 import util.InputValidator;
 
@@ -26,6 +28,7 @@ public class ProjectController {
     private ProjectView projectView;
     private ProjectService projectService;
     private UserService userService;
+    private EnquiryService enquiryService;
     
     /**
      * Constructor for ProjectController
@@ -36,6 +39,7 @@ public class ProjectController {
         this.projectView = projectView;
         this.projectService = ProjectService.getInstance();
         this.userService = UserService.getInstance();
+        this.enquiryService = EnquiryService.getInstance();
     }
     
     /**
@@ -44,6 +48,7 @@ public class ProjectController {
     public ProjectController() {
         this.projectService = ProjectService.getInstance();
         this.userService = UserService.getInstance();
+        this.enquiryService = EnquiryService.getInstance();
     }
     
     /**
@@ -65,8 +70,81 @@ public class ProjectController {
      * @param officerSlots Number of available officer slots
      * @return true if creation succeeds
      */
+    public boolean createProject(String projectName, String neighborhood, 
+            int twoRoomCount, int threeRoomCount, 
+            LocalDate openingDate, LocalDate closingDate, int officerSlots) {
+        
+        // Validate inputs
+        try {
+            InputValidator.validateNonEmpty(projectName, "Project name cannot be empty");
+            InputValidator.validateLength(projectName, 3, 100, "Project name must be between 3 and 100 characters");
+            
+            InputValidator.validateNonEmpty(neighborhood, "Neighborhood cannot be empty");
+            InputValidator.validateLength(neighborhood, 3, 50, "Neighborhood must be between 3 and 50 characters");
+            
+            InputValidator.validateRange(twoRoomCount, 0, 1000, "2-Room count must be between 0 and 1000");
+            InputValidator.validateRange(threeRoomCount, 0, 1000, "3-Room count must be between 0 and 1000");
+            
+            if (twoRoomCount == 0 && threeRoomCount == 0) {
+                throw new IllegalArgumentException("At least one flat type must have units");
+            }
+            
+            InputValidator.validateFutureDate(openingDate, "Opening date must be in the future");
+            InputValidator.validateDateRange(openingDate, closingDate, "Closing date must be after opening date");
+            
+            InputValidator.validateRange(officerSlots, 1, 10, "Officer slots must be between 1 and 10");
+        } catch (IllegalArgumentException e) {
+            if (projectView != null) {
+                projectView.displayError(e.getMessage());
+            }
+            return false;
+        }
+        
+        User currentUser = userService.getCurrentUser();
+        if (!(currentUser instanceof HDBManager)) {
+            if (projectView != null) {
+                projectView.displayError("Only HDB Managers can create projects");
+            }
+            return false;
+        }
+        
+        try {
+            BTOProject project = projectService.createProject(
+                    projectName, 
+                    neighborhood, 
+                    twoRoomCount, 
+                    threeRoomCount, 
+                    openingDate, 
+                    closingDate, 
+                    officerSlots);
+            
+            if (project != null) {
+                if (projectView != null) {
+                    projectView.displaySuccess("Project created successfully");
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            if (projectView != null) {
+                projectView.displayError("Error creating project: " + e.getMessage());
+            }
+        }
+        
+        return false;
+    }
     
-  
+    /**
+     * Edits an existing BTO project
+     * 
+     * @param project Project to edit
+     * @param projectName New name
+     * @param neighborhood New neighborhood
+     * @param twoRoomCount New 2-room count
+     * @param threeRoomCount New 3-room count
+     * @param openingDate New opening date
+     * @param closingDate New closing date
+     * @param officerSlots New officer slots count
+     * @return true if edit succeeds
      */
     public boolean editProject(BTOProject project, String projectName, String neighborhood, 
             int twoRoomCount, int threeRoomCount, 
@@ -74,27 +152,46 @@ public class ProjectController {
         
         User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
+            if (projectView != null) {
+                projectView.displayError("Only HDB Managers can edit projects");
+            }
             return false;
         }
         
         HDBManager manager = (HDBManager) currentUser;
         if (!project.getHdbManager().equals(manager)) {
+            if (projectView != null) {
+                projectView.displayError("You can only edit projects you manage");
+            }
             return false;
         }
         
-        Map<FlatType, Integer> unitCounts = new HashMap<>();
-        unitCounts.put(FlatType.TWO_ROOM, twoRoomCount);
-        unitCounts.put(FlatType.THREE_ROOM, threeRoomCount);
-        
-        // Update project properties
-        project.setProjectName(projectName);
-        project.setNeighborhood(neighborhood);
-        project.setApplicationOpeningDate(openingDate);
-        project.setApplicationClosingDate(closingDate);
-        project.setFlatTypes(unitCounts);
-        project.setAvailableHDBOfficerSlots(officerSlots);
-        
-        return true;
+        try {
+            Map<FlatType, Integer> unitCounts = new HashMap<>();
+            unitCounts.put(FlatType.TWO_ROOM, twoRoomCount);
+            unitCounts.put(FlatType.THREE_ROOM, threeRoomCount);
+            
+            // Update project properties
+            project.setProjectName(projectName);
+            project.setNeighborhood(neighborhood);
+            project.setApplicationOpeningDate(openingDate);
+            project.setApplicationClosingDate(closingDate);
+            project.setFlatTypes(unitCounts);
+            project.setAvailableHDBOfficerSlots(officerSlots);
+            
+            boolean updated = projectService.updateProject(project);
+            
+            if (updated && projectView != null) {
+                projectView.displaySuccess("Project updated successfully");
+            }
+            
+            return updated;
+        } catch (Exception e) {
+            if (projectView != null) {
+                projectView.displayError("Error updating project: " + e.getMessage());
+            }
+            return false;
+        }
     }
     
     /**
@@ -106,15 +203,27 @@ public class ProjectController {
     public boolean deleteProject(BTOProject project) {
         User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
+            if (projectView != null) {
+                projectView.displayError("Only HDB Managers can delete projects");
+            }
             return false;
         }
         
         HDBManager manager = (HDBManager) currentUser;
         if (!project.getHdbManager().equals(manager)) {
+            if (projectView != null) {
+                projectView.displayError("You can only delete projects you manage");
+            }
             return false;
         }
         
-        return projectService.deleteProject(project);
+        boolean deleted = projectService.deleteProject(project);
+        
+        if (deleted && projectView != null) {
+            projectView.displaySuccess("Project deleted successfully");
+        }
+        
+        return deleted;
     }
     
     /**
@@ -127,16 +236,27 @@ public class ProjectController {
     public boolean toggleProjectVisibility(BTOProject project, boolean visible) {
         User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
+            if (projectView != null) {
+                projectView.displayError("Only HDB Managers can toggle project visibility");
+            }
             return false;
         }
         
         HDBManager manager = (HDBManager) currentUser;
         if (!project.getHdbManager().equals(manager)) {
+            if (projectView != null) {
+                projectView.displayError("You can only manage projects you own");
+            }
             return false;
         }
         
-        project.setVisibility(visible);
-        return true;
+        boolean success = projectService.toggleProjectVisibility(project.getProjectId(), visible);
+        
+        if (success && projectView != null) {
+            projectView.displaySuccess("Project visibility " + (visible ? "enabled" : "disabled"));
+        }
+        
+        return success;
     }
     
     /**
@@ -154,8 +274,16 @@ public class ProjectController {
      * @return List of visible projects
      */
     public List<BTOProject> getVisibleProjects() {
-        User currentUser = userService.getCurrentUser();
-        return projectService.getVisibleProjects(currentUser);
+        return projectService.getVisibleProjects();
+    }
+    
+    /**
+     * Gets projects eligible for the current user to apply for
+     * 
+     * @return List of eligible projects
+     */
+    public List<BTOProject> getEligibleProjects() {
+        return projectService.getEligibleProjects();
     }
     
     /**
@@ -164,12 +292,7 @@ public class ProjectController {
      * @return List of projects created by the current manager
      */
     public List<BTOProject> getProjectsByCurrentManager() {
-        User currentUser = userService.getCurrentUser();
-        if (!(currentUser instanceof HDBManager)) {
-            return new ArrayList<>();
-        }
-        
-        return projectService.getProjectsByManager((HDBManager) currentUser);
+        return projectService.getProjectsByCurrentManager();
     }
     
     /**
@@ -190,20 +313,6 @@ public class ProjectController {
      */
     public BTOProject getProjectById(String projectId) {
         return projectService.getProjectById(projectId);
-    }
-    
-    /**
-     * Gets a project by its index
-     * 
-     * @param index Index of the project
-     * @return Project if found, null otherwise
-     */
-    public BTOProject getProjectByIndex(int index) {
-        List<BTOProject> projects = projectService.getAllProjects();
-        if (index < 0 || index >= projects.size()) {
-            return null;
-        }
-        return projects.get(index);
     }
     
     /**
@@ -248,32 +357,7 @@ public class ProjectController {
      * @return true if registration succeeds
      */
     public boolean registerAsOfficer(String projectId) {
-        User currentUser = userService.getCurrentUser();
-        if (!(currentUser instanceof HDBOfficer)) {
-            return false;
-        }
-        
-        BTOProject project = projectService.getProjectById(projectId);
-        if (project == null) {
-            return false;
-        }
-        
-        // Check eligibility
-        HDBOfficer officer = (HDBOfficer) currentUser;
-        
-        // Create registration
-        Registration registration = new Registration();
-        registration.setOfficer(officer);
-        registration.setProject(project);
-        registration.setRegistrationDate(LocalDate.now());
-        
-        // Add to officer's registrations
-        officer.addRegistration(registration);
-        
-        // Add to project's registrations
-        project.addRegistration(registration);
-        
-        return true;
+        return projectService.registerAsOfficer(projectId);
     }
     
     /**
@@ -290,90 +374,28 @@ public class ProjectController {
 
         return user.getRegistrations();
     }
-
-    public List<Registration> getRegistrationsByStatus(RegistrationStatus status) {
-        if (status == null) {
+    
+    /**
+     * Gets registrations by status
+     * 
+     * @param status Status to filter by
+     * @return List of registrations with the specified status
+     */
+    public List<Registration> getRegistrationsByStatus(Registration.RegistrationStatus status) {
+        return projectService.getRegistrationsByStatus(status);
+    }
+    
+    /**
+     * Gets enquiries for a specific project
+     * 
+     * @param project Project to get enquiries for
+     * @return List of enquiries
+     */
+    public List<Enquiry> getEnquiriesByProject(BTOProject project) {
+        if (project == null) {
             return new ArrayList<>();
         }
-
-        // Collect all registrations from all projects
-        List<Registration> allRegistrations = new ArrayList<>();
-        for (BTOProject project : projects) {
-            allRegistrations.addAll(project.getRegistrations());
-        }
-
-        // Filter by status
-        return allRegistrations.stream()
-                .filter(reg -> reg.getStatus() == status)
-                .collect(Collectors.toList());
+        
+        return enquiryService.getEnquiriesByProject(project);
     }
-public boolean createProject(String projectName, String neighborhood, 
-        int twoRoomCount, int threeRoomCount, 
-        LocalDate openingDate, LocalDate closingDate, int officerSlots) {
-    
-    // Validate inputs
-    try {
-        InputValidator.validateNonEmpty(projectName, "Project name cannot be empty");
-        InputValidator.validateLength(projectName, 3, 100, "Project name must be between 3 and 100 characters");
-        
-        InputValidator.validateNonEmpty(neighborhood, "Neighborhood cannot be empty");
-        InputValidator.validateLength(neighborhood, 3, 50, "Neighborhood must be between 3 and 50 characters");
-        
-        InputValidator.validateRange(twoRoomCount, 0, 1000, "2-Room count must be between 0 and 1000");
-        InputValidator.validateRange(threeRoomCount, 0, 1000, "3-Room count must be between 0 and 1000");
-        
-        if (twoRoomCount == 0 && threeRoomCount == 0) {
-            throw new IllegalArgumentException("At least one flat type must have units");
-        }
-        
-        InputValidator.validateFutureDate(openingDate, "Opening date must be in the future");
-        InputValidator.validateDateRange(openingDate, closingDate, "Closing date must be after opening date");
-        
-        InputValidator.validateRange(officerSlots, 1, 10, "Officer slots must be between 1 and 10");
-    } catch (IllegalArgumentException e) {
-        if (projectView != null) {
-            projectView.displayError(e.getMessage());
-        }
-        return false;
-    }
-    
-    User currentUser = userService.getCurrentUser();
-    if (!(currentUser instanceof HDBManager)) {
-        if (projectView != null) {
-            projectView.displayError("Only HDB Managers can create projects");
-        }
-        return false;
-    }
-    
-    Map<FlatType, Integer> unitCounts = new HashMap<>();
-    unitCounts.put(FlatType.TWO_ROOM, twoRoomCount);
-    unitCounts.put(FlatType.THREE_ROOM, threeRoomCount);
-    
-    try {
-        BTOProject project = projectService.createProject(
-                (HDBManager) currentUser, 
-                projectName, 
-                neighborhood, 
-                openingDate, 
-                closingDate
-        );
-        
-        if (project != null) {
-            project.setFlatTypes(unitCounts);
-            project.setAvailableHDBOfficerSlots(officerSlots);
-            
-            if (projectView != null) {
-                projectView.displaySuccess("Project created successfully");
-            }
-            return true;
-        }
-    } catch (Exception e) {
-        if (projectView != null) {
-            projectView.displayError("Error creating project: " + e.getMessage());
-        }
-    }
-    
-    return false;
-}
-
 }

@@ -1,22 +1,25 @@
-package views;
+package view;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.ArrayList;
 
-import models.Project;
+import controllers.ProjectController;
+import controllers.ApplicationController;
+
+import models.BTOProject;
+import models.Registration;
 import models.User;
-import models.enumeration.FlatType;
-import models.manager.ApplicationManager;
-import models.manager.ProjectManager;
-import models.manager.UserManager;
+import enumeration.FlatType;
+import enumeration.MaritalStatus;
+import enumeration.RegistrationStatus;
 
 /**
  * View for displaying and handling project-related operations for applicants
  */
 public class ProjectView extends BaseView {
-    private final ProjectManager projectManager;
-    private final ApplicationManager applicationManager;
-    private final UserManager userManager;
+    private final ProjectController projectController;
+    private final ApplicationController applicationController;
     
     /**
      * Constructor
@@ -24,9 +27,40 @@ public class ProjectView extends BaseView {
      */
     public ProjectView(Scanner scanner) {
         super(scanner);
-        this.projectManager = new ProjectManager();
-        this.applicationManager = new ApplicationManager();
-        this.userManager = new UserManager();
+        this.projectController = new ProjectController(this);
+        this.applicationController = new ApplicationController(null);
+    }
+    
+    /**
+     * Display error message
+     * @param message Error message to display
+     */
+    public void displayError(String message) {
+        System.out.println("ERROR: " + message);
+    }
+    
+    /**
+     * Display success message
+     * @param message Success message to display
+     */
+    public void displaySuccess(String message) {
+        System.out.println("SUCCESS: " + message);
+    }
+    
+    /**
+     * Display information message
+     * @param message Information message to display
+     */
+    public void displayInfo(String message) {
+        System.out.println("INFO: " + message);
+    }
+    
+    /**
+     * Display warning message
+     * @param message Warning message to display
+     */
+    public void displayWarning(String message) {
+        System.out.println("WARNING: " + message);
     }
     
     @Override
@@ -77,7 +111,7 @@ public class ProjectView extends BaseView {
      * Displays all projects that the current user is eligible to apply for
      */
     private void viewEligibleProjects() {
-        List<Project> eligibleProjects = projectManager.getEligibleProjects();
+        List<BTOProject> eligibleProjects = projectController.getEligibleProjects();
         
         if (eligibleProjects.isEmpty()) {
             System.out.println("No eligible projects found.");
@@ -91,7 +125,7 @@ public class ProjectView extends BaseView {
         System.out.println("------------------------------------------------------------");
         
         int index = 1;
-        for (Project project : eligibleProjects) {
+        for (BTOProject project : eligibleProjects) {
             System.out.printf("%-5d | %-20s | %-15s | %-10d | %-10d\n", 
                             index++, 
                             project.getProjectName(), 
@@ -120,7 +154,7 @@ public class ProjectView extends BaseView {
      * Displays detailed information about a specific project
      * @param project Project to display
      */
-    private void displayProjectDetails(Project project) {
+    private void displayProjectDetails(BTOProject project) {
         System.out.println("\n===== PROJECT DETAILS =====");
         System.out.println("Project ID: " + project.getProjectId());
         System.out.println("Project Name: " + project.getProjectName());
@@ -129,7 +163,21 @@ public class ProjectView extends BaseView {
                          " (Available: " + project.getAvailableUnits(FlatType.TWO_ROOM) + ")");
         System.out.println("3-Room Units: " + project.getTotalUnits(FlatType.THREE_ROOM) + 
                          " (Available: " + project.getAvailableUnits(FlatType.THREE_ROOM) + ")");
-        System.out.println("Application Period: " + project.getOpeningDate() + " to " + project.getClosingDate());
+        System.out.println("Application Period: " + project.getApplicationOpeningDate() + " to " + project.getApplicationClosingDate());
+        
+        // Additional information about project status
+        if (project.isOpenForApplications()) {
+            System.out.println("Status: Open for applications");
+        } else if (project.isInApplicationPeriod()) {
+            System.out.println("Status: In application period but not visible");
+        } else if (project.getApplicationOpeningDate().isAfter(java.time.LocalDate.now())) {
+            System.out.println("Status: Opening in the future");
+        } else {
+            System.out.println("Status: Application period closed");
+        }
+        
+        System.out.println("Manager in Charge: " + 
+            (project.getHdbManager() != null ? project.getHdbManager().getName() : "Not assigned"));
         
         pressEnterToContinue("\nPress Enter to continue...");
     }
@@ -146,7 +194,7 @@ public class ProjectView extends BaseView {
             return;
         }
         
-        List<Project> eligibleProjects = projectManager.getEligibleProjects();
+        List<BTOProject> eligibleProjects = projectController.getEligibleProjects();
         
         if (eligibleProjects.isEmpty()) {
             System.out.println("No eligible projects found.");
@@ -160,7 +208,7 @@ public class ProjectView extends BaseView {
         System.out.println("------------------------------------------------------------");
         
         int index = 1;
-        for (Project project : eligibleProjects) {
+        for (BTOProject project : eligibleProjects) {
             System.out.printf("%-5d | %-20s | %-15s | %-10d | %-10d\n", 
                             index++, 
                             project.getProjectName(), 
@@ -176,15 +224,18 @@ public class ProjectView extends BaseView {
             int selection = Integer.parseInt(scanner.nextLine().trim());
             
             if (selection > 0 && selection <= eligibleProjects.size()) {
-                Project selectedProject = eligibleProjects.get(selection - 1);
+                BTOProject selectedProject = eligibleProjects.get(selection - 1);
                 
                 // Check user eligibility for flat types
                 boolean canApplyForTwoRoom = false;
                 boolean canApplyForThreeRoom = false;
                 
-                if (currentUser.getMaritalStatus().equals("SINGLE") && currentUser.getAge() >= 35) {
+                int age = currentUser.calculateAge();
+                MaritalStatus maritalStatus = currentUser.getMaritalStatus();
+                
+                if (maritalStatus == MaritalStatus.SINGLE && age >= 35) {
                     canApplyForTwoRoom = selectedProject.getAvailableUnits(FlatType.TWO_ROOM) > 0;
-                } else if (currentUser.getMaritalStatus().equals("MARRIED") && currentUser.getAge() >= 21) {
+                } else if (maritalStatus == MaritalStatus.MARRIED && age >= 21) {
                     canApplyForTwoRoom = selectedProject.getAvailableUnits(FlatType.TWO_ROOM) > 0;
                     canApplyForThreeRoom = selectedProject.getAvailableUnits(FlatType.THREE_ROOM) > 0;
                 }
@@ -218,14 +269,13 @@ public class ProjectView extends BaseView {
                 }
                 
                 // Confirm application
-                System.out.println("\nYou are about to apply for a " + selectedFlatType.getDisplayName() + 
+                System.out.println("\nYou are about to apply for a " + selectedFlatType.toString() + 
                                 " flat in " + selectedProject.getProjectName() + ".");
                 System.out.print("Confirm application? (Y/N): ");
                 
                 String confirm = scanner.nextLine().trim().toUpperCase();
                 if (confirm.equals("Y")) {
-                    boolean success = applicationManager.createApplication(
-                        currentUser.getNric(), selectedProject.getProjectId(), selectedFlatType);
+                    boolean success = applicationController.applyForProject(selectedProject);
                     
                     if (success) {
                         System.out.println("\nApplication submitted successfully! Your application is now pending approval.");
@@ -248,7 +298,7 @@ public class ProjectView extends BaseView {
      */
     private void registerAsOfficer() {
         // Get projects that don't have the current user as an officer
-        List<Project> availableProjects = projectManager.getAllProjects();
+        List<BTOProject> availableProjects = projectController.getAllProjects();
         User currentUser = getCurrentUser();
         
         if (availableProjects.isEmpty()) {
@@ -262,18 +312,33 @@ public class ProjectView extends BaseView {
                          "No.", "Project Name", "Neighborhood", "Officer Slots", "Available Slots");
         System.out.println("------------------------------------------------------------");
         
+        List<BTOProject> eligibleProjects = new ArrayList<>();
         int index = 1;
-        for (Project project : availableProjects) {
-            // Skip projects where user is already an officer or has applied
-            if (project.getOfficerIds().contains(currentUser.getNric()) ||
-                (currentUser.getAppliedProjectId() != null && 
-                 currentUser.getAppliedProjectId().equals(project.getProjectId()))) {
+        
+        for (BTOProject project : availableProjects) {
+            // Skip projects user has applied for
+            if (currentUser.getAppliedProjectId() != null && 
+                currentUser.getAppliedProjectId().equals(project.getProjectId())) {
                 continue;
             }
             
-            int availableSlots = project.getOfficerSlots() - project.getOfficerIds().size();
+            // Skip projects where officer is already registered
+            boolean alreadyRegistered = false;
+            for (Registration reg : currentUser.getRegistrations()) {
+                if (reg.getProject().equals(project)) {
+                    alreadyRegistered = true;
+                    break;
+                }
+            }
+            
+            if (alreadyRegistered) {
+                continue;
+            }
+            
+            int availableSlots = project.getAvailableHDBOfficerSlots();
             
             if (availableSlots > 0) {
+                eligibleProjects.add(project);
                 System.out.printf("%-5d | %-20s | %-15s | %-13d | %-15d\n", 
                                 index++, 
                                 project.getProjectName(), 
@@ -284,13 +349,18 @@ public class ProjectView extends BaseView {
         }
         System.out.println("------------------------------------------------------------");
         
+        if (eligibleProjects.isEmpty()) {
+            System.out.println("No eligible projects found for registration.");
+            return;
+        }
+        
         // Get user selection
         System.out.print("\nEnter project number to register as an officer (or 0 to cancel): ");
         try {
             int selection = Integer.parseInt(scanner.nextLine().trim());
             
-            if (selection > 0 && selection <= availableProjects.size()) {
-                Project selectedProject = availableProjects.get(selection - 1);
+            if (selection > 0 && selection <= eligibleProjects.size()) {
+                BTOProject selectedProject = eligibleProjects.get(selection - 1);
                 
                 // Confirm registration
                 System.out.println("\nYou are about to register as an HDB Officer for " + 
@@ -300,7 +370,7 @@ public class ProjectView extends BaseView {
                 
                 String confirm = scanner.nextLine().trim().toUpperCase();
                 if (confirm.equals("Y")) {
-                    boolean success = projectManager.registerAsOfficer(selectedProject.getProjectId());
+                    boolean success = projectController.registerAsOfficer(selectedProject.getProjectId());
                     
                     if (success) {
                         System.out.println("\nRegistration submitted successfully! Your registration is now pending approval.");
@@ -323,7 +393,7 @@ public class ProjectView extends BaseView {
      */
     private void viewRegistrationStatus() {
         User currentUser = getCurrentUser();
-        List<ProjectRegistrationStatus> registrations = projectManager.getOfficerRegistrationsByUser(currentUser.getNric());
+        List<Registration> registrations = projectController.getOfficerRegistrationsByUser(currentUser.getNric());
         
         if (registrations.isEmpty()) {
             System.out.println("You have no officer registrations.");
@@ -337,11 +407,11 @@ public class ProjectView extends BaseView {
         System.out.println("------------------------------------------------------------");
         
         int index = 1;
-        for (ProjectRegistrationStatus reg : registrations) {
+        for (Registration reg : registrations) {
             System.out.printf("%-5d | %-20s | %-15s | %-10s\n", 
                             index++, 
-                            reg.getProjectName(), 
-                            reg.getNeighborhood(),
+                            reg.getProject().getProjectName(), 
+                            reg.getProject().getNeighborhood(),
                             reg.getStatus());
         }
         System.out.println("------------------------------------------------------------");
@@ -350,29 +420,138 @@ public class ProjectView extends BaseView {
     }
     
     /**
-     * Inner class to hold project registration status information
+     * Filters projects by neighborhood
+     * @param projects List of projects to filter
+     * @param neighborhood Neighborhood to filter by
+     * @return Filtered list of projects
      */
-    private class ProjectRegistrationStatus {
-        private String projectName;
-        private String neighborhood;
-        private String status;
-        
-        public ProjectRegistrationStatus(String projectName, String neighborhood, String status) {
-            this.projectName = projectName;
-            this.neighborhood = neighborhood;
-            this.status = status;
+    public List<BTOProject> filterProjectsByNeighborhood(List<BTOProject> projects, String neighborhood) {
+        if (neighborhood == null || neighborhood.trim().isEmpty()) {
+            return projects;
         }
         
-        public String getProjectName() {
-            return projectName;
+        List<BTOProject> filteredProjects = new ArrayList<>();
+        for (BTOProject project : projects) {
+            if (project.getNeighborhood().equalsIgnoreCase(neighborhood)) {
+                filteredProjects.add(project);
+            }
         }
         
-        public String getNeighborhood() {
-            return neighborhood;
+        return filteredProjects;
+    }
+    
+    /**
+     * Filters projects by flat type
+     * @param projects List of projects to filter
+     * @param flatType Flat type to filter by
+     * @return Filtered list of projects
+     */
+    public List<BTOProject> filterProjectsByFlatType(List<BTOProject> projects, FlatType flatType) {
+        if (flatType == null) {
+            return projects;
         }
         
-        public String getStatus() {
-            return status;
+        List<BTOProject> filteredProjects = new ArrayList<>();
+        for (BTOProject project : projects) {
+            if (project.getAvailableUnits(flatType) > 0) {
+                filteredProjects.add(project);
+            }
         }
+        
+        return filteredProjects;
+    }
+    
+    /**
+     * Sorts projects by flat availability (descending)
+     * @param projects List of projects to sort
+     * @param flatType Flat type to sort by
+     * @return Sorted list of projects
+     */
+    public List<BTOProject> sortProjectsByAvailability(List<BTOProject> projects, FlatType flatType) {
+        if (flatType == null) {
+            return projects;
+        }
+        
+        List<BTOProject> sortedProjects = new ArrayList<>(projects);
+        sortedProjects.sort((p1, p2) -> Integer.compare(
+            p2.getAvailableUnits(flatType), 
+            p1.getAvailableUnits(flatType)
+        ));
+        
+        return sortedProjects;
+    }
+    
+    /**
+     * Display formatted data for a list of projects
+     * @param projects List of projects to display
+     * @param title Title for the display
+     */
+    public void displayProjects(List<BTOProject> projects, String title) {
+        if (projects.isEmpty()) {
+            System.out.println("No projects found.");
+            return;
+        }
+        
+        System.out.println("\n===== " + title + " =====");
+        System.out.println("------------------------------------------------------------");
+        System.out.printf("%-5s | %-20s | %-15s | %-10s | %-10s\n", 
+                        "No.", "Project Name", "Neighborhood", "2-Room", "3-Room");
+        System.out.println("------------------------------------------------------------");
+        
+        int index = 1;
+        for (BTOProject project : projects) {
+            System.out.printf("%-5d | %-20s | %-15s | %-10d | %-10d\n", 
+                            index++, 
+                            project.getProjectName(), 
+                            project.getNeighborhood(),
+                            project.getAvailableUnits(FlatType.TWO_ROOM),
+                            project.getAvailableUnits(FlatType.THREE_ROOM));
+        }
+        System.out.println("------------------------------------------------------------");
+    }
+    
+    /**
+     * Gets a list of unique neighborhoods from the available projects
+     * @return List of neighborhood names
+     */
+    public List<String> getAvailableNeighborhoods() {
+        List<BTOProject> projects = projectController.getAllProjects();
+        List<String> neighborhoods = new ArrayList<>();
+        
+        for (BTOProject project : projects) {
+            String neighborhood = project.getNeighborhood();
+            if (!neighborhoods.contains(neighborhood)) {
+                neighborhoods.add(neighborhood);
+            }
+        }
+        
+        return neighborhoods;
+    }
+    
+    /**
+     * Implementation of run method from BaseView
+     * Displays menu and handles user input until user chooses to exit
+     * @return true to continue program execution, false to exit
+     */
+    @Override
+    public boolean run() {
+        displayMenu();
+        boolean continueRunning = true;
+        
+        while (continueRunning) {
+            continueRunning = handleRequest();
+            
+            if (continueRunning) {
+                System.out.print("\nDo you want to perform another operation? (Y/N): ");
+                String choice = scanner.nextLine().trim().toUpperCase();
+                if (!choice.equals("Y")) {
+                    continueRunning = false;
+                } else {
+                    displayMenu();
+                }
+            }
+        }
+        
+        return true;
     }
 }

@@ -58,6 +58,10 @@ public class UserService implements IUserService {
         return AuthStore.getCurrentUser();
     }
 
+    public boolean isValidPassword(String password) {
+        return password != null && password.length() >= MIN_PASSWORD_LENGTH && PASSWORD_PATTERN.matcher(password).matches();
+    }
+
     @Override
     public boolean changePassword(String oldPassword, String newPassword) {
         if (!isValidPassword(newPassword)) {
@@ -97,43 +101,43 @@ public class UserService implements IUserService {
     }
 
     @Override
-public boolean createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType) {
-    // Comprehensive validation
-    if (!validateNRIC(nric)) {
-        throw new IllegalArgumentException("Invalid NRIC format");
-    }
+    public boolean createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType) {
+        // Comprehensive validation
+        if (!validateNRIC(nric)) {
+            throw new IllegalArgumentException("Invalid NRIC format");
+        }
 
-    if (!isValidPassword(password)) {
-        throw new IllegalArgumentException("Invalid password");
-    }
+        if (!isValidPassword(password)) {
+            throw new IllegalArgumentException("Invalid password");
+        }
 
-    if (age < 21) {
-        throw new IllegalArgumentException("User must be at least 21 years old");
-    }
+        if (age < 21) {
+            throw new IllegalArgumentException("User must be at least 21 years old");
+        }
 
-    User existingUser = getUserByNRIC(nric);
-    if (existingUser != null) {
-        throw new IllegalArgumentException("User with this NRIC already exists");
-    }
+        User existingUser = getUserByNRIC(nric);
+        if (existingUser != null) {
+            throw new IllegalArgumentException("User with this NRIC already exists");
+        }
 
-    // Calculate date of birth from age
-    LocalDate dateOfBirth = LocalDate.now().minusYears(age);
-    
-    // Create appropriate user type
-    User newUser;
-    switch (userType) {
-        case APPLICANT:
-            newUser = new Applicant(nric, null, dateOfBirth, maritalStatus);
-            break;
-        case OFFICER:
-            newUser = new HDBOfficer(nric, null, dateOfBirth, maritalStatus);
-            break;
-        case MANAGER:
-            newUser = new HDBManager(nric, null, dateOfBirth);
-            break;
-        default:
-            throw new IllegalArgumentException("Invalid user type");
-    }
+        // Calculate date of birth from age
+        LocalDate dateOfBirth = LocalDate.now().minusYears(age);
+        
+        // Create appropriate user type
+        User newUser;
+        switch (userType) {
+            case APPLICANT:
+                newUser = new Applicant(nric, null, dateOfBirth, maritalStatus);
+                break;
+            case OFFICER:
+                newUser = new HDBOfficer(nric, null, dateOfBirth, maritalStatus);
+                break;
+            case MANAGER:
+                newUser = new HDBManager(nric, null, dateOfBirth);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid user type");
+        }
     
     // Set password and default name (can be updated later)
     newUser.setPassword(password);

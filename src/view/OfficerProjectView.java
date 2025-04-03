@@ -22,26 +22,27 @@ public class OfficerProjectView {
     }
 
     public void displayMenu() {
-    BTOProject project = projectController.getHandlingProject();
-    if (project != null) {
-        System.out.println("\n===== OFFICER PROJECT MENU =====");
-        System.out.println("Project: " + project.getProjectName());
-        System.out.println("Neighborhood: " + project.getNeighborhood());
-        System.out.println("Available 2-Room Units: " + project.getAvailableUnits(FlatType.TWO_ROOM));
-        System.out.println("Available 3-Room Units: " + project.getAvailableUnits(FlatType.THREE_ROOM));
-        System.out.println("Application Period: " + project.getApplicationOpeningDate() + " to " + project.getApplicationClosingDate());
-        System.out.println("\n1. View Handling Project");
-        System.out.println("2. View Enquiries");
-        System.out.println("3. Process Booking");
-        System.out.println("4. Back");
-    } else {
-        System.out.println("\n===== OFFICER PROJECT MENU =====");
-        System.out.println("No project is currently being handled.");
-        System.out.println("\n1. View Projects to Handle");
-        System.out.println("2. Back");
+        BTOProject project = projectController.getHandlingProject();
+        if (project != null) {
+            System.out.println("\n===== OFFICER PROJECT MENU =====");
+            System.out.println("Project: " + project.getProjectName());
+            System.out.println("Neighborhood: " + project.getNeighborhood());
+            System.out.println("Available 2-Room Units: " + project.getAvailableUnits(FlatType.TWO_ROOM));
+            System.out.println("Available 3-Room Units: " + project.getAvailableUnits(FlatType.THREE_ROOM));
+            System.out.println("Application Period: " + project.getApplicationOpeningDate() + " to "
+                    + project.getApplicationClosingDate());
+            System.out.println("\n1. View Handling Project");
+            System.out.println("2. View Enquiries");
+            System.out.println("3. Process Booking");
+            System.out.println("4. Back");
+        } else {
+            System.out.println("\n===== OFFICER PROJECT MENU =====");
+            System.out.println("No project is currently being handled.");
+            System.out.println("\n1. View Projects to Handle");
+            System.out.println("2. Back");
+        }
     }
-}
-    
+
     private void displayEnquiries(List<Enquiry> enquiries) {
         if (enquiries.isEmpty()) {
             System.out.println("No enquiries found for this project.");
@@ -55,13 +56,8 @@ public class OfficerProjectView {
             }
         }
     }
-}
-.println("\n===== OFFICER PROJECT MENU =====");
-        System.out.println("1. View Handling Project");
-        System.out.println("2. View Enquiries");
-        System.out.println("3. Process Booking");
-        System.out.println("4. Back");
-    }
+
+
 
     public void handleUserInput() {
         int choice = scanner.nextInt();
@@ -74,7 +70,6 @@ public class OfficerProjectView {
             default -> System.out.println("Invalid choice. Please try again.");
         }
     }
-
 
     private void viewEnquiries() {
         BTOProject project = projectController.getHandlingProject();
@@ -89,6 +84,7 @@ public class OfficerProjectView {
     private void processBooking() {
         // Navigate to ApplicationView for booking process
     }
+
 
    
     

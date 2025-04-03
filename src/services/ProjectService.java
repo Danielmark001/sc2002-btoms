@@ -576,41 +576,42 @@ public class ProjectService implements IProjectService {
      */
     private void validateProjectInputs(String projectName, String neighborhood, 
                                     LocalDate openingDate, LocalDate closingDate, 
-                                    int officerSlots) {
+            int officerSlots) {
         // Validate project name
         if (projectName == null || projectName.trim().isEmpty()) {
             throw new IllegalArgumentException("Project name cannot be empty");
         }
-        
+
         if (projectName.length() > 100) {
             throw new IllegalArgumentException("Project name cannot exceed 100 characters");
         }
-        
+
         // Validate neighborhood
         if (neighborhood == null || neighborhood.trim().isEmpty()) {
             throw new IllegalArgumentException("Neighborhood cannot be empty");
         }
-        
+
         if (neighborhood.length() > 50) {
             throw new IllegalArgumentException("Neighborhood cannot exceed 50 characters");
         }
-        
+
         // Validate dates
         if (openingDate == null || closingDate == null) {
             throw new IllegalArgumentException("Opening and closing dates cannot be null");
         }
-        
+
         if (openingDate.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Opening date cannot be in the past");
         }
-        
+
         if (closingDate.isBefore(openingDate)) {
             throw new IllegalArgumentException("Closing date must be after opening date");
         }
-        
+
         // Validate officer slots
         if (officerSlots < 0 || officerSlots > 10) {
             throw new IllegalArgumentException("Officer slots must be between 0 and 10");
         }
     }
+    
 }

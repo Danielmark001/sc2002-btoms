@@ -73,29 +73,29 @@ public class RegistrationView {
             System.out.println("Project not found.");
             return;
         }
-        
+
         List<Registration> pendingRegistrations = registrationController
-            .getRegistrationsByStatus(project, RegistrationStatus.PENDING);
-        
+                .getRegistrationsByStatus(project, RegistrationStatus.PENDING);
+
         if (pendingRegistrations.isEmpty()) {
             System.out.println("No pending registrations for this project.");
             return;
         }
-        
+
         displayRegistrations(pendingRegistrations);
-        
+
         System.out.println("Enter registration ID to process:");
         String registrationId = scanner.nextLine();
         Registration registration = getRegistrationById(registrationId);
-        
+
         if (registration == null) {
             System.out.println("Registration not found.");
             return;
         }
-        
+
         System.out.println("Enter action (approve/reject):");
         String action = scanner.nextLine().toLowerCase();
-        
+
         boolean success;
         if (action.equals("approve")) {
             success = registrationController.approveRegistration(registration);
@@ -105,13 +105,14 @@ public class RegistrationView {
             System.out.println("Invalid action.");
             return;
         }
-        
+
         if (success) {
             System.out.println("Registration " + action + "d successfully!");
         } else {
             System.out.println("Failed to " + action + " registration.");
         }
     }
+    public void displayError(string message)
     
     private void displayRegistrations(List<Registration> registrations) {
         for (Registration registration : registrations) {

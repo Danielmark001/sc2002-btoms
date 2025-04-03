@@ -2,9 +2,10 @@ package controllers;
 
 import models.User;
 import models.Applicant;
-import enumeration.UserStatus;
 import enumeration.MaritalStatus;
+import enumeration.UserType;
 import services.UserService;
+import services.ReportService;
 import util.InputValidator;
 import view.UserView;
 
@@ -15,20 +16,25 @@ import java.util.List;
 public class UserController {
     private UserService userService;
     private UserView userView;
-
+    private ReportService reportService;
 
     /**
      * Constructor for UserController
      * 
      * @param userView View for user operations
      */
-
-    public UserController() {
-    }
-
     public UserController(UserView userView) {
         this.userService = UserService.getInstance();
         this.userView = userView;
+        this.reportService = new ReportService();
+    }
+
+    /**
+     * Default constructor
+     */
+    public UserController() {
+        this.userService = UserService.getInstance();
+        this.reportService = new ReportService();
     }
 
     /**
@@ -41,63 +47,57 @@ public class UserController {
      * @return Created user
      */
     public User createApplicant(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus) {
-    try {
-        // Validate NRIC
-        if (!InputValidator.isValidNRIC(nric)) {
-            throw new IllegalArgumentException("Invalid NRIC format");
+        try {
+            // Validate NRIC
+            if (!InputValidator.isValidNRIC(nric)) {
+                throw new IllegalArgumentException("Invalid NRIC format");
+            }
+            
+            // Validate name
+            InputValidator.validateNonEmpty(name, "Name cannot be empty");
+            InputValidator.validateLength(name, 2, 100, "Name must be between 2 and 100 characters");
+            
+            // Validate date of birth
+            if (dateOfBirth == null) {
+                throw new IllegalArgumentException("Date of birth cannot be empty");
+            }
+            
+            if (dateOfBirth.isAfter(LocalDate.now())) {
+                throw new IllegalArgumentException("Date of birth cannot be in the future");
+            }
+            
+            // Calculate age
+            int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
+            
+            // Validate age based on marital status
+            if (maritalStatus == MaritalStatus.SINGLE && age < 35) {
+                throw new IllegalArgumentException("Single applicants must be at least 35 years old");
+            }
+            
+            if (maritalStatus == MaritalStatus.MARRIED && age < 21) {
+                throw new IllegalArgumentException("Married applicants must be at least 21 years old");
+            }
+            
+            // Create user
+            User newUser = userService.createUser(nric, name, dateOfBirth, maritalStatus, UserType.APPLICANT);
+            
+            if (userView != null) {
+                userView.displaySuccess("Applicant created successfully");
+            }
+            
+            return newUser;
+        } catch (IllegalArgumentException e) {
+            if (userView != null) {
+                userView.displayError("Failed to create applicant: " + e.getMessage());
+            }
+            return null;
+        } catch (Exception e) {
+            if (userView != null) {
+                userView.displayError("An unexpected error occurred: " + e.getMessage());
+            }
+            return null;
         }
-        
-        // Validate name
-        InputValidator.validateNonEmpty(name, "Name cannot be empty");
-        InputValidator.validateLength(name, 2, 100, "Name must be between 2 and 100 characters");
-        
-        // Validate date of birth
-        if (dateOfBirth == null) {
-            throw new IllegalArgumentException("Date of birth cannot be empty");
-        }
-        
-        if (dateOfBirth.isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Date of birth cannot be in the future");
-        }
-        
-        // Calculate age
-        int age = Period.between(dateOfBirth, LocalDate.now()).getYears();
-        
-        // Validate age based on marital status
-        if (maritalStatus == MaritalStatus.SINGLE && age < 35) {
-            throw new IllegalArgumentException("Single applicants must be at least 35 years old");
-        }
-        
-        if (maritalStatus == MaritalStatus.MARRIED && age < 21) {
-            throw new IllegalArgumentException("Married applicants must be at least 21 years old");
-        }
-        
-        // Create user
-        User newUser = userService.createUser(
-            nric, 
-            name, 
-            dateOfBirth, 
-            maritalStatus, 
-            UserStatus.APPLICANT
-        );
-        
-        if (userView != null) {
-            userView.displaySuccess("Applicant created successfully");
-        }
-        
-        return newUser;
-    } catch (IllegalArgumentException e) {
-        if (userView != null) {
-            userView.displayError("Failed to create applicant: " + e.getMessage());
-        }
-        return null;
-    } catch (Exception e) {
-        if (userView != null) {
-            userView.displayError("An unexpected error occurred: " + e.getMessage());
-        }
-        return null;
     }
-}
 
     /**
      * Updates user profile
@@ -111,10 +111,14 @@ public class UserController {
     public User updateUserProfile(String nric, String name, String contactNumber, String email) {
         try {
             User updatedUser = userService.updateUser(nric, name, contactNumber, email);
-            userView.displaySuccess("Profile updated successfully");
+            if (userView != null) {
+                userView.displaySuccess("Profile updated successfully");
+            }
             return updatedUser;
         } catch (Exception e) {
-            userView.displayError("Failed to update profile: " + e.getMessage());
+            if (userView != null) {
+                userView.displayError("Failed to update profile: " + e.getMessage());
+            }
             return null;
         }
     }
@@ -127,10 +131,15 @@ public class UserController {
      */
     public User getUserDetails(String nric) {
         try {
-            return userService.getUserByNRIC(nric)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            User user = userService.getUserByNRIC(nric);
+            if (user == null) {
+                throw new IllegalArgumentException("User not found");
+            }
+            return user;
         } catch (Exception e) {
-            userView.displayError("Failed to retrieve user details: " + e.getMessage());
+            if (userView != null) {
+                userView.displayError("Failed to retrieve user details: " + e.getMessage());
+            }
             return null;
         }
     }
@@ -170,27 +179,99 @@ public class UserController {
      */
     public boolean deleteUser(String nric) {
         try {
-            userService.deleteUser(nric);
-            userView.displaySuccess("User deleted successfully");
-            return true;
+            boolean success = userService.deleteUser(nric);
+            if (success && userView != null) {
+                userView.displaySuccess("User deleted successfully");
+            }
+            return success;
         } catch (Exception e) {
-            userView.displayError("Failed to delete user: " + e.getMessage());
+            if (userView != null) {
+                userView.displayError("Failed to delete user: " + e.getMessage());
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Logs out the current user
+     */
+    public void logout() {
+        userService.logout();
+        if (userView != null) {
+            userView.displayMessage("User logged out successfully");
+        }
+    }
+    
+    /**
+     * Starts the controller's main operation
+     */
+    public void start() {
+        if (userView != null) {
+            userView.displayMessage("UserController started");
+        }
+    }
+    
+    /**
+     * Gets the current logged-in user
+     * 
+     * @return Current user
+     */
+    public User getCurrentUser() {
+        return userService.getCurrentUser();
+    }
+    
+    /**
+     * Generates a report based on filter and value
+     * 
+     * @param filter Report filter
+     * @param value Value to filter by
+     * @return Generated report
+     */
+    public String generateReport(String filter, String value) {
+        // Generate the appropriate report
+        switch (filter.toLowerCase()) {
+            case "project":
+                return reportService.generateProjectReport(value);
+            case "flat-type":
+                return reportService.generateFlatTypeReport(value);
+            case "marital-status":
+                return reportService.generateMaritalStatusReport(value);
+            case "application-status":
+                return reportService.generateApplicationStatusReport();
+            case "project-application":
+                return reportService.generateProjectApplicationReport();
+            default:
+                return "Invalid filter criteria. Please use project, flat-type, marital-status, application-status, or project-application.";
+        }
+    }
+    
+    /**
+     * Changes the current user's password
+     * 
+     * @param oldPassword Current password
+     * @param newPassword New password
+     * @return true if password change succeeds
+     */
+    public boolean changePassword(String oldPassword, String newPassword) {
+        if (oldPassword == null || newPassword == null || 
+            oldPassword.trim().isEmpty() || newPassword.trim().isEmpty()) {
+            if (userView != null) {
+                userView.displayError("Passwords cannot be empty");
+            }
             return false;
         }
         
-
+        boolean success = userService.changePassword(oldPassword, newPassword);
+        if (success) {
+            if (userView != null) {
+                userView.displaySuccess("Password changed successfully");
+            }
+        } else {
+            if (userView != null) {
+                userView.displayError("Failed to change password. Check your current password and try again.");
+            }
+        }
+        
+        return success;
     }
-
-    public void logout() {
-        // Implement logout logic here
-        userView.displayMessage("User logged out successfully");
-    }
-
-    
-    public void start() {
-        userView.displayMessage("UserController started");
-    }
-    
-
-    
 }
