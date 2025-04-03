@@ -79,7 +79,7 @@ public class UserController {
             }
             
             // Create user
-            User newUser = userService.createUser(nric, name, dateOfBirth, maritalStatus, UserType.APPLICANT);
+            User newUser = userService.createUser(nric, name, age, maritalStatus, UserType.APPLICANT);
             
             if (userView != null) {
                 userView.displaySuccess("Applicant created successfully");
@@ -253,14 +253,14 @@ public class UserController {
      * @return true if password change succeeds
      */
     public boolean changePassword(String oldPassword, String newPassword) {
-        if (oldPassword == null || newPassword == null || 
-            oldPassword.trim().isEmpty() || newPassword.trim().isEmpty()) {
+        if (oldPassword == null || newPassword == null ||
+                oldPassword.trim().isEmpty() || newPassword.trim().isEmpty()) {
             if (userView != null) {
                 userView.displayError("Passwords cannot be empty");
             }
             return false;
         }
-        
+
         boolean success = userService.changePassword(oldPassword, newPassword);
         if (success) {
             if (userView != null) {
@@ -271,7 +271,16 @@ public class UserController {
                 userView.displayError("Failed to change password. Check your current password and try again.");
             }
         }
-        
+
         return success;
+    }
+    public User getUserByNRIC(String message) {
+        User user = userService.getUserByNRIC(message);
+        if (user == null) {
+            if (userView != null) {
+                userView.displayError("User not found");
+            }
+        }
+        return user;
     }
 }

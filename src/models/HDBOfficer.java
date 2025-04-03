@@ -4,11 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import enumeration.MaritalStatus;
-import enumeration.UserStatus;
-import enumeration.FlatType;
-import models.BTOProject;
-import enumeration.UserType;
-import enumeration.ApplicationStatus;
+
 
 public class HDBOfficer extends User {
     private BTOProject handlingProject;
@@ -20,6 +16,11 @@ public class HDBOfficer extends User {
 
         this.processedApplications = new ArrayList<>();
     }
+
+    public HDBOfficer(String nric, String password, int age, MaritalStatus maritalStatus) {
+        super(nric, password, age, maritalStatus);
+        this.processedApplications = new ArrayList<>();
+    };
 
     // Getter and setter for handling project
     public BTOProject getHandlingProject() {

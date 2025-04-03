@@ -1,5 +1,7 @@
 package controllers;
 
+import java.util.Scanner;
+
 import models.User;
 import services.UserService;
 import stores.AuthStore;
@@ -166,10 +168,41 @@ public class AuthController {
      * @return true if session started successfully
      */
     public static boolean startSession() {
-        // Here you could implement a login flow
-        // For now, we'll just check if there's a user already logged in
-        return AuthStore.isLoggedIn();
+    // If user is already logged in, just return true
+    if (AuthStore.isLoggedIn()) {
+        return true;
     }
+    
+    Scanner scanner = new Scanner(System.in);
+    int maxAttempts = 3;
+    int attempts = 0;
+    
+    while (attempts < maxAttempts) {
+        System.out.println("\n===== LOGIN =====");
+        System.out.print("Enter NRIC: ");
+        String nric = scanner.nextLine().trim();
+        
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine().trim();
+        
+        // Get the singleton instance
+        AuthController authController = AuthController.getInstance();
+        
+        // Attempt to login
+        User user = authController.login(nric, password);
+        
+        if (user != null) {
+            System.out.println("Login successful! Welcome, " + user.getName() + ".");
+            return true;
+        } else {
+            attempts++;
+            System.out.println("Invalid credentials. " + (maxAttempts - attempts) + " attempts remaining.");
+        }
+    }
+    scanner.close();
+    System.out.println("Maximum login attempts exceeded. Please try again later.");
+    return false;
+}
     
     /**
      * Ends the current authentication session

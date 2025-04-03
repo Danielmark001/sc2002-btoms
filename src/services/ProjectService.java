@@ -535,7 +535,7 @@ public class ProjectService implements IProjectService {
         }
         
         // Get application service
-        ApplicationService applicationService = ApplicationService.getInstance();
+        BTOApplicationService applicationService = BTOApplicationService.getInstance();
         
         // Get officer's applications
         List<BTOApplication> applications = applicationService.getApplicationsByApplicantNric(officer.getNric());

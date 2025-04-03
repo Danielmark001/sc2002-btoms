@@ -61,7 +61,7 @@ public class LoginView {
         String maritalStatusStr = scanner.nextLine().toUpperCase();
         MaritalStatus maritalStatus = MaritalStatus.valueOf(maritalStatusStr);
 
-        boolean success = loginController.registerApplicant(nric, password, age, maritalStatus);
+        boolean success = true ? loginController.registerApplicant(nric, password, age, maritalStatus) == null : false;
         if (success) {
             System.out.println("Registration successful!");
         } else {

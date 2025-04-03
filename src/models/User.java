@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 
 import enumeration.*;
 
@@ -14,6 +16,7 @@ public class User {
     private final String nric;
     private String name;
     private LocalDate dateOfBirth;
+    private int age; // Added age field
     private String contactNumber;
     private String email;
     private String password;
@@ -30,6 +33,13 @@ public class User {
     private static final Pattern PHONE_PATTERN = Pattern.compile("^(\\+?6?0?)[1-9]\\d{7,9}$");
 
     // Constructors with comprehensive validation
+    public User(String nric, String password, int age, MaritalStatus maritalStatus) {
+        this.nric = nric;
+        this.age = age; // Initialize the age field
+        this.age = age;
+        this.maritalStatus = maritalStatus;
+    }
+
     public User(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus) {
         validateNRIC(nric);
         validateName(name);

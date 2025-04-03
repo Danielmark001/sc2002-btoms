@@ -101,6 +101,6 @@ public class ProjectValidationException extends BTOSystemException {
  */
 @Override
 public BTOSystemException.ErrorCode getErrorCode() {
-    return errorCode;
+    return null;
 }
 }

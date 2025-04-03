@@ -364,6 +364,7 @@ public boolean isInApplicationPeriod() {
 public boolean isOpenForApplications() {
     return isVisible() && isInApplicationPeriod();
 }
+
 public boolean isEligibleForApplicant(User applicant) {
     // Check project visibility
     if (!visibility) {
@@ -388,18 +389,33 @@ public boolean isEligibleForApplicant(User applicant) {
     // Singles 35 years and older can only apply for 2-Room
     if (maritalStatus == MaritalStatus.SINGLE) {
         return age >= 35 && flatTypes.containsKey(FlatType.TWO_ROOM);
-    } 
+    }
     // Married 21 years and older can apply for 2-Room or 3-Room
     else if (maritalStatus == MaritalStatus.MARRIED) {
-        return age >= 21 && 
-              (flatTypes.containsKey(FlatType.TWO_ROOM) || 
-               flatTypes.containsKey(FlatType.THREE_ROOM));
+        return age >= 21 &&
+                (flatTypes.containsKey(FlatType.TWO_ROOM) ||
+                        flatTypes.containsKey(FlatType.THREE_ROOM));
     }
 
     return false;
 }
 
-    
+public RegistrationStatus getRegistrationStatus() {
+    // Check if the project is visible and within the application period
+    if (!isVisible() || !isInApplicationPeriod()) {
+        return RegistrationStatus.REJECTED;
+    }
+
+    // Check if the project has available units for the applicant's flat type
+    for (FlatType flatType : flatTypes.keySet()) {
+        if (getAvailableUnits(flatType) > 0) {
+            return RegistrationStatus.APPROVED;
+        }
+    }
+
+    return RegistrationStatus.REJECTED;
+
+}
     
 
 }

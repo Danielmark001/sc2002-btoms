@@ -17,6 +17,11 @@ public class HDBManager extends User {
         this.managedProjects = new ArrayList<>();
     }
 
+    public HDBManager(String nric, String password, int age, MaritalStatus maritalStatus) {
+        super(nric, password, age, maritalStatus);
+        this.managedProjects = new ArrayList<>();
+    };
+
     // Method to add a managed project
     public void addManagedProject(BTOProject project) {
         if (!managedProjects.contains(project)) {
@@ -51,4 +56,5 @@ public class HDBManager extends User {
         // TODO Auto-generated method stub
         return super.getMaritalStatus();
     }
+    
 }

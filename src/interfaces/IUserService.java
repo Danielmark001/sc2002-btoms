@@ -94,7 +94,7 @@ public interface IUserService {
      * @param userType User's type
      * @return true if created successfully, false otherwise
      */
-    boolean createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType);
+    User createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType);
     
     /**
      * Updates an existing user

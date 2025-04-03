@@ -200,11 +200,12 @@ public class DataStore {
      * @param user User to add
      * @return true if added successfully
      */
-    public static boolean addUser(User user) {
-        if (user == null) {
-            return false;
-        }
+    public static User addUser(User user) {
 
+        if (user == null) {
+            return null;
+        }
+        
         DataStore store = getInstance();
         store.lock.writeLock().lock();
         try {
@@ -213,7 +214,7 @@ public class DataStore {
             // Check if user already exists
             for (String[] userData : users) {
                 if (userData.length > 1 && userData[1].equals(user.getNric())) {
-                    return false; // User already exists
+                    return null; // User already exists
                 }
             }
             
@@ -226,7 +227,7 @@ public class DataStore {
             store.userCache.put(user.getNric(), user);
             
             saveData();
-            return true;
+            return user;
         } finally {
             store.lock.writeLock().unlock();
         }
@@ -1207,13 +1208,9 @@ public class DataStore {
         return registrationData;
     }
 
-    private DataStore dataStore = DataStore.getInstance();
+    
+    
 
 
-    public boolean removeUser(User user) {
-        if (user == null) {
-            return false;
-        }
-        return dataStore.deleteUser(user.getNric());
-    }
+
 }

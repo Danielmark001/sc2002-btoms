@@ -15,6 +15,7 @@ import enumeration.RegistrationStatus;
 import enumeration.UserType;
 import enumeration.MaritalStatus;
 
+
 import java.time.LocalDate;
 
 public class OfficerRegistrationController {
@@ -53,7 +54,7 @@ public class OfficerRegistrationController {
         HDBManager manager = (HDBManager) currentUser;
 
         // Verify project is managed by current manager
-        if (!project.getManager().equals(manager)) {
+        if (!project.getHdbManager().equals(manager)) {
             view.displayError("You can only register officers for your own projects");
             return null;
         }
@@ -106,7 +107,7 @@ public class OfficerRegistrationController {
         }
 
         // Verify project is managed by current manager
-        if (!officer.getHandlingProject().getManager().equals(manager)) {
+        if (!officer.getHandlingProject().getHdbManager().equals(manager)) {
             view.displayError("You can only process registrations for your own projects");
             return false;
         }
@@ -119,7 +120,7 @@ public class OfficerRegistrationController {
             // Return officer slot and remove officer
             BTOProject project = officer.getHandlingProject();
             project.setAvailableHDBOfficerSlots(project.getAvailableHDBOfficerSlots() + 1);
-            userService.removeUser(officer);
+            userService.deleteUser(officer.getNric());
             
             view.displaySuccess("Officer registration rejected");
             return true;
@@ -148,11 +149,37 @@ public class OfficerRegistrationController {
     public List<Registration> getRegistrationByStatus(RegistrationStatus status) {
         return projectService.getRegistrationsByStatus(status);
     }
+
     public boolean removeUser(User user) {
         if (user == null) {
             return false;
         }
-        return dataStore.deleteUser(user.getNric());
+        return userService.deleteUser(user.getNric());
+    }
+
+    public RegistrationStatus getCurrentRegistrationStatus() {
+        User currentUser = userService.getCurrentUser();
+        if (currentUser instanceof HDBOfficer) {
+            HDBOfficer officer = (HDBOfficer) currentUser;
+            return officer.getHandlingProject().getRegistrationStatus();
+        }
+        return null;
+    }
+    
+    public boolean registerForProject(BTOProject project) {
+        return true;
+    }
+
+    public boolean rejectRegistration(Registration registration) {
+        return true;
+    };
+
+    public boolean approveRegistration(Registration registration) {
+        return true;
+    };
+
+    public List<Registration> getRegistrationsByStatus(BTOProject project, RegistrationStatus status) {
+        return null;
     }
 
 

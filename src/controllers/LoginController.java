@@ -1,11 +1,7 @@
 package controllers;
 
-import models.Applicant;
-import models.HDBManager;
-import models.HDBOfficer;
 import models.User;  
 import enumeration.MaritalStatus;
-import enumeration.UserType;
 import services.UserService;
 import view.LoginView;
 
@@ -83,7 +79,7 @@ public class LoginController {
      * @param maritalStatus Marital status of the applicant
      * @return true if registration succeeds
      */
-    public boolean registerApplicant(String nric, String password, int age, MaritalStatus maritalStatus) {
+    public User registerApplicant(String nric, String password, int age, MaritalStatus maritalStatus) {
         return userService.registerApplicant(nric, password, age, maritalStatus);
     }
     

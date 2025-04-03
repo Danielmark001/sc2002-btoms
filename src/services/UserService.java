@@ -101,7 +101,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType) {
+    public User createUser(String nric, String password, int age, MaritalStatus maritalStatus, UserType userType) {
         // Comprehensive validation
         if (!validateNRIC(nric)) {
             throw new IllegalArgumentException("Invalid NRIC format");
@@ -161,7 +161,7 @@ public class UserService implements IUserService {
 
     
 
-    public boolean registerApplicant(String nric, String password, int age, MaritalStatus maritalStatus) {
+    public User registerApplicant(String nric, String password, int age, MaritalStatus maritalStatus) {
         return createUser(nric, password, age, maritalStatus, UserType.APPLICANT);
     }
 

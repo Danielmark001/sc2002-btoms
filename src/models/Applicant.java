@@ -11,6 +11,14 @@ import enumeration.ApplicationStatus;
 public class Applicant extends User {
         private BTOProject bookedProject;
         private FlatType bookedFlatType;
+
+
+
+        public Applicant(String nric, String password, int age, MaritalStatus maritalStatus) {
+            super(nric, password, age, maritalStatus);
+            this.bookedProject = null;
+            this.bookedFlatType = null;
+        };
         
 
         // Constructor

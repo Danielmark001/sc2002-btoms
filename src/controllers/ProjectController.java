@@ -9,7 +9,9 @@ import models.User;
 import services.ProjectService;
 import services.UserService;
 import view.ProjectView;
-
+import models.HDBOfficer;
+import models.Enquiry;
+import models.Registration;
 /**
  * Controller for handling project-related operations
  */
@@ -17,7 +19,7 @@ public class ProjectController {
     private ProjectView projectView;
     private ProjectService projectService;
     private UserService userService;
-    
+
     /**
      * Constructor for ProjectController
      * 
@@ -28,7 +30,7 @@ public class ProjectController {
         this.projectService = ProjectService.getInstance();
         this.userService = UserService.getInstance();
     }
-    
+
     /**
      * Default constructor
      */
@@ -36,14 +38,14 @@ public class ProjectController {
         this.projectService = ProjectService.getInstance();
         this.userService = UserService.getInstance();
     }
-    
+
     /**
      * Starts the controller's main operation
      */
     public void start() {
         // Implementation depends on the view
     }
-    
+
     /**
      * Creates a new BTO project
      * 
@@ -56,11 +58,11 @@ public class ProjectController {
      * @param officerSlots Number of available officer slots
      * @return Created project, or null if creation fails
      */
-    public BTOProject createProject(String projectName, String neighborhood, 
-                              int twoRoomCount, int threeRoomCount, 
-                              LocalDate openingDate, LocalDate closingDate, 
-                              int officerSlots) {
-        
+    public BTOProject createProject(String projectName, String neighborhood,
+            int twoRoomCount, int threeRoomCount,
+            LocalDate openingDate, LocalDate closingDate,
+            int officerSlots) {
+
         // Validate manager
         User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
@@ -69,18 +71,18 @@ public class ProjectController {
             }
             return null;
         }
-        
+
         try {
             // Create the project using ProjectService
             BTOProject project = projectService.createProject(
-                projectName, neighborhood, twoRoomCount, threeRoomCount,
-                openingDate, closingDate, officerSlots);
-            
+                    projectName, neighborhood, twoRoomCount, threeRoomCount,
+                    openingDate, closingDate, officerSlots);
+
             // Set visibility to false by default
             if (project != null) {
                 projectService.toggleProjectVisibility(project.getProjectId(), false);
             }
-            
+
             return project;
         } catch (Exception e) {
             if (projectView != null) {
@@ -89,7 +91,7 @@ public class ProjectController {
             return null;
         }
     }
-    
+
     /**
      * Updates an existing project
      * 
@@ -103,7 +105,7 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             if (projectView != null) {
@@ -111,7 +113,7 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         HDBManager manager = (HDBManager) currentUser;
         if (!project.getHdbManager().equals(manager)) {
             if (projectView != null) {
@@ -119,14 +121,14 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         try {
             boolean success = projectService.updateProject(project);
-            
+
             if (success && projectView != null) {
                 projectView.displaySuccess("Project updated successfully");
             }
-            
+
             return success;
         } catch (Exception e) {
             if (projectView != null) {
@@ -135,7 +137,7 @@ public class ProjectController {
             return false;
         }
     }
-    
+
     /**
      * Deletes a project
      * 
@@ -149,7 +151,7 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             if (projectView != null) {
@@ -157,7 +159,7 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         HDBManager manager = (HDBManager) currentUser;
         if (!project.getHdbManager().equals(manager)) {
             if (projectView != null) {
@@ -165,14 +167,14 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         try {
             boolean success = projectService.deleteProject(project.getProjectId());
-            
+
             if (success && projectView != null) {
                 projectView.displaySuccess("Project deleted successfully");
             }
-            
+
             return success;
         } catch (Exception e) {
             if (projectView != null) {
@@ -181,7 +183,7 @@ public class ProjectController {
             return false;
         }
     }
-    
+
     /**
      * Toggles a project's visibility
      * 
@@ -196,7 +198,7 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         User currentUser = userService.getCurrentUser();
         if (!(currentUser instanceof HDBManager)) {
             if (projectView != null) {
@@ -204,7 +206,7 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         BTOProject project = projectService.getProjectById(projectId);
         if (project == null) {
             if (projectView != null) {
@@ -212,7 +214,7 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         HDBManager manager = (HDBManager) currentUser;
         if (!project.getHdbManager().equals(manager)) {
             if (projectView != null) {
@@ -220,14 +222,14 @@ public class ProjectController {
             }
             return false;
         }
-        
+
         try {
             boolean success = projectService.toggleProjectVisibility(projectId, visible);
-            
+
             if (success && projectView != null) {
                 projectView.displaySuccess("Project visibility set to " + (visible ? "visible" : "hidden"));
             }
-            
+
             return success;
         } catch (Exception e) {
             if (projectView != null) {
@@ -236,7 +238,7 @@ public class ProjectController {
             return false;
         }
     }
-    
+
     /**
      * Gets all projects
      * 
@@ -245,7 +247,7 @@ public class ProjectController {
     public List<BTOProject> getAllProjects() {
         return projectService.getAllProjects();
     }
-    
+
     /**
      * Gets projects created by the current manager
      * 
@@ -254,7 +256,7 @@ public class ProjectController {
     public List<BTOProject> getProjectsByCurrentManager() {
         return projectService.getProjectsByCurrentManager();
     }
-    
+
     /**
      * Gets a project by ID
      * 
@@ -264,7 +266,7 @@ public class ProjectController {
     public BTOProject getProjectById(String projectId) {
         return projectService.getProjectById(projectId);
     }
-    
+
     /**
      * Gets visible projects
      * 
@@ -273,7 +275,7 @@ public class ProjectController {
     public List<BTOProject> getVisibleProjects() {
         return projectService.getVisibleProjects();
     }
-    
+
     /**
      * Gets projects eligible for the current user
      * 
@@ -281,5 +283,42 @@ public class ProjectController {
      */
     public List<BTOProject> getEligibleProjects() {
         return projectService.getEligibleProjects();
+    }
+
+    public List<BTOProject> getProjectsByOfficer(String message) {
+
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    
+    public BTOProject getHandlingProject() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<Enquiry> getEnquiriesByProject(BTOProject project) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public List<Registration> getOfficerRegistrationsByUser(String nric) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public boolean registerAsOfficer(String id) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public boolean registerAsManager(String id) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
+    public boolean registerAsApplicant(String id) {
+        // TODO Auto-generated method stub
+        return false;
     }
 }
