@@ -8,8 +8,6 @@ import view.ApplicationView;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import services.BTOApplicationService;
@@ -30,7 +28,7 @@ public class ApplicationController {
      */
     public ApplicationController(ApplicationView applicationView) {
         this.applicationView = applicationView;
-        this.applicationService = ApplicationService.getInstance();
+        this.applicationService = BTOApplicationService.getInstance();
         this.userService = UserService.getInstance();
         this.projectService = ProjectService.getInstance();
     }
@@ -39,7 +37,7 @@ public class ApplicationController {
      * Default constructor
      */
     public ApplicationController() {
-        this.applicationService = ApplicationService.getInstance();
+        this.applicationService = BTOApplicationService.getInstance();
         this.userService = UserService.getInstance();
         this.projectService = ProjectService.getInstance();
     }

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
+import enumeration.RegistrationStatus;
 
 import models.Applicant;
 import models.BTOApplication;
@@ -1195,14 +1196,24 @@ public class DataStore {
         if (registration == null) {
             return null;
         }
-        
+
         String[] registrationData = new String[5];
         registrationData[0] = registration.getRegistrationId();
         registrationData[1] = registration.getOfficer().getNric();
         registrationData[2] = registration.getProject().getProjectId();
         registrationData[3] = registration.getRegistrationDate().format(dateFormatter);
         registrationData[4] = registration.getStatus().toString();
-        
+
         return registrationData;
+    }
+
+    private DataStore dataStore = DataStore.getInstance();
+
+
+    public boolean removeUser(User user) {
+        if (user == null) {
+            return false;
+        }
+        return dataStore.deleteUser(user.getNric());
     }
 }

@@ -1,20 +1,24 @@
-package views;
+package view;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
+import controllers.ProjectController;
 import models.BTOProject;
-import models.enumeration.FlatType;
-import models.manager.ProjectManager;
+import models.HDBManager;
+import models.User;
+import enumeration.FlatType;
 
 /**
  * View for managing projects by HDB Managers
  */
 public class ManagerProjectView extends BaseView {
-    private final ProjectManager projectManager;
+    private final ProjectController projectController;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
     /**
@@ -23,7 +27,7 @@ public class ManagerProjectView extends BaseView {
      */
     public ManagerProjectView(Scanner scanner) {
         super(scanner);
-        this.projectManager = new ProjectManager();
+        this.projectController = new ProjectController();
     }
     
     @Override
@@ -74,7 +78,7 @@ public class ManagerProjectView extends BaseView {
      * Displays all projects in the system
      */
     private void viewAllProjects() {
-        List<Project> allProjects = projectManager.getAllProjects();
+        List<BTOProject> allProjects = projectController.getAllProjects();
         
         if (allProjects.isEmpty()) {
             System.out.println("No projects found in the system.");
@@ -88,7 +92,7 @@ public class ManagerProjectView extends BaseView {
      * Displays projects created by the current manager
      */
     private void viewMyProjects() {
-        List<Project> myProjects = projectManager.getProjectsByCurrentManager();
+        List<BTOProject> myProjects = projectController.getProjectsByCurrentManager();
         
         if (myProjects.isEmpty()) {
             System.out.println("You have not created any projects.");
@@ -103,7 +107,7 @@ public class ManagerProjectView extends BaseView {
      * @param projects List of projects to display
      * @param title Title for the display
      */
-    private void displayProjectList(List<Project> projects, String title) {
+    private void displayProjectList(List<BTOProject> projects, String title) {
         System.out.println("\n===== " + title + " =====");
         System.out.println("---------------------------------------------------------------------------------");
         System.out.printf("%-5s | %-20s | %-15s | %-10s | %-10s | %-10s\n", 
@@ -111,7 +115,7 @@ public class ManagerProjectView extends BaseView {
         System.out.println("---------------------------------------------------------------------------------");
         
         int index = 1;
-        for (Project project : projects) {
+        for (BTOProject project : projects) {
             System.out.printf("%-5d | %-20s | %-15s | %-10d | %-10d | %-10s\n", 
                             index++, 
                             project.getProjectName(), 
@@ -141,7 +145,7 @@ public class ManagerProjectView extends BaseView {
      * Displays detailed information about a specific project
      * @param project Project to display
      */
-    private void displayProjectDetails(Project project) {
+    private void displayProjectDetails(BTOProject project) {
         System.out.println("\n===== PROJECT DETAILS =====");
         System.out.println("Project ID: " + project.getProjectId());
         System.out.println("Project Name: " + project.getProjectName());
@@ -150,9 +154,10 @@ public class ManagerProjectView extends BaseView {
                          " (Available: " + project.getAvailableUnits(FlatType.TWO_ROOM) + ")");
         System.out.println("3-Room Units: " + project.getTotalUnits(FlatType.THREE_ROOM) + 
                          " (Available: " + project.getAvailableUnits(FlatType.THREE_ROOM) + ")");
-        System.out.println("Application Period: " + project.getOpeningDate() + " to " + project.getClosingDate());
-        System.out.println("Manager in Charge: " + project.getManagerInCharge());
-        System.out.println("Officer Slots: " + project.getOfficerSlots() + 
+        System.out.println("Application Period: " + project.getApplicationOpeningDate() + " to " + project.getApplicationClosingDate());
+        System.out.println("Manager in Charge: " + 
+                         (project.getHdbManager() != null ? project.getHdbManager().getName() : "None"));
+        System.out.println("Officer Slots: " + project.getAvailableHDBOfficerSlots() + 
                          " (Filled: " + project.getOfficerIds().size() + ")");
         System.out.println("Visibility: " + (project.isVisible() ? "Visible" : "Hidden"));
         
@@ -225,7 +230,7 @@ public class ManagerProjectView extends BaseView {
         String confirm = scanner.nextLine().trim().toUpperCase();
         
         if (confirm.equals("Y")) {
-            Project newProject = projectManager.createProject(
+            BTOProject newProject = projectController.createProject(
                 projectName, neighborhood, twoRoomUnits, threeRoomUnits, 
                 openingDate, closingDate, officerSlots);
             
@@ -245,7 +250,7 @@ public class ManagerProjectView extends BaseView {
      * Handles the process of editing an existing project
      */
     private void editProject() {
-        List<Project> myProjects = projectManager.getProjectsByCurrentManager();
+        List<BTOProject> myProjects = projectController.getProjectsByCurrentManager();
         
         if (myProjects.isEmpty()) {
             System.out.println("You have not created any projects to edit.");
@@ -259,7 +264,7 @@ public class ManagerProjectView extends BaseView {
         System.out.println("---------------------------------------------------------------------------------");
         
         int index = 1;
-        for (Project project : myProjects) {
+        for (BTOProject project : myProjects) {
             System.out.printf("%-5d | %-20s | %-15s | %-10d | %-10d | %-10s\n", 
                             index++, 
                             project.getProjectName(), 
@@ -276,7 +281,7 @@ public class ManagerProjectView extends BaseView {
             int selection = Integer.parseInt(scanner.nextLine().trim());
             
             if (selection > 0 && selection <= myProjects.size()) {
-                Project projectToEdit = myProjects.get(selection - 1);
+                BTOProject projectToEdit = myProjects.get(selection - 1);
                 editProjectDetails(projectToEdit);
             } else if (selection != 0) {
                 System.out.println("Invalid selection.");
@@ -290,7 +295,7 @@ public class ManagerProjectView extends BaseView {
      * Edits the details of a specific project
      * @param project Project to edit
      */
-    private void editProjectDetails(Project project) {
+    private void editProjectDetails(BTOProject project) {
         System.out.println("\n===== EDIT PROJECT: " + project.getProjectName() + " =====");
         System.out.println("(Leave field empty to keep current value)");
         
@@ -314,7 +319,10 @@ public class ManagerProjectView extends BaseView {
                 int twoRoomUnits = Integer.parseInt(twoRoomInput);
                 if (twoRoomUnits >= project.getTotalUnits(FlatType.TWO_ROOM) - 
                     (project.getTotalUnits(FlatType.TWO_ROOM) - project.getAvailableUnits(FlatType.TWO_ROOM))) {
-                    project.setTotalUnits(FlatType.TWO_ROOM, twoRoomUnits);
+                    // Update flat types with new unit count
+                    Map<FlatType, Integer> flatTypes = new HashMap<>(project.getFlatTypes());
+                    flatTypes.put(FlatType.TWO_ROOM, twoRoomUnits);
+                    project.setFlatTypes(flatTypes);
                 } else {
                     System.out.println("Cannot reduce units below the number already allocated.");
                 }
@@ -329,7 +337,10 @@ public class ManagerProjectView extends BaseView {
                 int threeRoomUnits = Integer.parseInt(threeRoomInput);
                 if (threeRoomUnits >= project.getTotalUnits(FlatType.THREE_ROOM) - 
                     (project.getTotalUnits(FlatType.THREE_ROOM) - project.getAvailableUnits(FlatType.THREE_ROOM))) {
-                    project.setTotalUnits(FlatType.THREE_ROOM, threeRoomUnits);
+                    // Update flat types with new unit count
+                    Map<FlatType, Integer> flatTypes = new HashMap<>(project.getFlatTypes());
+                    flatTypes.put(FlatType.THREE_ROOM, threeRoomUnits);
+                    project.setFlatTypes(flatTypes);
                 } else {
                     System.out.println("Cannot reduce units below the number already allocated.");
                 }
@@ -339,42 +350,44 @@ public class ManagerProjectView extends BaseView {
         }
         
         // Get application period
-        String openingDateInput = getStringInput("Application Opening Date [" + project.getOpeningDate() + "]: ");
+        String openingDateInput = getStringInput("Application Opening Date [" + project.getApplicationOpeningDate() + "]: ");
         if (!openingDateInput.isEmpty()) {
             try {
                 LocalDate openingDate = LocalDate.parse(openingDateInput, dateFormatter);
-                project.setOpeningDate(openingDate);
+                project.setApplicationOpeningDate(openingDate);
             } catch (DateTimeParseException e) {
                 System.out.println("Invalid date format. Keeping current value.");
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
             }
         }
         
-        String closingDateInput = getStringInput("Application Closing Date [" + project.getClosingDate() + "]: ");
+        String closingDateInput = getStringInput("Application Closing Date [" + project.getApplicationClosingDate() + "]: ");
         if (!closingDateInput.isEmpty()) {
             try {
                 LocalDate closingDate = LocalDate.parse(closingDateInput, dateFormatter);
-                if (!closingDate.isBefore(project.getOpeningDate())) {
-                    project.setClosingDate(closingDate);
-                } else {
-                    System.out.println("Closing date cannot be before opening date. Keeping current value.");
-                }
+                project.setApplicationClosingDate(closingDate);
             } catch (DateTimeParseException e) {
                 System.out.println("Invalid date format. Keeping current value.");
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
             }
         }
         
         // Get officer slots
-        String officerSlotsInput = getStringInput("Number of HDB Officer Slots [" + project.getOfficerSlots() + "]: ");
+        String officerSlotsInput = getStringInput("Number of HDB Officer Slots [" + project.getAvailableHDBOfficerSlots() + "]: ");
         if (!officerSlotsInput.isEmpty()) {
             try {
                 int officerSlots = Integer.parseInt(officerSlotsInput);
                 if (officerSlots >= project.getOfficerIds().size()) {
-                    project.setOfficerSlots(officerSlots);
+                    project.setAvailableHDBOfficerSlots(officerSlots);
                 } else {
                     System.out.println("Cannot reduce slots below the number of officers already assigned.");
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number. Keeping current value.");
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
             }
         }
         
@@ -386,15 +399,15 @@ public class ManagerProjectView extends BaseView {
                          " (Available: " + project.getAvailableUnits(FlatType.TWO_ROOM) + ")");
         System.out.println("3-Room Units: " + project.getTotalUnits(FlatType.THREE_ROOM) + 
                          " (Available: " + project.getAvailableUnits(FlatType.THREE_ROOM) + ")");
-        System.out.println("Application Period: " + project.getOpeningDate() + " to " + project.getClosingDate());
-        System.out.println("Officer Slots: " + project.getOfficerSlots() + 
+        System.out.println("Application Period: " + project.getApplicationOpeningDate() + " to " + project.getApplicationClosingDate());
+        System.out.println("Officer Slots: " + project.getAvailableHDBOfficerSlots() + 
                          " (Filled: " + project.getOfficerIds().size() + ")");
         
         System.out.print("\nConfirm update? (Y/N): ");
         String confirm = scanner.nextLine().trim().toUpperCase();
         
         if (confirm.equals("Y")) {
-            boolean success = projectManager.updateProject(project);
+            boolean success = projectController.updateProject(project);
             
             if (success) {
                 System.out.println("\nProject updated successfully!");
@@ -410,7 +423,7 @@ public class ManagerProjectView extends BaseView {
      * Handles the process of toggling project visibility
      */
     private void toggleProjectVisibility() {
-        List<Project> myProjects = projectManager.getProjectsByCurrentManager();
+        List<BTOProject> myProjects = projectController.getProjectsByCurrentManager();
         
         if (myProjects.isEmpty()) {
             System.out.println("You have not created any projects to toggle visibility.");
@@ -424,7 +437,7 @@ public class ManagerProjectView extends BaseView {
         System.out.println("---------------------------------------------------------------------------------");
         
         int index = 1;
-        for (Project project : myProjects) {
+        for (BTOProject project : myProjects) {
             System.out.printf("%-5d | %-20s | %-15s | %-10d | %-10d | %-10s\n", 
                             index++, 
                             project.getProjectName(), 
@@ -441,7 +454,7 @@ public class ManagerProjectView extends BaseView {
             int selection = Integer.parseInt(scanner.nextLine().trim());
             
             if (selection > 0 && selection <= myProjects.size()) {
-                Project selectedProject = myProjects.get(selection - 1);
+                BTOProject selectedProject = myProjects.get(selection - 1);
                 
                 // Confirm toggle
                 boolean newVisibility = !selectedProject.isVisible();
@@ -453,7 +466,7 @@ public class ManagerProjectView extends BaseView {
                 String confirm = scanner.nextLine().trim().toUpperCase();
                 
                 if (confirm.equals("Y")) {
-                    boolean success = projectManager.toggleProjectVisibility(
+                    boolean success = projectController.toggleProjectVisibility(
                         selectedProject.getProjectId(), newVisibility);
                     
                     if (success) {
@@ -476,7 +489,7 @@ public class ManagerProjectView extends BaseView {
      * Handles the process of deleting a project
      */
     private void deleteProject() {
-        List<Project> myProjects = projectManager.getProjectsByCurrentManager();
+        List<BTOProject> myProjects = projectController.getProjectsByCurrentManager();
         
         if (myProjects.isEmpty()) {
             System.out.println("You have not created any projects to delete.");
@@ -491,7 +504,7 @@ public class ManagerProjectView extends BaseView {
         System.out.println("---------------------------------------------------------------------------------");
         
         int index = 1;
-        for (Project project : myProjects) {
+        for (BTOProject project : myProjects) {
             System.out.printf("%-5d | %-20s | %-15s | %-10d | %-10d | %-10s\n", 
                             index++, 
                             project.getProjectName(), 
@@ -508,7 +521,7 @@ public class ManagerProjectView extends BaseView {
             int selection = Integer.parseInt(scanner.nextLine().trim());
             
             if (selection > 0 && selection <= myProjects.size()) {
-                Project selectedProject = myProjects.get(selection - 1);
+                BTOProject selectedProject = myProjects.get(selection - 1);
                 
                 // Confirm deletion
                 System.out.println("\nYou are about to permanently delete the project: " + selectedProject.getProjectName());
@@ -518,7 +531,7 @@ public class ManagerProjectView extends BaseView {
                 String confirmName = scanner.nextLine().trim();
                 
                 if (confirmName.equals(selectedProject.getProjectName())) {
-                    boolean success = projectManager.deleteProject(selectedProject.getProjectId());
+                    boolean success = projectController.deleteProject(selectedProject);
                     
                     if (success) {
                         System.out.println("\nProject deleted successfully!");
