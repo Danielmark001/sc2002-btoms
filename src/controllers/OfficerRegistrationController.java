@@ -4,7 +4,7 @@ import models.BTOProject;
 import models.HDBManager;
 import models.HDBOfficer;
 import models.User;
-import enumeration.UserStatus;
+import enumeration.UserType;
 import services.ProjectService;
 import services.UserService;
 import view.OfficerProjectView;
@@ -70,7 +70,7 @@ public class OfficerRegistrationController {
             name, 
             LocalDate.now(), 
             null, 
-            UserStatus.OFFICER
+            UserType.OFFICER
         );
 
         // Set handling project

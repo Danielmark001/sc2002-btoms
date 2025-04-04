@@ -10,7 +10,7 @@ import stores.DataStore;
 import enumeration.UserType;
 import exceptions.BTOSystemException;
 import enumeration.MaritalStatus;
-import enumeration.UserStatus;
+import enumeration.UserType;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -187,7 +187,7 @@ public boolean login(String nric, String password) {
  * @param userStatus User's status
  * @return Created user
  */
-public User createUser(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, UserStatus userStatus) {
+public User createUser(String nric, String name, LocalDate dateOfBirth, MaritalStatus maritalStatus, UserType userStatus) {
     // Validate inputs
     if (!validateNRIC(nric)) {
         throw new IllegalArgumentException("Invalid NRIC format");
