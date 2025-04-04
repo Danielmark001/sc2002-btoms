@@ -1,0 +1,156 @@
+package stores;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import interfaces.IFileDataService;
+import models.Applicant;
+import models.HDBManager;
+import models.HDBOfficer;
+
+/**
+ * The {@link DataStore} class provides utility methods for managing data
+ * storage within the application. It offers methods to initialize the data
+ * store, import and export data to and from the file system, and interact with
+ * data maps for various data types.
+ */
+public class DataStore {
+	/**
+	 * The {@link IFileDataService} instance used for data operations.
+	 */
+	private static IFileDataService fileDataService;
+
+	/**
+	 * A {@link Map} containing file paths for various data types.
+	 */
+	private static Map<String, String> filePathsMap;
+
+	/**
+	 * A {@link Map} containing applicant ID as the key and {@link Applicant}
+	 * objects as the value.
+	 */
+	private static Map<String, Applicant> applicantsData = new HashMap<String, Applicant>();
+
+	/**
+	 * A {@link Map} containing HDB manager ID as the key and {@link HDBManager}
+	 * objects as the value.
+	 */
+	private static Map<String, HDBManager> hdbManagersData = new HashMap<String, HDBManager>();
+
+	/**
+	 * A {@link Map} containing HDB officer ID as the key and
+	 * {@link HDBOfficer} objects as the value.
+	 */
+	private static Map<String, HDBOfficer> hdbOfficersData = new HashMap<String, HDBOfficer>();
+
+	/**	 * Private constructor to prevent instantiation of the class.
+	 */
+	private DataStore() {
+	}
+
+	/**
+	 * Initializes the DataStore by setting up the file data service, file paths
+	 * map, and importing data from the file system.
+	 *
+	 * @param fileDataService the {@link IFileDataService} instance to use for data
+	 *                        operations
+	 * @param filePathsMap    the {@link Map} containing file paths for various data
+	 *                        types
+	 * @return {@code true} if the initialization is successful, {@code false}
+	 *         otherwise
+	 */
+	public static boolean initDataStore(IFileDataService fileDataService, Map<String, String> filePathsMap) {
+		// Initialize fileDataService and filePathsMap
+		DataStore.filePathsMap = filePathsMap;
+		DataStore.fileDataService = fileDataService;
+
+		// Import data
+		DataStore.applicantsData = fileDataService.importApplicantData(filePathsMap.get("applicant"));
+		DataStore.hdbManagersData = fileDataService.importHDBManagerData(filePathsMap.get("hdbManager"));
+		DataStore.hdbOfficersData = fileDataService.importHDBOfficerData(filePathsMap.get("hdbOfficer"));
+
+		return true;
+	}
+
+	/**
+	 * Saves the data from the DataStore to the file system.
+	 *
+	 * @return {@code true} if the data is saved successfully, {@code false}
+	 *         otherwise
+	 */
+	public static boolean saveData() {
+		DataStore.setApplicantsData(applicantsData);
+		DataStore.setHDBManagersData(hdbManagersData);
+		DataStore.setHDBOfficersData(hdbOfficersData);
+
+		return true;
+	}
+
+	// ---------- Student ---------- //
+	/**
+	 * Gets the students data map.
+	 *
+	 * @return a {@link Map} containing student ID as the key and {@link Student}
+	 *         objects as the value
+	 */
+	public static Map<String, Applicant> getApplicantsData() {
+		return DataStore.applicantsData;
+	}
+
+	/**
+	 * Sets the students data map and saves the data to the file system.
+	 *
+	 * @param studentsData a {@link Map} containing student ID as the key and
+	 *                     {@link Student} objects as the value
+	 */
+	public static void setApplicantsData(Map<String, Applicant> applicantsData) {
+		DataStore.applicantsData = applicantsData;
+		fileDataService.exportApplicantData(filePathsMap.get("applicant"), applicantsData);
+	}
+
+	// ---------- Supervisor ---------- //
+	/**
+	 * Gets the supervisors data map.
+	 *
+	 * @return a {@link Map} containing supervisor ID as the key and
+	 *         {@link Supervisor} objects as the value
+	 */
+	public static Map<String, HDBManager> getHDBManagersData() {
+		return DataStore.hdbManagersData;
+	}
+
+	/**
+	 * Sets the supervisors data map and saves the data to the file system.
+	 *
+	 * @param supervisorsData a {@link Map} containing supervisor ID as the key and
+	 *                        {@link Supervisor} objects as the value
+	 */
+	public static void setHDBManagersData(Map<String, HDBManager> hdbManagersData) {
+		DataStore.hdbManagersData = hdbManagersData;
+		fileDataService.exportHDBManagerData(filePathsMap.get("hdbManager"), hdbManagersData);
+	}
+
+	// ---------- FYP Coordinator ---------- //
+	/**
+	 * Gets the FYP coordinators data map.
+	 *
+	 * @return a {@link Map} containing FYP coordinator ID as the key and
+	 *         {@link FYPCoordinator} objects as the value
+	 */
+	public static Map<String, HDBOfficer> getHDBOfficersData() {
+		return DataStore.hdbOfficersData;
+	}
+
+	/**
+	 * Sets the FYP coordinators data map and saves the data to the file system.
+	 *
+	 * @param fypcoordinatorsData a {@link Map} containing FYP coordinator ID as the
+	 *                            key and {@link FYPCoordinator} objects as the
+	 *                            value
+	 */
+	public static void setHDBOfficersData(Map<String, HDBOfficer> hdbOfficersData) {
+		DataStore.hdbOfficersData = hdbOfficersData;
+		fileDataService.exportHDBOfficerData(filePathsMap.get("hdbOfficer"), hdbOfficersData);
+	}
+
+}
