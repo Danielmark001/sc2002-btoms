@@ -17,9 +17,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - uses: actions/checkout@v3
 
@@ -32,11 +30,28 @@ jobs:
       - name: Build JavaDocs
         run: javadoc -d docs -sourcepath src -subpackages controllers:enums:interfaces:main:models:services:stores:utils:views -private
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - name: Upload JavaDocs as artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: './docs'
+          name: javadocs
+          path: docs/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: javadocs
+          path: docs
 
       - name: Deploy to GitHub Pages
-        id: deployment
+        id: deploy
         uses: actions/deploy-pages@v1
+        with:
+          path: docs
