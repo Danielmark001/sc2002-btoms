@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.Scanner;
 
+import exceptions.BTOSystemException;
 import models.User;
 import services.UserService;
 import stores.AuthStore;
@@ -60,16 +61,18 @@ public class AuthController {
      * @param password User's password
      * @return Logged-in user or null if login fails
      */
-    public User login(String nric, String password) {
-        // Validate NRIC format
-        if (!isValidNRIC(nric)) {
-            if (authView != null) {
-                authView.displayError("Invalid NRIC format");
-            }
-            return null;
+    // In AuthController.java - update the login method
+public User login(String nric, String password) {
+    // Validate NRIC format
+    if (!isValidNRIC(nric)) {
+        if (authView != null) {
+            authView.displayError("Invalid NRIC format");
         }
+        return null;
+    }
 
-        // Attempt authentication
+    try {
+        // Attempt authentication with potential security exceptions
         boolean authenticated = userService.login(nric, password);
         
         if (!authenticated) {
@@ -85,8 +88,62 @@ public class AuthController {
         }
         
         return userService.getCurrentUser();
+    } catch (BTOSystemException e) {
+        // Handle security-specific exceptions (like account locked)
+        if (e.getErrorCode() == BTOSystemException.ErrorCode.INSUFFICIENT_USER_PERMISSIONS) {
+            if (authView != null) {
+                authView.displayError(e.getMessage());
+            }
+        } else {
+            if (authView != null) {
+                authView.displayError("Login failed: " + e.getMessage());
+            }
+        }
+        return null;
     }
+}
 
+// Update the static startSession method
+public static boolean startSession() {
+    // If user is already logged in, just return true
+    if (AuthStore.isLoggedIn()) {
+        return true;
+    }
+    
+    Scanner scanner = new Scanner(System.in);
+    int attempts = 0;
+    
+    while (true) {
+        System.out.println("\n===== LOGIN =====");
+        System.out.print("Enter NRIC: ");
+        String nric = scanner.nextLine().trim();
+        
+        System.out.print("Enter password: ");
+        String password = scanner.nextLine().trim();
+        
+        // Get the singleton instance
+        AuthController authController = AuthController.getInstance();
+        
+        try {
+            // Attempt to login
+            User user = authController.login(nric, password);
+            
+            if (user != null) {
+                System.out.println("Login successful! Welcome, " + user.getName() + ".");
+                return true;
+            } else {
+                System.out.println("Invalid credentials. Please try again.");
+            }
+        } catch (BTOSystemException e) {
+            if (e.getErrorCode() == BTOSystemException.ErrorCode.INSUFFICIENT_USER_PERMISSIONS) {
+                // This is for account locked scenario
+                System.out.println(e.getMessage());
+                scanner.close();
+                return false;
+            }
+        }
+    }
+}
     /**
      * Handles user logout process
      */
@@ -163,46 +220,8 @@ public class AuthController {
         return userService.getCurrentUser();
     }
     
-    /**
-     * Starts an authentication session
-     * @return true if session started successfully
-     */
-    public static boolean startSession() {
-    // If user is already logged in, just return true
-    if (AuthStore.isLoggedIn()) {
-        return true;
-    }
-    
-    Scanner scanner = new Scanner(System.in);
-    int maxAttempts = 3;
-    int attempts = 0;
-    
-    while (attempts < maxAttempts) {
-        System.out.println("\n===== LOGIN =====");
-        System.out.print("Enter NRIC: ");
-        String nric = scanner.nextLine().trim();
-        
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine().trim();
-        
-        // Get the singleton instance
-        AuthController authController = AuthController.getInstance();
-        
-        // Attempt to login
-        User user = authController.login(nric, password);
-        
-        if (user != null) {
-            System.out.println("Login successful! Welcome, " + user.getName() + ".");
-            return true;
-        } else {
-            attempts++;
-            System.out.println("Invalid credentials. " + (maxAttempts - attempts) + " attempts remaining.");
-        }
-    }
-    scanner.close();
-    System.out.println("Maximum login attempts exceeded. Please try again later.");
-    return false;
-}
+
+
     
     /**
      * Ends the current authentication session

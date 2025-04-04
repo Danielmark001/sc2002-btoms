@@ -8,6 +8,7 @@ import models.User;
 import stores.AuthStore;
 import stores.DataStore;
 import enumeration.UserType;
+import exceptions.BTOSystemException;
 import enumeration.MaritalStatus;
 import enumeration.UserStatus;
 
@@ -40,13 +41,20 @@ public class UserService implements IUserService {
         return instance;
     }
 
-    @Override
-    public boolean login(String nric, String password) {
-        if (!validateNRIC(nric)) {
-            return false;
-        }
-        return authStore.login(nric, password);
+    // In UserService.java
+@Override
+public boolean login(String nric, String password) {
+    if (!validateNRIC(nric)) {
+        return false;
     }
+    
+    try {
+        return authStore.login(nric, password);
+    } catch (BTOSystemException e) {
+        // Propagate security exceptions
+        throw e;
+    }
+}
 
     @Override
     public void logout() {

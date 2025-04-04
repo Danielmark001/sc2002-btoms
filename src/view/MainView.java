@@ -1,3 +1,4 @@
+// In MainView.java
 package view;
 
 import controllers.LoginController;
@@ -9,19 +10,29 @@ public class MainView {
     private MainMenuView mainMenuView;
 
     public MainView() {
+        this.loginController = LoginController.getInstance();
         this.loginView = new LoginView(loginController);
         this.mainMenuView = new MainMenuView(null);
     }
 
     public void start() {
-        while (true) {
+        // Display splash screen
+        CommonView.printSplashScreen();
+        
+        boolean continueRunning = true;
+        
+        while (continueRunning) {
             if (!AuthStore.isLoggedIn()) {
-                loginView.displayLoginMenu();
-                loginView.handleUserInput();
+                // Display login/register options and handle user selection
+                continueRunning = loginView.handleMainMenu();
             } else {
+                // User is logged in, show main menu
                 mainMenuView.displayMainMenu();
                 mainMenuView.handleUserInput();
             }
         }
+        
+        // Clean up resources
+        CommonView.closeScanner();
     }
 }

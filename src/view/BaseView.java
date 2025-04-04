@@ -1,13 +1,12 @@
 package view;
 
 import java.util.Scanner;
-
-import controllers.LoginController;
 import interfaces.IRequestView;
+import controllers.LoginController;
 import models.User;
 
 /**
- * Abstract base class for all views in the BTO Management System
+ * Simplified abstract base class for all views in the BTO Management System
  * Provides common functionality for views
  */
 public abstract class BaseView implements IRequestView {
@@ -32,25 +31,6 @@ public abstract class BaseView implements IRequestView {
     }
     
     /**
-     * Displays a message and waits for user to press Enter
-     * @param message Message to display
-     */
-    protected void pressEnterToContinue(String message) {
-        System.out.println(message);
-        scanner.nextLine();
-    }
-    
-    /**
-     * Standard method to ask the user if they want to go back
-     * @return true if the user wants to continue, false to go back
-     */
-    protected boolean continueOrGoBack() {
-        System.out.print("\nDo you want to continue with this menu? (Y/N): ");
-        String choice = scanner.nextLine().trim().toUpperCase();
-        return choice.equals("Y");
-    }
-    
-    /**
      * Main method that runs the view's workflow
      * Displays menu and handles user input in a loop until user chooses to go back
      * @return true if the user wants to continue using the application, false to exit
@@ -63,9 +43,29 @@ public abstract class BaseView implements IRequestView {
             continueRunning = handleRequest();
             
             if (continueRunning) {
-                continueRunning = continueOrGoBack();
+                System.out.print("\nDo you want to continue in this menu? (Y/N): ");
+                String choice = scanner.nextLine().trim().toUpperCase();
+                if (!choice.equals("Y")) {
+                    continueRunning = false;
+                }
             }
         }
         return true;
+    }
+    
+    /**
+     * Displays an error message
+     * @param message Error message to display
+     */
+    protected void displayError(String message) {
+        System.out.println("ERROR: " + message);
+    }
+    
+    /**
+     * Displays a success message
+     * @param message Success message to display
+     */
+    protected void displaySuccess(String message) {
+        System.out.println("SUCCESS: " + message);
     }
 }

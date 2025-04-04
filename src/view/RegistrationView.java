@@ -3,6 +3,7 @@ package view;
 import controllers.OfficerRegistrationController;
 import models.BTOProject;
 import models.Registration;
+import services.ProjectService;
 import enumeration.RegistrationStatus;
 
 import java.util.List;
@@ -132,16 +133,58 @@ public class RegistrationView {
             System.out.println("-------------------------");
         }
     }
-    
-    private BTOProject getProjectByName(String projectName) {
-        // This method would normally call the controller
-        // For now, returning null as a placeholder
+/**
+ * Gets a project by name
+ * 
+ * @param projectName Name of the project to retrieve
+ * @return Project with the given name, or null if not found
+ */
+private BTOProject getProjectByName(String projectName) {
+    if (projectName == null || projectName.trim().isEmpty()) {
         return null;
     }
     
-    private Registration getRegistrationById(String registrationId) {
-        // This method would normally call the controller
-        // For now, returning null as a placeholder
-        return null; 
+    // Get all projects from the registration controller
+    ProjectService projectService = ProjectService.getInstance();
+    
+    // Find project with matching name (case-insensitive)
+    List<BTOProject> allProjects = projectService.getAllProjects();
+    
+    for (BTOProject project : allProjects) {
+        if (project.getProjectName().equalsIgnoreCase(projectName)) {
+            return project;
+        }
     }
+    
+    return null;
+}
+
+/**
+ * Gets a registration by ID
+ * 
+ * @param registrationId ID of the registration to retrieve
+ * @return Registration with the given ID, or null if not found
+ */
+private Registration getRegistrationById(String registrationId) {
+    if (registrationId == null || registrationId.trim().isEmpty()) {
+        return null;
+    }
+    
+    // Get all projects
+    ProjectService projectService = ProjectService.getInstance();
+    List<BTOProject> allProjects = projectService.getAllProjects();
+    
+    // Go through all projects to find the registration
+    for (BTOProject project : allProjects) {
+        List<Registration> registrations = project.getRegistrations();
+        
+        for (Registration registration : registrations) {
+            if (registration.getRegistrationId().equals(registrationId)) {
+                return registration;
+            }
+        }
+    }
+    
+    return null;
+}
 }

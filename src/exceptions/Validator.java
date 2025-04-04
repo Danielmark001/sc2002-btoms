@@ -2,7 +2,6 @@
  * Comprehensive Validator Utility
  */
 package exceptions;
-import java.time.LocalDate;
 import enumeration.MaritalStatus;
 public class Validator {
     /**

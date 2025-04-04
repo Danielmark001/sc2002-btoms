@@ -2,12 +2,14 @@
 package stores;
 
 import models.User;
+import security.AuthenticationErrorHandler;
 import services.UserService;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import enumeration.UserType;
+import exceptions.BTOSystemException;
 import util.NRICValidator;
 
 /**
@@ -108,7 +110,8 @@ public class AuthStore {
     public static boolean isHdbManager() {
         return currentUser != null && currentUser.getUserType() == UserType.MANAGER;
     }
-    public boolean login(String nric, String password) {
+
+public boolean login(String nric, String password) {
     // Validate NRIC format
     if (!NRICValidator.isValidNRIC(nric)) {
         return false;
@@ -118,36 +121,40 @@ public class AuthStore {
     User user = dataStore.getUserByNRIC(nric);
     
     if (user == null) {
-        // User not found - but return generic error to prevent user enumeration
+        // Use security handler to track failed login attempt with unknown user
+        // Using a dummy IP for demonstration - in a real system, this would be from the request
+        String ipAddress = "127.0.0.1";
+        AuthenticationErrorHandler.handleLoginFailure(nric, ipAddress);
+        
+        // Return generic error to prevent user enumeration
         return false;
     }
     
-    // Track login attempts (basic implementation - could be enhanced with a proper attempt tracking system)
-    Integer attempts = loginAttempts.getOrDefault(nric, 0);
-    
-    // Check if account is locked (more than 5 failed attempts)
-    if (attempts >= 5) {
-        // Could implement a timed lockout here
-        System.out.println("Account temporarily locked due to too many failed attempts");
-        return false;
-    }
-    
-    // Check if password matches
-    UserService userService = UserService.getInstance();
-    boolean authenticated = userService.authenticate(user, password);
-    
-    if (authenticated) {
-        // Reset login attempts on successful login
-        loginAttempts.remove(nric);
-        setCurrentUser(user);
-        return true;
-    } else {
-        // Increment failed login attempts
-        loginAttempts.put(nric, attempts + 1);
+    // Check if user account is locked
+    try {
+        // Using a dummy IP for demonstration
+        String ipAddress = "127.0.0.1";
+        
+        // Check if password matches
+        UserService userService = UserService.getInstance();
+        boolean authenticated = userService.authenticate(user, password);
+        
+        if (authenticated) {
+            // Handle successful login
+            AuthenticationErrorHandler.handleLoginSuccess(nric, ipAddress);
+            setCurrentUser(user);
+            return true;
+        } else {
+            // Handle failed login
+            AuthenticationErrorHandler.handleLoginFailure(nric, ipAddress);
+            return false;
+        }
+    } catch (BTOSystemException e) {
+        // If the handler throws an exception (e.g., for account locked)
+        // Return false but don't increment failed attempts again
         return false;
     }
 }
-
 // Add a field to track login attempts
 private final Map<String, Integer> loginAttempts = new ConcurrentHashMap<>();
 }

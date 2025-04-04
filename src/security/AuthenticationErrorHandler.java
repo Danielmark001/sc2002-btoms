@@ -1,7 +1,6 @@
 package security;
 
 import exceptions.BTOSystemException;
-import models.User;
 import util.LoggerUtil;
 import util.LoggerUtil.LogLevel;
 

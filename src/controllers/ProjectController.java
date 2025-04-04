@@ -1,16 +1,24 @@
 package controllers;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
+import enumeration.RegistrationStatus;
+import models.Applicant;
+import models.BTOApplication;
 import models.BTOProject;
 import models.HDBManager;
+import models.HDBOfficer;
 import models.User;
+import services.BTOApplicationService;
+import services.EnquiryService;
 import services.ProjectService;
 import services.UserService;
 import view.ProjectView;
 import models.Enquiry;
 import models.Registration;
+
 /**
  * Controller for handling project-related operations
  */
@@ -284,40 +292,283 @@ public class ProjectController {
         return projectService.getEligibleProjects();
     }
 
-    public List<BTOProject> getProjectsByOfficer(String message) {
+    /**
+    * Gets projects that an HDB Officer is handling or eligible to handle
+    * 
+    * @param officerNric NRIC of the officer
+    * @return List of projects for the officer
+    */
+    public List<BTOProject> getProjectsByOfficer(String officerNric) {
+        if (officerNric == null || officerNric.trim().isEmpty()) {
+            if (projectView != null) {
+                projectView.displayError("Officer NRIC cannot be empty");
+            }
+            return new ArrayList<>();
+        }
 
-        // TODO Auto-generated method stub
-        return null;
+        User officer = userService.getUserByNRIC(officerNric);
+        if (!(officer instanceof HDBOfficer)) {
+            if (projectView != null) {
+                projectView.displayError("User is not an HDB Officer");
+            }
+            return new ArrayList<>();
+        }
+
+        HDBOfficer hdbOfficer = (HDBOfficer) officer;
+
+        List<BTOProject> result = new ArrayList<>();
+
+        // Add the project the officer is currently handling
+        if (hdbOfficer.getHandlingProject() != null) {
+            result.add(hdbOfficer.getHandlingProject());
+        }
+
+        // Get all projects and filter for those where officer has approved registration
+        List<BTOProject> allProjects = projectService.getAllProjects();
+
+        for (BTOProject project : allProjects) {
+            // Check if officer has an approved registration for this project
+            boolean hasApprovedRegistration = project.getRegistrations().stream()
+                    .anyMatch(reg -> reg.getOfficer().getNric().equals(officerNric) &&
+                            reg.getStatus() == RegistrationStatus.APPROVED);
+
+            if (hasApprovedRegistration && !result.contains(project)) {
+                result.add(project);
+            }
+        }
+
+        return result;
     }
 
-    
+    /**
+     * Gets the project that the current user (if an HDB Officer) is handling
+     * 
+     * @return Project being handled or null if user is not an officer or not handling any project
+     */
     public BTOProject getHandlingProject() {
-        // TODO Auto-generated method stub
-        return null;
+        User currentUser = userService.getCurrentUser();
+
+        if (!(currentUser instanceof HDBOfficer)) {
+            return null;
+        }
+
+        HDBOfficer officer = (HDBOfficer) currentUser;
+        return officer.getHandlingProject();
     }
 
+    /**
+     * Gets enquiries for a specific project
+     * 
+     * @param project Project to get enquiries for
+     * @return List of enquiries for the project
+     */
     public List<Enquiry> getEnquiriesByProject(BTOProject project) {
-        // TODO Auto-generated method stub
-        return null;
+        if (project == null) {
+            if (projectView != null) {
+                projectView.displayError("Project cannot be null");
+            }
+            return new ArrayList<>();
+        }
+
+        try {
+            // Use the enquiry service to get enquiries
+            EnquiryService enquiryService = EnquiryService.getInstance();
+            return enquiryService.getEnquiriesByProject(project);
+        } catch (Exception e) {
+            if (projectView != null) {
+                projectView.displayError("Error retrieving enquiries: " + e.getMessage());
+            }
+            return new ArrayList<>();
+        }
     }
 
-    public List<Registration> getOfficerRegistrationsByUser(String nric) {
-        // TODO Auto-generated method stub
-        return null;
+    /**
+     * Registers the current user as an HDB Officer for a project
+     * 
+     * @param projectId ID of the project to register for
+     * @return true if registration succeeds
+     */
+    public boolean registerAsOfficer(String projectId) {
+        if (projectId == null || projectId.trim().isEmpty()) {
+            if (projectView != null) {
+                projectView.displayError("Project ID cannot be empty");
+            }
+            return false;
+        }
+
+        User currentUser = userService.getCurrentUser();
+        if (!(currentUser instanceof HDBOfficer)) {
+            if (projectView != null) {
+                projectView.displayError("Only HDB Officers can register for projects");
+            }
+            return false;
+        }
+
+        try {
+            boolean success = projectService.registerAsOfficer(projectId);
+
+            if (success) {
+                if (projectView != null) {
+                    projectView.displaySuccess("Registration submitted successfully");
+                }
+            } else {
+                if (projectView != null) {
+                    projectView.displayError("Failed to register. Please check eligibility criteria");
+                }
+            }
+
+            return success;
+        } catch (Exception e) {
+            if (projectView != null) {
+                projectView.displayError("Error during registration: " + e.getMessage());
+            }
+            return false;
+        }
     }
 
-    public boolean registerAsOfficer(String id) {
-        // TODO Auto-generated method stub
-        return false;
+    /**
+     * Registers the current user as an HDB Manager
+     * 
+     * @param projectId ID of the project to manage
+     * @return true if registration succeeds
+     */
+    public boolean registerAsManager(String projectId) {
+        if (projectId == null || projectId.trim().isEmpty()) {
+            if (projectView != null) {
+                projectView.displayError("Project ID cannot be empty");
+            }
+            return false;
+        }
+
+        User currentUser = userService.getCurrentUser();
+        if (!(currentUser instanceof HDBManager)) {
+            if (projectView != null) {
+                projectView.displayError("Only HDB Managers can manage projects");
+            }
+            return false;
+        }
+
+        try {
+            // Get the project by ID
+            BTOProject project = projectService.getProjectById(projectId);
+            if (project == null) {
+                if (projectView != null) {
+                    projectView.displayError("Project not found");
+                }
+                return false;
+            }
+
+            // Set the manager for the project
+            HDBManager manager = (HDBManager) currentUser;
+            project.setHdbManager(manager);
+
+            // Add to manager's projects
+            manager.addManagedProject(project);
+
+            // Update the project
+            boolean success = projectService.updateProject(project);
+
+            if (success) {
+                if (projectView != null) {
+                    projectView.displaySuccess("Successfully registered as manager for the project");
+                }
+            } else {
+                if (projectView != null) {
+                    projectView.displayError("Failed to register as manager");
+                }
+            }
+
+            return success;
+        } catch (Exception e) {
+            if (projectView != null) {
+                projectView.displayError("Error during registration: " + e.getMessage());
+            }
+            return false;
+        }
     }
 
-    public boolean registerAsManager(String id) {
-        // TODO Auto-generated method stub
-        return false;
+    /**
+     * Creates an application for a project on behalf of an applicant
+     * 
+     * @param projectId ID of the project to apply for
+     * @return true if application succeeds
+     */
+    public boolean registerAsApplicant(String projectId) {
+        if (projectId == null || projectId.trim().isEmpty()) {
+            if (projectView != null) {
+                projectView.displayError("Project ID cannot be empty");
+            }
+            return false;
+        }
+
+        User currentUser = userService.getCurrentUser();
+        if (!(currentUser instanceof Applicant)) {
+            if (projectView != null) {
+                projectView.displayError("Only applicants can apply for projects");
+            }
+            return false;
+        }
+
+        try {
+            // Get the project by ID
+            BTOProject project = projectService.getProjectById(projectId);
+            if (project == null) {
+                if (projectView != null) {
+                    projectView.displayError("Project not found");
+                }
+                return false;
+            }
+
+            // Check eligibility
+            if (!project.isEligibleForApplicant(currentUser)) {
+                if (projectView != null) {
+                    projectView.displayError("You are not eligible for this project");
+                }
+                return false;
+            }
+
+            // Use application service to create application
+            BTOApplicationService applicationService = BTOApplicationService.getInstance();
+            Applicant applicant = (Applicant) currentUser;
+
+            BTOApplication application = applicationService.createApplication(applicant, project);
+
+            if (application != null) {
+                if (projectView != null) {
+                    projectView.displaySuccess("Application submitted successfully");
+                }
+                return true;
+            } else {
+                if (projectView != null) {
+                    projectView.displayError("Failed to submit application");
+                }
+                return false;
+            }
+        } catch (Exception e) {
+            if (projectView != null) {
+                projectView.displayError("Error during application: " + e.getMessage());
+            }
+            return false;
+        }
     }
-    
-    public boolean registerAsApplicant(String id) {
-        // TODO Auto-generated method stub
-        return false;
+
+    public List<Registration> getOfficerRegistrationsByUser(String officerNric) {
+        if (officerNric == null || officerNric.trim().isEmpty()) {
+            if (projectView != null) {
+                projectView.displayError("Officer NRIC cannot be empty");
+            }
+            return new ArrayList<>();
+        }
+
+        User officer = userService.getUserByNRIC(officerNric);
+        if (!(officer instanceof HDBOfficer)) {
+            if (projectView != null) {
+                projectView.displayError("User is not an HDB Officer");
+            }
+            return new ArrayList<>();
+        }
+
+        HDBOfficer hdbOfficer = (HDBOfficer) officer;
+        return hdbOfficer.getRegistrations();
     }
 }

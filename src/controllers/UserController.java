@@ -177,20 +177,7 @@ public class UserController {
      * @param nric User's NRIC
      * @return true if deletion succeeds
      */
-    public boolean deleteUser(String nric) {
-        try {
-            boolean success = userService.deleteUser(nric);
-            if (success && userView != null) {
-                userView.displaySuccess("User deleted successfully");
-            }
-            return success;
-        } catch (Exception e) {
-            if (userView != null) {
-                userView.displayError("Failed to delete user: " + e.getMessage());
-            }
-            return false;
-        }
-    }
+    
 
     /**
      * Logs out the current user
@@ -198,7 +185,7 @@ public class UserController {
     public void logout() {
         userService.logout();
         if (userView != null) {
-            userView.displayMessage("User logged out successfully");
+            System.out.println("User logged out successfully");
         }
     }
     
@@ -207,7 +194,7 @@ public class UserController {
      */
     public void start() {
         if (userView != null) {
-            userView.displayMessage("UserController started");
+            System.out.println("UserController started");
         }
     }
     

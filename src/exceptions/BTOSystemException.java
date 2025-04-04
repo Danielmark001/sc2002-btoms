@@ -1,7 +1,5 @@
 package exceptions;
 
-import enumeration.MaritalStatus;
-import java.time.LocalDate;
 /**
  * Base custom exception for BTO Management System
  */

@@ -179,7 +179,8 @@ public class ProjectView extends BaseView {
         System.out.println("Manager in Charge: " + 
             (project.getHdbManager() != null ? project.getHdbManager().getName() : "Not assigned"));
         
-        pressEnterToContinue("\nPress Enter to continue...");
+        System.out.println("\n");
+        scanner.nextLine();
     }
     
     /**
@@ -416,7 +417,8 @@ public class ProjectView extends BaseView {
         }
         System.out.println("------------------------------------------------------------");
         
-        pressEnterToContinue("\nPress Enter to continue...");
+        System.out.println("\n");
+        scanner.nextLine();
     }
     
     /**

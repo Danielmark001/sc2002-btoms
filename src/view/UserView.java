@@ -3,51 +3,73 @@ package view;
 import java.util.Scanner;
 import controllers.UserController;
 import models.User;
+import interfaces.IRequestView;
 
-public class UserView {
+public class UserView implements IRequestView {
     private UserController userController;
+    private Scanner scanner;
 
     public UserView(UserController userController) {
         this.userController = userController;
+        this.scanner = new Scanner(System.in);
     }
 
+    @Override
     public void displayMenu() {
         System.out.println("\n===== USER MENU =====");
-        System.out.println("1. Create Applicant");
-        System.out.println("2. Update Profile");
-        System.out.println("3. View Profile");
-        System.out.println("4. Back to Main Menu");
+        System.out.println("1. View Profile");
+        System.out.println("2. Back to Main Menu");
     }
-    Scanner scanner = new Scanner(System.in);
 
-    public void handleUserInput() {
-        int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+    @Override
+    public boolean handleRequest() {
+        System.out.print("Enter your choice: ");
+        int choice;
+        try {
+            choice = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            displayError("Invalid input. Please enter a number.");
+            return true; // Continue in this view
+        }
+        
         switch (choice) {
-            case 1 -> createApplicant();
-            case 2 -> updateProfile();
-            case 3 -> viewProfile();
-            case 4 -> System.out.println("Going back to main menu...");
-            default -> System.out.println("Invalid choice. Please try again.");
+            case 1:
+                viewProfile();
+                return true;
+            case 2:
+                System.out.println("Going back to main menu...");
+                return false; // Return to previous menu
+            default:
+                displayError("Invalid choice. Please try again.");
+                return true;
         }
     }
-
-    private void createApplicant() {
-        // Implementation for creating an applicant
-        System.out.println("Feature not yet implemented.");
-    }
-
-    private void updateProfile() {
-        // Implementation for updating user profile
-        System.out.println("Feature not yet implemented.");
+    
+    @Override
+    public boolean run() {
+        boolean continueRunning = true;
+        while (continueRunning) {
+            displayMenu();
+            continueRunning = handleRequest();
+            
+            if (continueRunning) {
+                System.out.print("\nDo you want to continue in this menu? (Y/N): ");
+                String choice = scanner.nextLine().trim().toUpperCase();
+                if (!choice.equals("Y")) {
+                    continueRunning = false;
+                }
+            }
+        }
+        return true;
     }
 
     private void viewProfile() {
         // Implementation for viewing user profile
-        if (userController.getCurrentUser() != null) {
-            displayUserDetails(userController.getCurrentUser());
+        User currentUser = userController.getCurrentUser();
+        if (currentUser != null) {
+            displayUserDetails(currentUser);
         } else {
-            System.out.println("No user logged in.");
+            displayError("No user logged in.");
         }
     }
 
@@ -57,18 +79,6 @@ public class UserView {
 
     public void displayError(String message) {
         System.out.println("ERROR: " + message);
-    }
-
-    public void displayInfo(String message) {
-        System.out.println("INFO: " + message);
-    }
-
-    public void displayWarning(String message) {
-        System.out.println("WARNING: " + message);
-    }
-    
-    public void displayMessage(String message) {
-        System.out.println(message);
     }
     
     public void displayUserDetails(User user) {

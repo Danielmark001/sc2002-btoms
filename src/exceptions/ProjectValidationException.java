@@ -99,8 +99,37 @@ public class ProjectValidationException extends BTOSystemException {
  * Gets the project-specific error code
  * @return Error code
  */
+/**
+ * Gets the project-specific error code
+ * @return Error code
+ */
 @Override
 public BTOSystemException.ErrorCode getErrorCode() {
-    return null;
+    // Convert our ProjectErrorCode to the parent class ErrorCode format
+    if (this.errorCode == null) {
+        return null;
+    }
+    
+    // Since ProjectErrorCode doesn't extend ErrorCode, we need to map it to an appropriate ErrorCode
+    switch (this.errorCode) {
+        case INVALID_PROJECT_NAME:
+        case INVALID_NEIGHBORHOOD:
+        case INVALID_DATES:
+        case INSUFFICIENT_UNITS:
+            return BTOSystemException.ErrorCode.VALIDATION_ERROR;
+            
+        case DUPLICATE_PROJECT:
+            return BTOSystemException.ErrorCode.PROJECT_ALREADY_EXISTS;
+            
+        case PROJECT_NOT_VISIBLE:
+        case UNAUTHORIZED_ACTION:
+            return BTOSystemException.ErrorCode.INSUFFICIENT_USER_PERMISSIONS;
+            
+        case OFFICER_SLOTS_EXCEEDED:
+            return BTOSystemException.ErrorCode.INTERNAL_SYSTEM_ERROR;
+            
+        default:
+            return BTOSystemException.ErrorCode.INTERNAL_SYSTEM_ERROR;
+    }
 }
 }

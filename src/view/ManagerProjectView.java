@@ -159,7 +159,8 @@ public class ManagerProjectView extends BaseView {
                          " (Filled: " + project.getOfficerIds().size() + ")");
         System.out.println("Visibility: " + (project.isVisible() ? "Visible" : "Hidden"));
         
-        pressEnterToContinue("\nPress Enter to continue...");
+        System.out.println("\n");
+        scanner.nextLine();
     }
     
     /**
