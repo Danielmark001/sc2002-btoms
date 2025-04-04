@@ -47,24 +47,36 @@ public class LoginView {
      * Processes user login
      * @return true if login succeeds
      */
-    private boolean login() {
-        CommonView.printHeader("LOGIN");
-        
-        String nric = CommonView.getInput("Enter NRIC");
-        String password = CommonView.getInput("Enter password");
-
-        User user = loginController.login(nric, password);
-        if (user != null) {
-            CommonView.showSuccess("Login successful!");
-            System.out.println("Welcome, " + user.getName() + " (" + loginController.getUserType(user) + ")");
-            CommonView.pressEnterToContinue();
-            return true;
-        } else {
-            CommonView.showError("Invalid credentials. Please try again.");
-            CommonView.pressEnterToContinue();
-            return false;
+        private boolean login() {
+        while (true) {
+            System.out.println("\n===== WELCOME TO BTO MANAGEMENT SYSTEM =====");
+            System.out.println("Please choose an option:");
+            System.out.println("1. Login");
+            System.out.println("2. Register as Applicant");
+            System.out.println("3. Exit");
+            System.out.println("--------------------------------------------");
+            System.out.print("Enter your choice (1-3): ");
+            
+            String input = scanner.nextLine().trim();
+            
+            switch (input) {
+                case "1":
+                    login();
+                    return true;
+                case "2":
+                    registerApplicant();
+                    return true;
+                case "3":
+                    System.out.println("Thank you for using the BTO Management System. Goodbye!");
+                    return false;
+                default:
+                    System.out.println("\nInvalid choice. Please enter 1, 2, or 3.");
+                    System.out.println("Press Enter to continue...");
+                    scanner.nextLine(); // Wait for user to press Enter
+            }
         }
     }
+
 
     /**
      * Handles applicant registration process

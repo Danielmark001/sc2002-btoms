@@ -14,8 +14,6 @@ public class CommonView {
         System.out.println("  BTO Management System (BTOMS)");
         System.out.println("  Nanyang Technological University");
         System.out.println("========================================");
-        System.out.println("Welcome to the Build-To-Order (BTO) Management System");
-        System.out.println("----------------------------------------------------");
     }
 
     /**

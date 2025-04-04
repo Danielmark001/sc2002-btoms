@@ -8,7 +8,7 @@ import models.User;
 import services.EnquiryService;
 import services.ProjectService;
 import services.UserService;
-import view.EnquiryView;
+import view.BaseView;
 import util.InputValidator;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
  * Controller for handling enquiry-related operations
  */
 public class EnquiryController {
-    private EnquiryView enquiryView;
+    private BaseView baseView;
     private EnquiryService enquiryService;
     private UserService userService;
     private ProjectService projectService;
@@ -26,10 +26,10 @@ public class EnquiryController {
     /**
      * Constructor for EnquiryController
      * 
-     * @param enquiryView View for enquiry operations
+     * @param baseView View for enquiry operations
      */
-    public EnquiryController(EnquiryView enquiryView) {
-        this.enquiryView = enquiryView;
+    public EnquiryController(BaseView baseView) {
+        this.baseView = baseView;
         this.enquiryService = EnquiryService.getInstance();
         this.userService = UserService.getInstance();
         this.projectService = ProjectService.getInstance();
@@ -55,16 +55,16 @@ public class EnquiryController {
         try {
             // Validate project
             if (project == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Project cannot be null");
+                if (baseView != null) {
+                    baseView.displayError("Project cannot be null");
                 }
                 return false;
             }
             
             // Validate content
             if (content == null || content.trim().isEmpty()) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Enquiry content cannot be empty");
+                if (baseView != null) {
+                    baseView.displayError("Enquiry content cannot be empty");
                 }
                 return false;
             }
@@ -75,8 +75,8 @@ public class EnquiryController {
             // Get current user
             User currentUser = userService.getCurrentUser();
             if (currentUser == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("You must be logged in to create an enquiry");
+                if (baseView != null) {
+                    baseView.displayError("You must be logged in to create an enquiry");
                 }
                 return false;
             }
@@ -84,14 +84,14 @@ public class EnquiryController {
             // Create enquiry
             Enquiry enquiry = enquiryService.createEnquiry(currentUser, project, sanitizedContent);
             
-            if (enquiryView != null) {
-                enquiryView.displaySuccess("Enquiry created successfully");
+            if (baseView != null) {
+                baseView.displaySuccess("Enquiry created successfully");
             }
             
             return true;
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error creating enquiry: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error creating enquiry: " + e.getMessage());
             }
             return false;
         }
@@ -108,16 +108,16 @@ public class EnquiryController {
         try {
             // Validate enquiry
             if (enquiry == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Enquiry cannot be null");
+                if (baseView != null) {
+                    baseView.displayError("Enquiry cannot be null");
                 }
                 return false;
             }
             
             // Validate content
             if (newContent == null || newContent.trim().isEmpty()) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Enquiry content cannot be empty");
+                if (baseView != null) {
+                    baseView.displayError("Enquiry content cannot be empty");
                 }
                 return false;
             }
@@ -128,8 +128,8 @@ public class EnquiryController {
             // Get current user
             User currentUser = userService.getCurrentUser();
             if (currentUser == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("You must be logged in to edit an enquiry");
+                if (baseView != null) {
+                    baseView.displayError("You must be logged in to edit an enquiry");
                 }
                 return false;
             }
@@ -138,19 +138,19 @@ public class EnquiryController {
             boolean success = enquiryService.editEnquiry(enquiry, currentUser, sanitizedContent);
             
             if (success) {
-                if (enquiryView != null) {
-                    enquiryView.displaySuccess("Enquiry updated successfully");
+                if (baseView != null) {
+                    baseView.displaySuccess("Enquiry updated successfully");
                 }
             } else {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Failed to update enquiry");
+                if (baseView != null) {
+                    baseView.displayError("Failed to update enquiry");
                 }
             }
             
             return success;
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error editing enquiry: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error editing enquiry: " + e.getMessage());
             }
             return false;
         }
@@ -166,8 +166,8 @@ public class EnquiryController {
         try {
             // Validate enquiry
             if (enquiry == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Enquiry cannot be null");
+                if (baseView != null) {
+                    baseView.displayError("Enquiry cannot be null");
                 }
                 return false;
             }
@@ -175,8 +175,8 @@ public class EnquiryController {
             // Get current user
             User currentUser = userService.getCurrentUser();
             if (currentUser == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("You must be logged in to delete an enquiry");
+                if (baseView != null) {
+                    baseView.displayError("You must be logged in to delete an enquiry");
                 }
                 return false;
             }
@@ -185,19 +185,19 @@ public class EnquiryController {
             boolean success = enquiryService.deleteEnquiry(enquiry, currentUser);
             
             if (success) {
-                if (enquiryView != null) {
-                    enquiryView.displaySuccess("Enquiry deleted successfully");
+                if (baseView != null) {
+                    baseView.displaySuccess("Enquiry deleted successfully");
                 }
             } else {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Failed to delete enquiry");
+                if (baseView != null) {
+                    baseView.displayError("Failed to delete enquiry");
                 }
             }
             
             return success;
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error deleting enquiry: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error deleting enquiry: " + e.getMessage());
             }
             return false;
         }
@@ -214,16 +214,16 @@ public class EnquiryController {
         try {
             // Validate enquiry
             if (enquiry == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Enquiry cannot be null");
+                if (baseView != null) {
+                    baseView.displayError("Enquiry cannot be null");
                 }
                 return false;
             }
             
             // Validate content
             if (replyContent == null || replyContent.trim().isEmpty()) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Reply content cannot be empty");
+                if (baseView != null) {
+                    baseView.displayError("Reply content cannot be empty");
                 }
                 return false;
             }
@@ -234,16 +234,16 @@ public class EnquiryController {
             // Get current user
             User currentUser = userService.getCurrentUser();
             if (currentUser == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("You must be logged in to reply to an enquiry");
+                if (baseView != null) {
+                    baseView.displayError("You must be logged in to reply to an enquiry");
                 }
                 return false;
             }
             
             // Check if user is authorized to reply
             if (!(currentUser instanceof HDBOfficer || currentUser instanceof HDBManager)) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Only HDB Officers and Managers can reply to enquiries");
+                if (baseView != null) {
+                    baseView.displayError("Only HDB Officers and Managers can reply to enquiries");
                 }
                 return false;
             }
@@ -253,8 +253,8 @@ public class EnquiryController {
                 HDBOfficer officer = (HDBOfficer) currentUser;
                 if (officer.getHandlingProject() == null || 
                     !officer.getHandlingProject().equals(enquiry.getProject())) {
-                    if (enquiryView != null) {
-                        enquiryView.displayError("You can only reply to enquiries for projects you are handling");
+                    if (baseView != null) {
+                        baseView.displayError("You can only reply to enquiries for projects you are handling");
                     }
                     return false;
                 }
@@ -264,19 +264,19 @@ public class EnquiryController {
             boolean success = enquiryService.replyToEnquiry(enquiry, currentUser, sanitizedContent);
             
             if (success) {
-                if (enquiryView != null) {
-                    enquiryView.displaySuccess("Reply submitted successfully");
+                if (baseView != null) {
+                    baseView.displaySuccess("Reply submitted successfully");
                 }
             } else {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Failed to submit reply");
+                if (baseView != null) {
+                    baseView.displayError("Failed to submit reply");
                 }
             }
             
             return success;
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error replying to enquiry: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error replying to enquiry: " + e.getMessage());
             }
             return false;
         }
@@ -296,8 +296,8 @@ public class EnquiryController {
             
             return enquiryService.getEnquiriesByProject(project);
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error retrieving enquiries: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error retrieving enquiries: " + e.getMessage());
             }
             return new ArrayList<>();
         }
@@ -317,8 +317,8 @@ public class EnquiryController {
             
             return enquiryService.getEnquiriesByUser(currentUser);
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error retrieving enquiries: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error retrieving enquiries: " + e.getMessage());
             }
             return new ArrayList<>();
         }
@@ -333,16 +333,16 @@ public class EnquiryController {
         try {
             User currentUser = userService.getCurrentUser();
             if (!(currentUser instanceof HDBManager)) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Only HDB Managers can view all enquiries");
+                if (baseView != null) {
+                    baseView.displayError("Only HDB Managers can view all enquiries");
                 }
                 return new ArrayList<>();
             }
             
             return enquiryService.getAllEnquiries();
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error retrieving enquiries: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error retrieving enquiries: " + e.getMessage());
             }
             return new ArrayList<>();
         }
@@ -377,8 +377,8 @@ public class EnquiryController {
             // For other users, show nothing
             return new ArrayList<>();
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error retrieving unanswered enquiries: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error retrieving unanswered enquiries: " + e.getMessage());
             }
             return new ArrayList<>();
         }
@@ -420,8 +420,8 @@ public class EnquiryController {
                 .findFirst()
                 .orElse(null);
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error retrieving enquiry: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error retrieving enquiry: " + e.getMessage());
             }
             return null;
         }
@@ -437,8 +437,8 @@ public class EnquiryController {
         try {
             // Validate enquiry
             if (enquiry == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("Enquiry cannot be null");
+                if (baseView != null) {
+                    baseView.displayError("Enquiry cannot be null");
                 }
                 return false;
             }
@@ -446,8 +446,8 @@ public class EnquiryController {
             // Get current user
             User currentUser = userService.getCurrentUser();
             if (currentUser == null) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("You must be logged in to close an enquiry");
+                if (baseView != null) {
+                    baseView.displayError("You must be logged in to close an enquiry");
                 }
                 return false;
             }
@@ -475,8 +475,8 @@ public class EnquiryController {
             }
             
             if (!isAuthorized) {
-                if (enquiryView != null) {
-                    enquiryView.displayError("You are not authorized to close this enquiry");
+                if (baseView != null) {
+                    baseView.displayError("You are not authorized to close this enquiry");
                 }
                 return false;
             }
@@ -487,14 +487,14 @@ public class EnquiryController {
             // Save the enquiry
             // This would typically call a method to save the enquiry to the data store
             
-            if (enquiryView != null) {
-                enquiryView.displaySuccess("Enquiry closed successfully");
+            if (baseView != null) {
+                baseView.displaySuccess("Enquiry closed successfully");
             }
             
             return true;
         } catch (Exception e) {
-            if (enquiryView != null) {
-                enquiryView.displayError("Error closing enquiry: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error closing enquiry: " + e.getMessage());
             }
             return false;
         }

@@ -57,7 +57,7 @@ public abstract class BaseView implements IRequestView {
      * Displays an error message
      * @param message Error message to display
      */
-    protected void displayError(String message) {
+    public void displayError(String message) {
         System.out.println("ERROR: " + message);
     }
     
@@ -65,7 +65,7 @@ public abstract class BaseView implements IRequestView {
      * Displays a success message
      * @param message Success message to display
      */
-    protected void displaySuccess(String message) {
+    public void displaySuccess(String message) {
         System.out.println("SUCCESS: " + message);
     }
 }

@@ -17,16 +17,6 @@ public class EnquiryView {
         this.scanner = new Scanner(System.in);
     }
 
-    public void displayError(String message) {
-        System.out.println("Error: " + message);
-
-    }
-    public void displaySuccess(String message) {
-        System.out.println("Success: " + message);
-    }
-    public void displayMessage(String message) {
-        System.out.println(message);
-    }
 
     public void displayMenu() {
         System.out.println("\n===== ENQUIRY MENU =====");

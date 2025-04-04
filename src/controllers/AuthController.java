@@ -6,7 +6,7 @@ import exceptions.BTOSystemException;
 import models.User;
 import services.UserService;
 import stores.AuthStore;
-import view.AuthView;
+import view.BaseView;
 
 /**
  * Controller for handling authentication operations
@@ -14,15 +14,15 @@ import view.AuthView;
 public class AuthController {
     private static AuthController instance;
     private UserService userService;
-    private AuthView authView;
+    private BaseView baseView;
 
     /**
      * Constructor
      * 
-     * @param authView View for authentication operations
+     * @param baseView View for authentication operations
      */
-    public AuthController(AuthView authView) {
-        this.authView = authView;
+    public AuthController(BaseView baseView) {
+        this.baseView = baseView;
         this.userService = UserService.getInstance();
     }
     
@@ -48,10 +48,10 @@ public class AuthController {
     /**
      * Sets the auth view
      * 
-     * @param authView View to set
+     * @param baseView View to set
      */
-    public void setAuthView(AuthView authView) {
-        this.authView = authView;
+    public void setBaseView(BaseView baseView) {
+        this.baseView = baseView;
     }
 
     /**
@@ -65,8 +65,8 @@ public class AuthController {
 public User login(String nric, String password) {
     // Validate NRIC format
     if (!isValidNRIC(nric)) {
-        if (authView != null) {
-            authView.displayError("Invalid NRIC format");
+        if (baseView != null) {
+            baseView.displayError("Invalid NRIC format");
         }
         return null;
     }
@@ -76,27 +76,27 @@ public User login(String nric, String password) {
         boolean authenticated = userService.login(nric, password);
         
         if (!authenticated) {
-            if (authView != null) {
-                authView.displayError("Invalid credentials");
+            if (baseView != null) {
+                baseView.displayError("Invalid credentials");
             }
             return null;
         }
 
         // Log successful login
-        if (authView != null) {
-            authView.displaySuccess("Login successful");
+        if (baseView != null) {
+            baseView.displaySuccess("Login successful");
         }
         
         return userService.getCurrentUser();
     } catch (BTOSystemException e) {
         // Handle security-specific exceptions (like account locked)
         if (e.getErrorCode() == BTOSystemException.ErrorCode.INSUFFICIENT_USER_PERMISSIONS) {
-            if (authView != null) {
-                authView.displayError(e.getMessage());
+            if (baseView != null) {
+                baseView.displayError(e.getMessage());
             }
         } else {
-            if (authView != null) {
-                authView.displayError("Login failed: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Login failed: " + e.getMessage());
             }
         }
         return null;
@@ -149,8 +149,8 @@ public static boolean startSession() {
      */
     public void logout() {
         userService.logout();
-        if (authView != null) {
-            authView.displaySuccess("Logged out successfully");
+        if (baseView != null) {
+            baseView.displaySuccess("Logged out successfully");
         }
     }
 
@@ -164,8 +164,8 @@ public static boolean startSession() {
     public boolean changePassword(String oldPassword, String newPassword) {
         // Password complexity check
         if (!isValidPassword(newPassword)) {
-            if (authView != null) {
-                authView.displayError("Password does not meet complexity requirements");
+            if (baseView != null) {
+                baseView.displayError("Password does not meet complexity requirements");
             }
             return false;
         }
@@ -173,18 +173,18 @@ public static boolean startSession() {
         try {
             boolean changed = userService.changePassword(oldPassword, newPassword);
             if (changed) {
-                if (authView != null) {
-                    authView.displaySuccess("Password changed successfully");
+                if (baseView != null) {
+                    baseView.displaySuccess("Password changed successfully");
                 }
             } else {
-                if (authView != null) {
-                    authView.displayError("Failed to change password");
+                if (baseView != null) {
+                    baseView.displayError("Failed to change password");
                 }
             }
             return changed;
         } catch (Exception e) {
-            if (authView != null) {
-                authView.displayError("Error changing password: " + e.getMessage());
+            if (baseView != null) {
+                baseView.displayError("Error changing password: " + e.getMessage());
             }
             return false;
         }
@@ -220,7 +220,10 @@ public static boolean startSession() {
         return userService.getCurrentUser();
     }
     
-
+    /**
+     * Starts an authentication session
+     * @return true if session started successfully
+     */
 
     
     /**
