@@ -221,20 +221,17 @@ public class CsvDataService implements IFileDataService {
 	public boolean exportApplicantData(String applicantsFilePath, Map<String, Applicant> applicantMap) {
 		List<String> applicantLines = new ArrayList<String>();
 
-
-		List<String[]> applicantsRows = this.readCsvFile(applicantsFilePath, applicantCsvHeaders);
-		for (String[] applicantRow : applicantsRows) {
-			Map<String, String> applicantInfoMap = parseUserRow(applicantRow);
-			String applicantLine = String.format("%s,%s,%s,%s,%s",
-					applicantInfoMap.get("name"),
-					applicantInfoMap.get("nric"),
-					applicantInfoMap.get("age"),
-					applicantInfoMap.get("maritalStatus"),
-					applicantInfoMap.get("password"));
+		// Use data from the map instead of reading from file
+		for (Applicant applicant : applicantMap.values()) {
+			String applicantLine = String.format("%s,%s,%d,%s,%s",
+					applicant.getName(),
+					applicant.getNric(),
+					applicant.getAge(),
+					applicant.getMaritalStatus(),
+					applicant.getPassword());
 
 			applicantLines.add(applicantLine);
 		}
-
 
 		// Write to CSV
 		boolean success = this.writeCsvFile(applicantsFilePath, applicantCsvHeaders, applicantLines);
@@ -268,15 +265,14 @@ public class CsvDataService implements IFileDataService {
 	public boolean exportHDBManagerData(String hdbManagersFilePath, Map<String, HDBManager> hdbManagerMap) {
 		List<String> hdbManagerLines = new ArrayList<String>();
 
-		List<String[]> hdbManagersRows = this.readCsvFile(hdbManagersFilePath, hdbManagerCsvHeaders);
-		for (String[] hdbManagerRow : hdbManagersRows) {
-			Map<String, String> hdbManagerInfoMap = parseUserRow(hdbManagerRow);
-			String hdbManagerLine = String.format("%s,%s,%s,%s,%s",
-					hdbManagerInfoMap.get("name"),
-					hdbManagerInfoMap.get("nric"),
-					hdbManagerInfoMap.get("age"),
-					hdbManagerInfoMap.get("maritalStatus"),
-					hdbManagerInfoMap.get("password"));
+		// Use data from the map instead of reading from file
+		for (HDBManager manager : hdbManagerMap.values()) {
+			String hdbManagerLine = String.format("%s,%s,%d,%s,%s",
+					manager.getName(),
+					manager.getNric(),
+					manager.getAge(),
+					manager.getMaritalStatus(),
+					manager.getPassword());
 
 			hdbManagerLines.add(hdbManagerLine);
 		}
@@ -313,19 +309,17 @@ public class CsvDataService implements IFileDataService {
 	public boolean exportHDBOfficerData(String hdbOfficersFilePath, Map<String, HDBOfficer> hdbOfficerMap) {
 		List<String> hdbOfficerLines = new ArrayList<String>();
 
-		List<String[]> hdbOfficersRows = this.readCsvFile(hdbOfficersFilePath, hdbOfficerCsvHeaders);
-		for (String[] hdbOfficerRow : hdbOfficersRows) {
-			Map<String, String> hdbOfficerInfoMap = parseUserRow(hdbOfficerRow);
-			String hdbOfficerLine = String.format("%s,%s,%s,%s,%s",
-					hdbOfficerInfoMap.get("name"),
-					hdbOfficerInfoMap.get("nric"),
-					hdbOfficerInfoMap.get("age"),
-					hdbOfficerInfoMap.get("maritalStatus"),
-					hdbOfficerInfoMap.get("password"));
+		// Use data from the map instead of reading from file
+		for (HDBOfficer officer : hdbOfficerMap.values()) {
+			String hdbOfficerLine = String.format("%s,%s,%d,%s,%s",
+					officer.getName(),
+					officer.getNric(),
+					officer.getAge(),
+					officer.getMaritalStatus(),
+					officer.getPassword());
 
 			hdbOfficerLines.add(hdbOfficerLine);
 		}
-
 
 		// Write to CSV
 		boolean success = this.writeCsvFile(hdbOfficersFilePath, hdbOfficerCsvHeaders, hdbOfficerLines);
