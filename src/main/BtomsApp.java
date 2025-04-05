@@ -34,6 +34,13 @@ public class BtomsApp {
 	 * @param args an array of String arguments passed to this method
 	 */
 	public static void main(String[] args) {
+		// Add shutdown hook to handle Ctrl+C
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			System.out.println("\nBTOMS is shutting down...");
+			DataStore.saveData();
+			AuthController.endSession();
+		}));
+
 		try {
 			do {
 				// Initialize DataStore

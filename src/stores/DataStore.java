@@ -5,6 +5,7 @@ import java.util.Map;
 
 import interfaces.IFileDataService;
 import models.Applicant;
+import models.BTOProject;
 import models.HDBManager;
 import models.HDBOfficer;
 
@@ -43,6 +44,12 @@ public class DataStore {
 	 */
 	private static Map<String, HDBOfficer> hdbOfficersData = new HashMap<String, HDBOfficer>();
 
+	/**
+	 * A {@link Map} containing BTO project ID as the key and {@link BTOProject}
+	 * objects as the value.
+	 */
+	private static Map<String, BTOProject> btoProjectsData = new HashMap<String, BTOProject>();
+
 	/**	 * Private constructor to prevent instantiation of the class.
 	 */
 	private DataStore() {
@@ -68,6 +75,7 @@ public class DataStore {
 		DataStore.applicantsData = fileDataService.importApplicantData(filePathsMap.get("applicant"));
 		DataStore.hdbManagersData = fileDataService.importHDBManagerData(filePathsMap.get("hdbManager"));
 		DataStore.hdbOfficersData = fileDataService.importHDBOfficerData(filePathsMap.get("hdbOfficer"));
+		DataStore.btoProjectsData = fileDataService.importBTOProjectData(filePathsMap.get("btoProject"));
 
 		return true;
 	}
@@ -82,6 +90,7 @@ public class DataStore {
 		DataStore.setApplicantsData(applicantsData);
 		DataStore.setHDBManagersData(hdbManagersData);
 		DataStore.setHDBOfficersData(hdbOfficersData);
+		DataStore.setBTOProjectsData(btoProjectsData);
 
 		return true;
 	}
@@ -153,4 +162,14 @@ public class DataStore {
 		fileDataService.exportHDBOfficerData(filePathsMap.get("hdbOfficer"), hdbOfficersData);
 	}
 
+	// ---------- BTO Project ---------- //
+	public static Map<String, BTOProject> getBTOProjectsData() {
+		return DataStore.btoProjectsData;
+	}
+
+	public static void setBTOProjectsData(Map<String, BTOProject> btoProjectsData) {
+		DataStore.btoProjectsData = btoProjectsData;
+		fileDataService.exportBTOProjectData(filePathsMap.get("btoProject"), btoProjectsData);
+	}
+	
 }

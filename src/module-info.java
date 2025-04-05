@@ -19,5 +19,5 @@ module sc2002_fypms {
     exports services;
     exports stores;
     exports utils;
-    exports views;
+    exports view;
 }

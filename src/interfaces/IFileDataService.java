@@ -3,6 +3,7 @@ package interfaces;
 import java.util.Map;
 
 import models.Applicant;
+import models.BTOProject;
 import models.HDBManager;
 import models.HDBOfficer;
 
@@ -68,4 +69,26 @@ public interface IFileDataService {
 	 * @return true if the data was exported successfully, false otherwise
 	 */
 	boolean exportHDBOfficerData(String hdbOfficerFilePath, Map<String, HDBOfficer> hdbOfficerMap);
+
+	// ---------- BTOProject ---------- //
+	/**
+	 * Imports BTO Project data from the specified file paths.
+	 *
+	 * @param btoProjectFilePath the file path of the BTO Projects file
+	 * @param btoProjectMap       a {@link Map} of {@link BTOProject} objects with
+	 *                            their IDs as keys
+	 * 
+	 * @return a {@link Map} of {@link BTOProject} objects with their IDs as keys
+	 */
+	Map<String, BTOProject> importBTOProjectData(String btoProjectFilePath);
+	
+	/**
+	 * Exports BTO Project data to the specified file paths.
+	 *
+	 * @param btoProjectFilePath the file path of the BTO Projects file
+	 * @param btoProjectMap       a {@link Map} of {@link BTOProject} objects with
+	 *                            their IDs as keys
+	 * @return true if the data was exported successfully, false otherwise
+	 */
+	boolean exportBTOProjectData(String btoProjectFilePath, Map<String, BTOProject> btoProjectMap);
 }

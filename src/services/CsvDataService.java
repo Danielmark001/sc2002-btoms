@@ -1,5 +1,6 @@
 package services;
 
+import enumeration.FlatType;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -8,12 +9,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import interfaces.IFileDataService;
 import models.Applicant;
 import models.HDBManager;
 import models.HDBOfficer;
 import enumeration.MaritalStatus;
+import models.BTOProject;
+import models.FlatTypeDetails;
+import utils.FilePathsUtils;
+import stores.DataStore;
+import view.CommonView;
 
 /**
  * The {@link CsvDataService} class implements the {@link IFileDataService}
@@ -36,6 +44,11 @@ public class CsvDataService implements IFileDataService {
 	 * The list of headers for the CSV file that stores HDB officer data.
 	 */
 	private static List<String> hdbOfficerCsvHeaders = new ArrayList<String>();
+
+	/**
+	 * The list of headers for the CSV file that stores BTO project data.
+	 */
+	private static List<String> btoProjectCsvHeaders = new ArrayList<String>();
 
 	/**
 	 * Constructs an instance of the {@link CsvDataService} class.
@@ -71,7 +84,7 @@ public class CsvDataService implements IFileDataService {
 			}
 
 		} catch (IOException e) {
-			System.out.println("Cannot import data!");
+			System.out.println("Cannot import data!" + filePath);
 		}
 
 		return dataList;
@@ -143,6 +156,15 @@ public class CsvDataService implements IFileDataService {
 			}
 			throw new IllegalArgumentException("Invalid marital status: " + status);
 		}
+	}
+
+	private FlatType parseFlatType(String displayName) {
+		for (FlatType type : FlatType.values()) {
+			if (type.getDisplayName().equals(displayName)) {
+				return type;
+			}
+		}
+		throw new IllegalArgumentException("Invalid flat type: " + displayName);
 	}
 
 	// ---------- Interface method implementation ---------- //
@@ -284,4 +306,107 @@ public class CsvDataService implements IFileDataService {
 		boolean success = this.writeCsvFile(hdbOfficersFilePath, hdbOfficerCsvHeaders, hdbOfficerLines);
 		return success;
 	}
+
+	private BTOProject parseBTOProjectRow(String[] btoProjectRow) {
+		// ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers
+		String projectName = btoProjectRow[0];
+		String neighborhood = btoProjectRow[1];
+
+		Map<FlatType, FlatTypeDetails> flatTypes = new HashMap<FlatType, FlatTypeDetails>();
+
+		for (int i = 2; i < 8; i += 3) {
+			FlatType flatType = parseFlatType(btoProjectRow[i]);
+			int numberOfUnits = Integer.parseInt(btoProjectRow[i + 1]);
+			double sellingPrice = Double.parseDouble(btoProjectRow[i + 2]);
+
+			FlatTypeDetails flatTypeDetails = new FlatTypeDetails(numberOfUnits, sellingPrice);
+			flatTypes.put(flatType, flatTypeDetails);
+		}
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate applicationOpeningDate = LocalDate.parse(btoProjectRow[8], formatter);
+		LocalDate applicationClosingDate = LocalDate.parse(btoProjectRow[9], formatter);
+
+		String managerName = btoProjectRow[10];
+		HDBManager manager = null;
+		// Find manager by name
+		for (HDBManager m : DataStore.getHDBManagersData().values()) {
+			if (m.getName().equals(managerName)) {
+				manager = m;
+				break;
+			}
+		}
+		
+		int officerSlots = Integer.parseInt(btoProjectRow[11]);
+		
+		// Get all officers from remaining columns
+		List<HDBOfficer> hdbOfficers = new ArrayList<HDBOfficer>();
+		for (int i = 12; i < btoProjectRow.length; i++) {
+			String officerName = btoProjectRow[i];
+			// Find officer by name
+			for (HDBOfficer o : DataStore.getHDBOfficersData().values()) {
+				if (o.getName().equals(officerName)) {
+					hdbOfficers.add(o);
+					break;
+				}
+			}
+		}
+
+		return new BTOProject(projectName, neighborhood, applicationOpeningDate, applicationClosingDate, 
+							flatTypes, manager, officerSlots, hdbOfficers, false);
+	}
+
+	@Override
+	public Map<String, BTOProject> importBTOProjectData(String btoProjectFilePath) {
+		Map<String, BTOProject> btoProjectsMap = new HashMap<String, BTOProject>();
+
+		List<String[]> btoProjectsRows = this.readCsvFile(btoProjectFilePath, btoProjectCsvHeaders);
+
+		for (String[] btoProjectRow : btoProjectsRows) {
+			BTOProject btoProject = parseBTOProjectRow(btoProjectRow);
+			btoProjectsMap.put(btoProject.getProjectName(), btoProject);
+		}
+
+		//debug print
+		for (BTOProject project : btoProjectsMap.values()) {
+			System.out.println(project.getProjectName());
+		}
+
+		return btoProjectsMap;
+	}
+
+	@Override
+	public boolean exportBTOProjectData(String btoProjectFilePath, Map<String, BTOProject> btoProjectMap) {
+		List<String> btoProjectLines = new ArrayList<String>();
+		
+		for (BTOProject project : btoProjectMap.values()) {
+			StringBuilder line = new StringBuilder();
+			line.append(project.getProjectName()).append(",");
+			line.append(project.getNeighborhood()).append(",");
+			
+			Map<FlatType, FlatTypeDetails> flatTypes = project.getFlatTypes();
+			for (Map.Entry<FlatType, FlatTypeDetails> entry : flatTypes.entrySet()) {
+				line.append(entry.getKey().getDisplayName()).append(",");
+				line.append(entry.getValue().getUnits()).append(",");
+				line.append(entry.getValue().getPrice()).append(",");
+			}
+			
+			line.append(project.getApplicationOpeningDate()).append(",");
+			line.append(project.getApplicationClosingDate()).append(",");
+			line.append(project.getHDBManager().getName()).append(",");
+			line.append(project.getHDBOfficerSlots()).append(",");
+			
+			List<HDBOfficer> officers = project.getHDBOfficers();
+			String[] officerNames = officers.stream()
+				.map(HDBOfficer::getName)
+				.toArray(String[]::new);
+			line.append(String.join(",", officerNames));
+			
+			btoProjectLines.add(line.toString());
+		}
+
+		return this.writeCsvFile(btoProjectFilePath, btoProjectCsvHeaders, btoProjectLines);
+	}
+	
+	
 }
