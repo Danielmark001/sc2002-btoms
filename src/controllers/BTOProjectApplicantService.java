@@ -19,7 +19,8 @@ public class BTOProjectApplicantService implements IBTOProjectApplicantService {
     public List<BTOProject> getAvailableProjects(Applicant applicant) {
         return DataStore.getBTOProjectsData().values().stream()
             .filter(project -> project.getApplicationOpeningDate().isBefore(LocalDate.now()) && 
-                    project.getApplicationClosingDate().isAfter(LocalDate.now()))
+                    project.getApplicationClosingDate().isAfter(LocalDate.now()) &&
+                    project.isVisible())
             .collect(Collectors.toList());
     }
 

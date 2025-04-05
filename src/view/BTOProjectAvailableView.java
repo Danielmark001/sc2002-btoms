@@ -39,6 +39,6 @@ public class BTOProjectAvailableView implements IProjectView {
             System.out.println("  - Price: $" + details.getPrice());
         }
             
-        System.out.println("\nProject Manager: " + project.getHDBManager());
+        System.out.println("\nProject Manager: " + project.getHDBManager().getName());
     }
 }

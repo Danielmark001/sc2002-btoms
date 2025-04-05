@@ -22,14 +22,26 @@ public class ApplicantController extends UserController {
         int choice;
 
         do {
-            System.out.println("1. View Available BTO Projects");
+            System.out.println("1. Change Password");
+            System.out.println("2. View Available BTO Projects");
+            System.out.println("3. Apply for a BTO Project");
 
             choice = sc.nextInt();
             sc.nextLine(); // consume newline
 
             switch (choice) {
                 case 1:
+                    if (changePassword()) {
+                        System.out.println("Restarting session...");
+                        AuthController.endSession();
+                        return;
+                    }
+                    break;
+                case 2:
                     viewAvailableBTOProjects();
+                    break;
+                case 3:
+                    applyForBTOProject();
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");

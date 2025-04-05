@@ -367,11 +367,6 @@ public class CsvDataService implements IFileDataService {
 			btoProjectsMap.put(btoProject.getProjectName(), btoProject);
 		}
 
-		//debug print
-		for (BTOProject project : btoProjectsMap.values()) {
-			System.out.println(project.getProjectName());
-		}
-
 		return btoProjectsMap;
 	}
 
