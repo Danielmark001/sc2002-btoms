@@ -40,8 +40,10 @@ public class FilePathsUtils {
 		filePathsMap.put("applicant", "data/ApplicantList.csv");
 		filePathsMap.put("hdbManager", "data/HDBManagerList.csv");
 		filePathsMap.put("hdbOfficer", "data/HDBOfficerList.csv");
+		filePathsMap.put("hdbOfficers", "data/HDBOfficer.csv");
 		filePathsMap.put("btoProject", "data/BTOProjectList.csv");
 		filePathsMap.put("btoApplication", "data/BTOApplicationList.csv");
+		filePathsMap.put("hdbOfficerRegistrations", "data/HDBOfficerRegistrationList.csv");
 
 		return filePathsMap;
 	}

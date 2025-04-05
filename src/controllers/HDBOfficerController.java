@@ -11,6 +11,12 @@ import services.BTOProjectService;
 import view.BTOProjectAvailableView;
 import view.BTOApplicationView;
 import java.util.List;
+import java.util.Map;
+import stores.DataStore;
+import models.HDBOfficerRegistration;
+import java.time.LocalDate;
+import java.util.stream.Collectors;
+import enumeration.HDBOfficerRegistrationStatus;
 
 public class HDBOfficerController extends ApplicantController {
 
@@ -44,6 +50,7 @@ public class HDBOfficerController extends ApplicantController {
             System.out.println("5. View Joinable BTO Projects");
             System.out.println("6. Join BTO Project as Officer");
             System.out.println("7. View Joined BTO Projects");
+            System.out.println("8. View HDB Officer Registrations");
 
             System.out.println("\n0. Logout");
 
@@ -75,6 +82,9 @@ public class HDBOfficerController extends ApplicantController {
                     break;
                 case 7:
                     viewJoinedBTOProjects();
+                    break;
+                case 8:
+                    viewHDBOfficerRegistrations();
                     break;
                 case 0:
                     System.out.println("Logging out...");
@@ -110,6 +120,10 @@ public class HDBOfficerController extends ApplicantController {
      */
     private void joinBTOProjectAsOfficer() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
+        
+        // Check if officer has projects with overlapping application periods
+        List<BTOProject> handledProjects = hdbOfficer.getHandledProjects();
+        
         List<BTOProject> joinableProjects = projectService.getJoinableProjects(hdbOfficer);
         
         if (joinableProjects.isEmpty()) {
@@ -142,9 +156,43 @@ public class HDBOfficerController extends ApplicantController {
             System.out.println("Invalid project name. Please try again.");
             return;
         }
+
+        // Check if project is within application period
+        LocalDate today = LocalDate.now();
+        if (today.isBefore(selectedProject.getApplicationOpeningDate()) || 
+            today.isAfter(selectedProject.getApplicationClosingDate())) {
+            System.out.println("\nThis project is not within its application period.");
+            System.out.println("Application period: " + selectedProject.getApplicationOpeningDate() + 
+                             " to " + selectedProject.getApplicationClosingDate());
+            return;
+        }
+
+        // Check for overlapping application periods with handled projects
+        for (BTOProject handledProject : handledProjects) {
+            if (hasOverlappingPeriod(selectedProject, handledProject)) {
+                System.out.println("\nYou cannot join this project because its application period overlaps with project: " + 
+                                 handledProject.getProjectName());
+                System.out.println("Existing project period: " + handledProject.getApplicationOpeningDate() + 
+                                 " to " + handledProject.getApplicationClosingDate());
+                return;
+            }
+        }
         
-        projectService.joinProjectAsOfficer(selectedProject, hdbOfficer);
-        System.out.println("Successfully joined the project as an HDB officer.");
+        // Create a new HDBOfficerRegistration with pending status
+        HDBOfficerRegistration registration = new HDBOfficerRegistration(hdbOfficer, selectedProject);
+        Map<String, HDBOfficerRegistration> registrations = DataStore.getHDBOfficerRegistrationsData();
+        registrations.put(registration.getRegistrationId(), registration);
+        DataStore.setHDBOfficerRegistrationsData(registrations);
+        
+        System.out.println("Registration request submitted successfully. Please wait for HDB Manager's approval.");
+    }
+
+    /**
+     * Checks if two projects have overlapping application periods
+     */
+    private boolean hasOverlappingPeriod(BTOProject project1, BTOProject project2) {
+        return !project1.getApplicationClosingDate().isBefore(project2.getApplicationOpeningDate()) &&
+               !project2.getApplicationClosingDate().isBefore(project1.getApplicationOpeningDate());
     }
 
     /**
@@ -245,6 +293,25 @@ public class HDBOfficerController extends ApplicantController {
         System.out.println("\nYour BTO Applications:");
         for (BTOApplication application : applications) {
             applicationView.displayApplicationInfo(application);
+        }
+    }
+
+    private void viewHDBOfficerRegistrations() {
+        HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
+        List<HDBOfficerRegistration> registrations = DataStore.getHDBOfficerRegistrationsData().values().stream()
+            .filter(reg -> reg.getHDBOfficer().equals(hdbOfficer))
+            .collect(Collectors.toList());
+
+        if (registrations.isEmpty()) {
+            System.out.println("\nYou have no HDB officer registrations at the moment.");
+            return;
+        }
+
+        System.out.println("\nYour HDB Officer Registrations:");
+        for (HDBOfficerRegistration registration : registrations) {
+            System.out.println("Project Name: " + registration.getProject().getProjectName());
+            System.out.println("Status: " + registration.getStatus());
+            System.out.println("----------------------------------------");
         }
     }
 }

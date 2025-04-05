@@ -1,4 +1,4 @@
 ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers
-Meadow View,Boon Lay,3-Room,20,420000.0,2-Room,25,320000.0,2024-07-01,2026-12-31,Michael,3,David,Emily
-Acacia Breeze,Yishun,3-Room,15,450000.0,2-Room,20,350000.0,2024-06-01,2026-12-31,Jessica,3,Daniel,Emily
+Meadow View,Boon Lay,3-Room,20,420000.0,2-Room,25,320000.0,2024-07-01,2026-12-31,Michael,3,David
+Acacia Breeze,Yishun,3-Room,15,450000.0,2-Room,20,350000.0,2024-06-01,2026-12-31,Jessica,3,Daniel
 Sunrise Gardens,Tampines,3-Room,12,460000.0,2-Room,18,340000.0,2024-08-01,2026-12-31,Jessica,2,Daniel,David

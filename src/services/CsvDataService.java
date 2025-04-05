@@ -25,6 +25,7 @@ import utils.EnumParser;
 import stores.DataStore;
 import view.CommonView;
 import models.User;
+import models.HDBOfficerRegistration;
 
 /**
  * The {@link CsvDataService} class implements the {@link IFileDataService}
@@ -59,9 +60,53 @@ public class CsvDataService implements IFileDataService {
 	private static List<String> btoApplicationCsvHeaders = new ArrayList<String>();
 
 	/**
+	 * The list of headers for the CSV file that stores HDB officer registration data.
+	 */
+	private static List<String> hdbOfficerRegistrationCsvHeaders = new ArrayList<String>();
+
+	/**
 	 * Constructs an instance of the {@link CsvDataService} class.
 	 */
     public CsvDataService() {
+		// Initialize CSV headers
+		applicantCsvHeaders.add("Name");
+		applicantCsvHeaders.add("NRIC");
+		applicantCsvHeaders.add("Age");
+		applicantCsvHeaders.add("MaritalStatus");
+		applicantCsvHeaders.add("Password");
+
+		hdbManagerCsvHeaders.add("Name");
+		hdbManagerCsvHeaders.add("NRIC");
+		hdbManagerCsvHeaders.add("Age");
+		hdbManagerCsvHeaders.add("MaritalStatus");
+		hdbManagerCsvHeaders.add("Password");
+
+		hdbOfficerCsvHeaders.add("Name");
+		hdbOfficerCsvHeaders.add("NRIC");
+		hdbOfficerCsvHeaders.add("Age");
+		hdbOfficerCsvHeaders.add("MaritalStatus");
+		hdbOfficerCsvHeaders.add("Password");
+
+		btoProjectCsvHeaders.add("ProjectName");
+		btoProjectCsvHeaders.add("Neighborhood");
+		btoProjectCsvHeaders.add("ApplicationOpeningDate");
+		btoProjectCsvHeaders.add("ApplicationClosingDate");
+		btoProjectCsvHeaders.add("HDBManagerNRIC");
+		btoProjectCsvHeaders.add("HDBOfficerSlots");
+		btoProjectCsvHeaders.add("HDBOfficerNRICs");
+		btoProjectCsvHeaders.add("FlatTypes");
+		btoProjectCsvHeaders.add("Visible");
+
+		btoApplicationCsvHeaders.add("ApplicationID");
+		btoApplicationCsvHeaders.add("ApplicantNRIC");
+		btoApplicationCsvHeaders.add("ProjectName");
+		btoApplicationCsvHeaders.add("FlatType");
+		btoApplicationCsvHeaders.add("Status");
+
+		hdbOfficerRegistrationCsvHeaders.add("RegistrationID");
+		hdbOfficerRegistrationCsvHeaders.add("HDBOfficerNRIC");
+		hdbOfficerRegistrationCsvHeaders.add("ProjectName");
+		hdbOfficerRegistrationCsvHeaders.add("Status");
     };
 
 	// ---------- Helper Function ---------- //
@@ -467,5 +512,58 @@ public class CsvDataService implements IFileDataService {
 		}
 
 		return this.writeCsvFile(btoApplicationFilePath, btoApplicationCsvHeaders, btoApplicationLines);
+	}
+
+	private HDBOfficerRegistration parseHDBOfficerRegistrationRow(String[] hdbOfficerRegistrationRow) {
+		String registrationId = hdbOfficerRegistrationRow[0];
+		String hdbOfficerNric = hdbOfficerRegistrationRow[1];
+		String projectName = hdbOfficerRegistrationRow[2];
+		String status = hdbOfficerRegistrationRow[3];
+
+		HDBOfficer hdbOfficer = DataStore.getHDBOfficersData().get(hdbOfficerNric);
+		BTOProject project = DataStore.getBTOProjectsData().get(projectName);
+
+		// Skip invalid registrations where officer or project is not found
+		if (hdbOfficer == null || project == null) {
+			System.out.println("Warning: Skipping invalid HDB officer registration " + registrationId + 
+				" - " + (hdbOfficer == null ? "Officer not found: " + hdbOfficerNric : "") +
+				(project == null ? "Project not found: " + projectName : ""));
+			return null;
+		}
+		
+		return new HDBOfficerRegistration(registrationId, hdbOfficer, project, EnumParser.parseHDBOfficerRegistrationStatus(status));
+	}
+
+	@Override
+	public Map<String, HDBOfficerRegistration> importHDBOfficerRegistrationData(String hdbOfficerRegistrationsFilePath) {
+		Map<String, HDBOfficerRegistration> hdbOfficerRegistrationsMap = new HashMap<String, HDBOfficerRegistration>();
+
+		List<String[]> hdbOfficerRegistrationsRows = this.readCsvFile(hdbOfficerRegistrationsFilePath, hdbOfficerRegistrationCsvHeaders);
+
+		for (String[] hdbOfficerRegistrationRow : hdbOfficerRegistrationsRows) {
+			HDBOfficerRegistration registration = parseHDBOfficerRegistrationRow(hdbOfficerRegistrationRow);
+			if (registration != null) {
+				hdbOfficerRegistrationsMap.put(registration.getRegistrationId(), registration);
+			}
+		}
+
+		return hdbOfficerRegistrationsMap;
+	}
+
+	@Override
+	public boolean exportHDBOfficerRegistrationData(String hdbOfficerRegistrationsFilePath, Map<String, HDBOfficerRegistration> hdbOfficerRegistrationMap) {
+		List<String> hdbOfficerRegistrationLines = new ArrayList<String>();
+
+		for (HDBOfficerRegistration registration : hdbOfficerRegistrationMap.values()) {
+			StringBuilder line = new StringBuilder();
+			line.append(registration.getRegistrationId()).append(",");
+			line.append(registration.getHDBOfficer().getNric()).append(",");
+			line.append(registration.getProject().getProjectName()).append(",");
+			line.append(registration.getStatus().getDisplayName());
+			
+			hdbOfficerRegistrationLines.add(line.toString());
+		}
+
+		return this.writeCsvFile(hdbOfficerRegistrationsFilePath, hdbOfficerRegistrationCsvHeaders, hdbOfficerRegistrationLines);
 	}
 }

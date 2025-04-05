@@ -7,6 +7,7 @@ import models.BTOProject;
 import models.HDBManager;
 import models.HDBOfficer;
 import models.BTOApplication;
+import models.HDBOfficerRegistration;
 
 /**
  * The {@link IFileDataService} interface defines a contract for importing and
@@ -113,4 +114,19 @@ public interface IFileDataService {
 	 * @return true if the data was exported successfully, false otherwise
 	 */
 	boolean exportBTOApplicationData(String btoApplicationFilePath, Map<String, BTOApplication> btoApplicationMap);
+
+	/**
+	 * Imports HDB officer registration data from a CSV file.
+	 * @param hdbOfficerRegistrationsFilePath The file path of the CSV file
+	 * @return A map of HDB officer registration data
+	 */
+	Map<String, HDBOfficerRegistration> importHDBOfficerRegistrationData(String hdbOfficerRegistrationsFilePath);
+
+	/**
+	 * Exports HDB officer registration data to a CSV file.
+	 * @param hdbOfficerRegistrationsFilePath The file path of the CSV file
+	 * @param hdbOfficerRegistrationMap The map of HDB officer registration data
+	 * @return true if the export was successful, false otherwise
+	 */
+	boolean exportHDBOfficerRegistrationData(String hdbOfficerRegistrationsFilePath, Map<String, HDBOfficerRegistration> hdbOfficerRegistrationMap);
 }
