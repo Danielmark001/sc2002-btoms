@@ -17,6 +17,7 @@ import models.Applicant;
 import models.HDBManager;
 import models.HDBOfficer;
 import enumeration.MaritalStatus;
+import models.BTOApplication;
 import models.BTOProject;
 import models.FlatTypeDetails;
 import utils.FilePathsUtils;
@@ -52,6 +53,11 @@ public class CsvDataService implements IFileDataService {
 	private static List<String> btoProjectCsvHeaders = new ArrayList<String>();
 
 	/**
+	 * The list of headers for the CSV file that stores BTO application data.
+	 */
+	private static List<String> btoApplicationCsvHeaders = new ArrayList<String>();
+
+	/**
 	 * Constructs an instance of the {@link CsvDataService} class.
 	 */
     public CsvDataService() {
@@ -72,7 +78,34 @@ public class CsvDataService implements IFileDataService {
 
 		try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
 			// Headers
-			String[] headerRow = br.readLine().split(",");
+			String headerLine = br.readLine();
+			if (headerLine == null) {
+				// File is empty, generate headers based on file type
+				String fileType = filePath.contains("Applicant") ? "applicant" :
+								filePath.contains("HDBManager") ? "hdbManager" :
+								filePath.contains("HDBOfficer") ? "hdbOfficer" :
+								filePath.contains("BTOProject") ? "btoProject" :
+								filePath.contains("BTOApplication") ? "btoApplication" : "";
+				
+				switch (fileType) {
+					case "applicant":
+					case "hdbManager":
+					case "hdbOfficer":
+						headers.addAll(List.of("Name", "NRIC", "Age", "MaritalStatus", "Password"));
+						break;
+					case "btoProject":
+						headers.addAll(List.of("ProjectName", "Neighborhood", "Type1", "NumberOfUnitsType1", "SellingPriceType1", 
+							"Type2", "NumberOfUnitsType2", "SellingPriceType2", "ApplicationOpeningDate", "ApplicationClosingDate", 
+							"Manager", "OfficerSlot", "Officers"));
+						break;
+					case "btoApplication":
+						headers.addAll(List.of("ApplicationId", "ApplicantNRIC", "ProjectName", "FlatType", "Status"));
+						break;
+				}
+				return dataList;
+			}
+			
+			String[] headerRow = headerLine.split(",");
 			for (String header : headerRow) {
 				headers.add(header);
 			}
@@ -373,5 +406,51 @@ public class CsvDataService implements IFileDataService {
 		return this.writeCsvFile(btoProjectFilePath, btoProjectCsvHeaders, btoProjectLines);
 	}
 	
-	
+	private BTOApplication parseBTOApplicationRow(String[] btoApplicationRow) {
+		String applicationId = btoApplicationRow[0];
+		String applicantNric = btoApplicationRow[1];
+		String projectName = btoApplicationRow[2];
+		String flatType = btoApplicationRow[3];
+		String status = btoApplicationRow[4];
+
+		Applicant applicant = DataStore.getApplicantsData().get(applicantNric);
+		BTOProject project = DataStore.getBTOProjectsData().get(projectName);
+
+		// Handle "null" flat type
+		FlatType parsedFlatType = "null".equals(flatType) ? null : EnumParser.parseFlatType(flatType);
+		
+		return new BTOApplication(applicationId, applicant, project, parsedFlatType, EnumParser.parseBTOApplicationStatus(status));
+	}
+
+	@Override
+	public Map<String, BTOApplication> importBTOApplicationData(String btoApplicationFilePath) {
+		Map<String, BTOApplication> btoApplicationsMap = new HashMap<String, BTOApplication>();
+
+		List<String[]> btoApplicationsRows = this.readCsvFile(btoApplicationFilePath, btoApplicationCsvHeaders);
+
+		for (String[] btoApplicationRow : btoApplicationsRows) {
+			BTOApplication btoApplication = parseBTOApplicationRow(btoApplicationRow);
+			btoApplicationsMap.put(btoApplication.getApplicationId(), btoApplication);
+		}
+
+		return btoApplicationsMap;
+	}
+
+	@Override
+	public boolean exportBTOApplicationData(String btoApplicationFilePath, Map<String, BTOApplication> btoApplicationMap) {
+		List<String> btoApplicationLines = new ArrayList<String>();
+
+		for (BTOApplication application : btoApplicationMap.values()) {
+			StringBuilder line = new StringBuilder();
+			line.append(application.getApplicationId()).append(",");
+			line.append(application.getApplicant().getNric()).append(",");
+			line.append(application.getProject().getProjectName()).append(",");
+			line.append(application.getFlatType() != null ? application.getFlatType().getDisplayName() : "null").append(",");
+			line.append(application.getStatus().getDisplayName());
+			
+			btoApplicationLines.add(line.toString());
+		}
+
+		return this.writeCsvFile(btoApplicationFilePath, btoApplicationCsvHeaders, btoApplicationLines);
+	}
 }

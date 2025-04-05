@@ -56,6 +56,7 @@ public class BTOProjectApplicantService implements IBTOProjectApplicantService {
 
     public void applyForBTOProject(BTOApplication application) {
         DataStore.getBTOApplicationsData().put(application.getApplicationId(), application);
+        DataStore.saveData();
     }
 
     public boolean hasExistingApplication(Applicant applicant) {

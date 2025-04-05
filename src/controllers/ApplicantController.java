@@ -10,6 +10,7 @@ import stores.AuthStore;
 import view.BTOProjectAvailableView;
 import services.CsvDataService;
 import utils.EnumParser;
+import utils.TextDecorationUtils;
 
 public class ApplicantController extends UserController {
 
@@ -26,11 +27,17 @@ public class ApplicantController extends UserController {
         int choice;
 
         do {
+            System.out.println(TextDecorationUtils.boldText("Welcome, " + AuthStore.getCurrentUser().getName() + "!"));
+            
+            System.out.println(TextDecorationUtils.underlineText("SETTINGS"));
             System.out.println("1. Change Password");
+
+            System.out.println(TextDecorationUtils.underlineText("BTO PROJECTS"));
             System.out.println("2. View Available BTO Projects");
             System.out.println("3. Apply for a BTO Project");
+            System.out.println("4. View My BTO Applications");
 
-            System.out.println("0. Logout");
+            System.out.println("\n0. Logout");
 
             choice = sc.nextInt();
             sc.nextLine(); // consume newline

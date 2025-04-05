@@ -6,6 +6,7 @@ import models.Applicant;
 import models.BTOProject;
 import models.HDBManager;
 import models.HDBOfficer;
+import models.BTOApplication;
 
 /**
  * The {@link IFileDataService} interface defines a contract for importing and
@@ -91,4 +92,25 @@ public interface IFileDataService {
 	 * @return true if the data was exported successfully, false otherwise
 	 */
 	boolean exportBTOProjectData(String btoProjectFilePath, Map<String, BTOProject> btoProjectMap);
+
+	// ---------- BTOApplication ---------- //
+	/**
+	 * Imports BTO Application data from the specified file paths.
+	 *
+	 * @param btoApplicationFilePath the file path of the BTO Applications file
+	 * @param btoApplicationMap       a {@link Map} of {@link BTOApplication} objects with
+	 *                                their IDs as keys
+	 * @return a {@link Map} of {@link BTOApplication} objects with their IDs as keys
+	 */
+	Map<String, BTOApplication> importBTOApplicationData(String btoApplicationFilePath);
+
+	/**
+	 * Exports BTO Application data to the specified file paths.
+	 *
+	 * @param btoApplicationFilePath the file path of the BTO Applications file
+	 * @param btoApplicationMap       a {@link Map} of {@link BTOApplication} objects with
+	 *                                their IDs as keys
+	 * @return true if the data was exported successfully, false otherwise
+	 */
+	boolean exportBTOApplicationData(String btoApplicationFilePath, Map<String, BTOApplication> btoApplicationMap);
 }

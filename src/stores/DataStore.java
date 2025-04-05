@@ -83,6 +83,7 @@ public class DataStore {
 		DataStore.hdbManagersData = fileDataService.importHDBManagerData(filePathsMap.get("hdbManager"));
 		DataStore.hdbOfficersData = fileDataService.importHDBOfficerData(filePathsMap.get("hdbOfficer"));
 		DataStore.btoProjectsData = fileDataService.importBTOProjectData(filePathsMap.get("btoProject"));
+		DataStore.btoApplicationsData = fileDataService.importBTOApplicationData(filePathsMap.get("btoApplication"));
 
 		return true;
 	}
@@ -98,6 +99,7 @@ public class DataStore {
 		DataStore.setHDBManagersData(hdbManagersData);
 		DataStore.setHDBOfficersData(hdbOfficersData);
 		DataStore.setBTOProjectsData(btoProjectsData);
+		DataStore.setBTOApplicationsData(btoApplicationsData);
 
 		return true;
 	}
@@ -186,5 +188,6 @@ public class DataStore {
 
 	public static void setBTOApplicationsData(Map<String, BTOApplication> btoApplicationsData) {
 		DataStore.btoApplicationsData = btoApplicationsData;
+		fileDataService.exportBTOApplicationData(filePathsMap.get("btoApplication"), btoApplicationsData);
 	}
 }

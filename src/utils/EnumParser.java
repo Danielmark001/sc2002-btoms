@@ -1,5 +1,6 @@
 package utils;
 
+import enumeration.BTOApplicationStatus;
 import enumeration.FlatType;
 import enumeration.MaritalStatus;
 
@@ -43,4 +44,20 @@ public class EnumParser {
             throw new IllegalArgumentException("Invalid marital status: " + status);
         }
     }
+
+    /**
+     * Parses a string to a BTOApplicationStatus enum value
+     * @param status The status string (can be either enum name or display name)
+     * @return The corresponding BTOApplicationStatus enum value
+     * @throws IllegalArgumentException if the status is invalid
+     */
+    public static BTOApplicationStatus parseBTOApplicationStatus(String status) {
+        for (BTOApplicationStatus s : BTOApplicationStatus.values()) {
+            if (s.getDisplayName().equals(status)) {
+                return s;
+            }
+        }
+        throw new IllegalArgumentException("Invalid BTO application status: " + status);
+    }
+
 } 

@@ -15,23 +15,23 @@ public class BTOApplication {
 
     private BTOApplicationStatus status;
 
-    public BTOApplication(Applicant applicant, BTOProject project) {
-        this.applicationId = generateApplicationId();
-        this.applicant = applicant;
-        this.project = project;
-        this.flatType = null;  // Initially null
-        this.status = BTOApplicationStatus.PENDING;
-    }
-
-    public BTOApplication(Applicant applicant, BTOProject project, FlatType flatType) {
-        this.applicationId = generateApplicationId();
+    public BTOApplication(String applicationId, Applicant applicant, BTOProject project, FlatType flatType, BTOApplicationStatus status) {
+        this.applicationId = applicationId;
         this.applicant = applicant;
         this.project = project;
         this.flatType = flatType;
-        this.status = BTOApplicationStatus.PENDING;
+        this.status = status;
     }
 
-    private String generateApplicationId() {
+    public BTOApplication(Applicant applicant, BTOProject project) {
+        this(generateApplicationId(), applicant, project, null, BTOApplicationStatus.PENDING);
+    }
+
+    public BTOApplication(Applicant applicant, BTOProject project, FlatType flatType) {
+        this(generateApplicationId(), applicant, project, flatType, BTOApplicationStatus.PENDING);
+    }
+
+    private static String generateApplicationId() {
         String date = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
         return date + "-" + UUID.randomUUID().toString().substring(0, 8);
     }
