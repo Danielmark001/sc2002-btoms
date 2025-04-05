@@ -9,13 +9,13 @@ public class BTOApplication {
     // Unique ID for the application
     private String applicationId;
 
-    private final Applicant applicant;
+    private final User applicant;
     private final BTOProject project;
     private FlatType flatType;  // Now optional
 
     private BTOApplicationStatus status;
 
-    public BTOApplication(String applicationId, Applicant applicant, BTOProject project, FlatType flatType, BTOApplicationStatus status) {
+    public BTOApplication(String applicationId, User applicant, BTOProject project, FlatType flatType, BTOApplicationStatus status) {
         this.applicationId = applicationId;
         this.applicant = applicant;
         this.project = project;
@@ -23,11 +23,11 @@ public class BTOApplication {
         this.status = status;
     }
 
-    public BTOApplication(Applicant applicant, BTOProject project) {
+    public BTOApplication(User applicant, BTOProject project) {
         this(generateApplicationId(), applicant, project, null, BTOApplicationStatus.PENDING);
     }
 
-    public BTOApplication(Applicant applicant, BTOProject project, FlatType flatType) {
+    public BTOApplication(User applicant, BTOProject project, FlatType flatType) {
         this(generateApplicationId(), applicant, project, flatType, BTOApplicationStatus.PENDING);
     }
 
@@ -40,7 +40,7 @@ public class BTOApplication {
         return applicationId;
     }
 
-    public Applicant getApplicant() {
+    public User getApplicant() {
         return applicant;
     }
 

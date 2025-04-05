@@ -24,6 +24,7 @@ import utils.FilePathsUtils;
 import utils.EnumParser;
 import stores.DataStore;
 import view.CommonView;
+import models.User;
 
 /**
  * The {@link CsvDataService} class implements the {@link IFileDataService}
@@ -413,8 +414,20 @@ public class CsvDataService implements IFileDataService {
 		String flatType = btoApplicationRow[3];
 		String status = btoApplicationRow[4];
 
-		Applicant applicant = DataStore.getApplicantsData().get(applicantNric);
+		// Check both applicants and HDB officers data stores
+		User applicant = DataStore.getApplicantsData().get(applicantNric);
+		if (applicant == null) {
+			applicant = DataStore.getHDBOfficersData().get(applicantNric);
+		}
 		BTOProject project = DataStore.getBTOProjectsData().get(projectName);
+
+		// Skip invalid applications where applicant or project is not found
+		if (applicant == null || project == null) {
+			System.out.println("Warning: Skipping invalid BTO application " + applicationId + 
+				" - " + (applicant == null ? "Applicant not found: " + applicantNric : "") +
+				(project == null ? "Project not found: " + projectName : ""));
+			return null;
+		}
 
 		// Handle "null" flat type
 		FlatType parsedFlatType = "null".equals(flatType) ? null : EnumParser.parseFlatType(flatType);
@@ -430,7 +443,9 @@ public class CsvDataService implements IFileDataService {
 
 		for (String[] btoApplicationRow : btoApplicationsRows) {
 			BTOApplication btoApplication = parseBTOApplicationRow(btoApplicationRow);
-			btoApplicationsMap.put(btoApplication.getApplicationId(), btoApplication);
+			if (btoApplication != null) {
+				btoApplicationsMap.put(btoApplication.getApplicationId(), btoApplication);
+			}
 		}
 
 		return btoApplicationsMap;

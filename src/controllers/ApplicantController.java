@@ -6,28 +6,31 @@ import java.util.List;
 import models.Applicant;
 import models.BTOApplication;
 import models.BTOProject;
+import models.User;
 import stores.AuthStore;
 import view.BTOProjectAvailableView;
-import services.CsvDataService;
-import utils.EnumParser;
+import view.BTOApplicationView;
+import services.BTOProjectService;
 import utils.TextDecorationUtils;
 
 public class ApplicantController extends UserController {
 
     private static final Scanner sc = new Scanner(System.in);
-    private BTOProjectApplicantService projectService;
+    private BTOProjectService projectService;
     private BTOProjectAvailableView projectView;
+    private BTOApplicationView applicationView;
 
     public ApplicantController() {
-        this.projectService = new BTOProjectApplicantService();
+        this.projectService = new BTOProjectService();
         this.projectView = new BTOProjectAvailableView();
+        this.applicationView = new BTOApplicationView();
     }
 
     public void start() {
         int choice;
 
         do {
-            System.out.println(TextDecorationUtils.boldText("Welcome, " + AuthStore.getCurrentUser().getName() + "!"));
+            System.out.println(TextDecorationUtils.boldText("Hi, " + AuthStore.getCurrentUser().getName() + "!"));
             
             System.out.println(TextDecorationUtils.underlineText("SETTINGS"));
             System.out.println("1. Change Password");
@@ -56,6 +59,9 @@ public class ApplicantController extends UserController {
                 case 3:
                     applyForBTOProject();
                     break;
+                case 4:
+                    viewMyBTOApplications();
+                    break;
                 case 0:
                     System.out.println("Logging out...");
                     AuthController.endSession();
@@ -66,11 +72,9 @@ public class ApplicantController extends UserController {
         } while (true);
     }
 
-    private void viewAvailableBTOProjects() {
-        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
-
-        
-        List<BTOProject> availableProjects = projectService.getAvailableProjects(applicant);
+    protected void viewAvailableBTOProjects() {
+        User user = AuthStore.getCurrentUser();
+        List<BTOProject> availableProjects = projectService.getAvailableProjects(user);
         
         if (availableProjects.isEmpty()) {
             System.out.println("\nNo available BTO projects at the moment.");
@@ -84,7 +88,7 @@ public class ApplicantController extends UserController {
         }
     }
 
-    private void applyForBTOProject() {
+    protected void applyForBTOProject() {
         Applicant applicant = (Applicant) AuthStore.getCurrentUser();
         
         // Check if applicant already has an application
@@ -124,6 +128,21 @@ public class ApplicantController extends UserController {
         projectService.applyForBTOProject(application);
 
         System.out.println("Application submitted successfully. An HDB officer will contact you for flat booking if your application is successful.");
+    }
+
+    protected void viewMyBTOApplications() {
+        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+        List<BTOApplication> applications = projectService.getApplicationsByApplicant(applicant);
+
+        if (applications.isEmpty()) {
+            System.out.println("\nYou have no BTO applications at the moment.");
+            return;
+        }
+
+        System.out.println("\nYour BTO Applications:");
+        for (BTOApplication application : applications) {
+            applicationView.displayApplicationInfo(application);
+        }
     }
 }
 

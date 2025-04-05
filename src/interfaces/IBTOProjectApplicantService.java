@@ -2,8 +2,8 @@ package interfaces;
 
 import java.util.List;
 import models.BTOProject;
-import models.Applicant;
+import models.User;
 
 public interface IBTOProjectApplicantService {
-    public List<BTOProject> getAvailableProjects(Applicant applicant);
+    public List<BTOProject> getAvailableProjects(User applicant);
 }

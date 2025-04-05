@@ -4,16 +4,17 @@ import interfaces.IProjectView;
 import models.BTOProject;
 import models.Applicant;
 import models.FlatTypeDetails;
+import models.User;
 import enumeration.FlatType;
 import stores.AuthStore;
-import controllers.BTOProjectApplicantService;
+import services.BTOProjectService;
 import java.util.Map;
 
 public class BTOProjectAvailableView implements IProjectView {
-    private BTOProjectApplicantService projectService;
+    private BTOProjectService projectService;
 
     public BTOProjectAvailableView() {
-        this.projectService = new BTOProjectApplicantService();
+        this.projectService = new BTOProjectService();
     }
 
     @Override
@@ -23,11 +24,17 @@ public class BTOProjectAvailableView implements IProjectView {
         System.out.println("Application Opening Date: " + project.getApplicationOpeningDate());
         System.out.println("Application Closing Date: " + project.getApplicationClosingDate());
         
-        // Get current user (applicant)
-        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+        // Get current user
+        User user = AuthStore.getCurrentUser();
         
-        // Get eligible flat types for this applicant
-        Map<FlatType, FlatTypeDetails> eligibleFlatTypes = projectService.getEligibleFlatTypes(project, applicant);
+        // Get eligible flat types for this user
+        Map<FlatType, FlatTypeDetails> eligibleFlatTypes;
+        if (user instanceof Applicant) {
+            eligibleFlatTypes = projectService.getEligibleFlatTypes(project, (Applicant) user);
+        } else {
+            // Default to empty map for other user types
+            eligibleFlatTypes = project.getFlatTypes();
+        }
         
         System.out.println("\nAvailable Flat Types:");
         for (Map.Entry<FlatType, FlatTypeDetails> entry : eligibleFlatTypes.entrySet()) {
