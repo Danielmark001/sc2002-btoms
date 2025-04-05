@@ -12,6 +12,7 @@ import view.BTOProjectAvailableView;
 import view.BTOApplicationView;
 import services.BTOProjectService;
 import utils.TextDecorationUtils;
+import java.time.LocalDate;
 
 public class ApplicantController extends UserController {
 
@@ -91,12 +92,6 @@ public class ApplicantController extends UserController {
     protected void applyForBTOProject() {
         Applicant applicant = (Applicant) AuthStore.getCurrentUser();
         
-        // Check if applicant already has an application
-        if (projectService.hasExistingApplication(applicant)) {
-            System.out.println("\nYou already have an existing BTO application. Only one application is allowed at a time.");
-            return;
-        }
-        
         List<BTOProject> availableProjects = projectService.getAvailableProjects(applicant);
 
         if (availableProjects.isEmpty()) {
@@ -121,6 +116,24 @@ public class ApplicantController extends UserController {
 
         if (selectedProject == null) {
             System.out.println("Invalid project name. Please try again.");
+            return;
+        }
+
+        // Check eligibility one final time before applying
+        if (!projectService.isEligible(applicant, selectedProject)) {
+            System.out.println("\nYou are not eligible to apply for this project.");
+            if (!selectedProject.isVisible()) {
+                System.out.println("This project is not visible.");
+            }
+            if (LocalDate.now().isBefore(selectedProject.getApplicationOpeningDate()) || 
+                LocalDate.now().isAfter(selectedProject.getApplicationClosingDate())) {
+                System.out.println("This project is not within its application period.");
+                System.out.println("Application period: " + selectedProject.getApplicationOpeningDate() + 
+                                 " to " + selectedProject.getApplicationClosingDate());
+            }
+            if (projectService.hasExistingApplication(applicant)) {
+                System.out.println("You already have an existing BTO application.");
+            }
             return;
         }
 

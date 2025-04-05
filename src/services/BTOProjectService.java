@@ -23,6 +23,49 @@ import java.util.HashMap;
 public class BTOProjectService implements IBTOProjectApplicantService {
 
     /**
+     * Checks if a user is eligible to apply for a project
+     * @param user The user to check
+     * @param project The project to check against
+     * @return true if the user is eligible, false otherwise
+     */
+    public boolean isEligible(User user, BTOProject project) {
+        // Check if project is visible
+        if (!project.isVisible()) {
+            return false;
+        }
+
+        // Check if project is within application period
+        LocalDate today = LocalDate.now();
+        if (today.isBefore(project.getApplicationOpeningDate()) || 
+            today.isAfter(project.getApplicationClosingDate())) {
+            return false;
+        }
+
+        // Check if user already has an existing application
+        if (user instanceof Applicant && hasExistingApplication((Applicant) user)) {
+            return false;
+        }
+        if (user instanceof HDBOfficer && hasExistingApplication((HDBOfficer) user)) {
+            return false;
+        }
+
+        // Check if HDB officer is already assigned to the project
+        if (user instanceof HDBOfficer) {
+            HDBOfficer officer = (HDBOfficer) user;
+            // Check if officer is already handling this project
+            if (officer.getHandledProjects().contains(project)) {
+                return false;
+            }
+            // Check if officer is already assigned to this project
+            if (!canOfficerApplyForProject(project, officer)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Gets available BTO projects for a user
      * @param user The user to get projects for
      * @return List of available BTO projects
@@ -30,9 +73,7 @@ public class BTOProjectService implements IBTOProjectApplicantService {
     @Override
     public List<BTOProject> getAvailableProjects(User user) {
         return DataStore.getBTOProjectsData().values().stream()
-            .filter(project -> project.getApplicationOpeningDate().isBefore(LocalDate.now()) && 
-                    project.getApplicationClosingDate().isAfter(LocalDate.now()) &&
-                    project.isVisible())
+            .filter(project -> isEligible(user, project))
             .collect(Collectors.toList());
     }
 
