@@ -86,6 +86,12 @@ public class AuthController {
             System.out.print("NRIC: ");
             nric = sc.nextLine();
 
+            // Validate NRIC format
+            if (!isValidNRIC(nric)) {
+                System.out.println("Invalid NRIC format! NRIC must start with S or T, followed by 7 digits and end with a letter.\n");
+                continue;
+            }
+
             System.out.print("Password: ");
             password = sc.nextLine();
 
@@ -107,5 +113,41 @@ public class AuthController {
             authService.logout();
         }
         authService = null;
+    }
+
+    /**
+     * Validates if the given NRIC follows the correct format:
+     * - Starts with S or T
+     * - Followed by 7 digits
+     * - Ends with a letter
+     * 
+     * @param nric The NRIC to validate
+     * @return true if the NRIC is valid, false otherwise
+     */
+    private static boolean isValidNRIC(String nric) {
+        if (nric == null || nric.length() != 9) {
+            return false;
+        }
+        
+        // Check first character is S or T
+        char firstChar = nric.charAt(0);
+        if (firstChar != 'S' && firstChar != 'T') {
+            return false;
+        }
+        
+        // Check middle 7 characters are digits
+        for (int i = 1; i < 8; i++) {
+            if (!Character.isDigit(nric.charAt(i))) {
+                return false;
+            }
+        }
+        
+        // Check last character is a letter
+        char lastChar = nric.charAt(8);
+        if (!Character.isLetter(lastChar)) {
+            return false;
+        }
+        
+        return true;
     }
 }

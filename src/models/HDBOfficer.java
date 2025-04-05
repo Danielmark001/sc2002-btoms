@@ -4,7 +4,6 @@ import enumeration.MaritalStatus;
 import enumeration.UserType;
 import java.util.ArrayList;
 import java.util.List;
-import models.BTOProject;
 
 public class HDBOfficer extends User {
     private List<BTOProject> handledProjects;
