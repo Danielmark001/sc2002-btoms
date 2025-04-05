@@ -20,6 +20,7 @@ import enumeration.MaritalStatus;
 import models.BTOProject;
 import models.FlatTypeDetails;
 import utils.FilePathsUtils;
+import utils.EnumParser;
 import stores.DataStore;
 import view.CommonView;
 
@@ -128,7 +129,7 @@ public class CsvDataService implements IFileDataService {
 		String name = userRow[0];
 		String nric = userRow[1];
 		String age = userRow[2];
-		MaritalStatus maritalStatus = parseMaritalStatus(userRow[3]);
+		MaritalStatus maritalStatus = EnumParser.parseMaritalStatus(userRow[3]);
 		String password = userRow[4];
 
 		// Return
@@ -142,29 +143,53 @@ public class CsvDataService implements IFileDataService {
 		return userInfoMap;
 	}
 
-	private MaritalStatus parseMaritalStatus(String status) {
-		// Convert to uppercase to match enum values
-		String upperStatus = status.toUpperCase();
-		try {
-			return MaritalStatus.valueOf(upperStatus);
-		} catch (IllegalArgumentException e) {
-			// If exact match fails, try to match by display name
-			for (MaritalStatus ms : MaritalStatus.values()) {
-				if (ms.getDisplayName().equalsIgnoreCase(status)) {
-					return ms;
+	private BTOProject parseBTOProjectRow(String[] btoProjectRow) {
+		// ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers
+		String projectName = btoProjectRow[0];
+		String neighborhood = btoProjectRow[1];
+
+		Map<FlatType, FlatTypeDetails> flatTypes = new HashMap<FlatType, FlatTypeDetails>();
+
+		for (int i = 2; i < 8; i += 3) {
+			FlatType flatType = EnumParser.parseFlatType(btoProjectRow[i]);
+			int numberOfUnits = Integer.parseInt(btoProjectRow[i + 1]);
+			double sellingPrice = Double.parseDouble(btoProjectRow[i + 2]);
+
+			FlatTypeDetails flatTypeDetails = new FlatTypeDetails(numberOfUnits, sellingPrice);
+			flatTypes.put(flatType, flatTypeDetails);
+		}
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate applicationOpeningDate = LocalDate.parse(btoProjectRow[8], formatter);
+		LocalDate applicationClosingDate = LocalDate.parse(btoProjectRow[9], formatter);
+
+		String managerName = btoProjectRow[10];
+		HDBManager manager = null;
+		// Find manager by name
+		for (HDBManager m : DataStore.getHDBManagersData().values()) {
+			if (m.getName().equals(managerName)) {
+				manager = m;
+				break;
+			}
+		}
+		
+		int officerSlots = Integer.parseInt(btoProjectRow[11]);
+		
+		// Get all officers from remaining columns
+		List<HDBOfficer> hdbOfficers = new ArrayList<HDBOfficer>();
+		for (int i = 12; i < btoProjectRow.length; i++) {
+			String officerName = btoProjectRow[i];
+			// Find officer by name
+			for (HDBOfficer o : DataStore.getHDBOfficersData().values()) {
+				if (o.getName().equals(officerName)) {
+					hdbOfficers.add(o);
+					break;
 				}
 			}
-			throw new IllegalArgumentException("Invalid marital status: " + status);
 		}
-	}
 
-	private FlatType parseFlatType(String displayName) {
-		for (FlatType type : FlatType.values()) {
-			if (type.getDisplayName().equals(displayName)) {
-				return type;
-			}
-		}
-		throw new IllegalArgumentException("Invalid flat type: " + displayName);
+		return new BTOProject(projectName, neighborhood, applicationOpeningDate, applicationClosingDate, 
+							flatTypes, manager, officerSlots, hdbOfficers, true);
 	}
 
 	// ---------- Interface method implementation ---------- //
@@ -181,7 +206,7 @@ public class CsvDataService implements IFileDataService {
 			String name = applicantInfoMap.get("name");
 			String nric = applicantInfoMap.get("nric");
 			int age = Integer.parseInt(applicantInfoMap.get("age"));
-			MaritalStatus maritalStatus = parseMaritalStatus(applicantInfoMap.get("maritalStatus"));
+			MaritalStatus maritalStatus = EnumParser.parseMaritalStatus(applicantInfoMap.get("maritalStatus"));
 			String password = applicantInfoMap.get("password");
 
 			Applicant applicant = new Applicant(name, nric, age, maritalStatus, password);
@@ -228,7 +253,7 @@ public class CsvDataService implements IFileDataService {
 			String name = hdbManagerInfoMap.get("name");
 			String nric = hdbManagerInfoMap.get("nric");
 			int age = Integer.parseInt(hdbManagerInfoMap.get("age"));
-			MaritalStatus maritalStatus = parseMaritalStatus(hdbManagerInfoMap.get("maritalStatus"));
+			MaritalStatus maritalStatus = EnumParser.parseMaritalStatus(hdbManagerInfoMap.get("maritalStatus"));
 			String password = hdbManagerInfoMap.get("password");
 
 			HDBManager hdbManager = new HDBManager(name, nric, age, maritalStatus, password);
@@ -273,7 +298,7 @@ public class CsvDataService implements IFileDataService {
 			String name = hdbOfficerInfoMap.get("name");
 			String nric = hdbOfficerInfoMap.get("nric");
 			int age = Integer.parseInt(hdbOfficerInfoMap.get("age"));
-			MaritalStatus maritalStatus = parseMaritalStatus(hdbOfficerInfoMap.get("maritalStatus"));
+			MaritalStatus maritalStatus = EnumParser.parseMaritalStatus(hdbOfficerInfoMap.get("maritalStatus"));
 			String password = hdbOfficerInfoMap.get("password");
 
 			HDBOfficer hdbOfficer = new HDBOfficer(name, nric, age, maritalStatus, password);
@@ -305,55 +330,6 @@ public class CsvDataService implements IFileDataService {
 		// Write to CSV
 		boolean success = this.writeCsvFile(hdbOfficersFilePath, hdbOfficerCsvHeaders, hdbOfficerLines);
 		return success;
-	}
-
-	private BTOProject parseBTOProjectRow(String[] btoProjectRow) {
-		// ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers
-		String projectName = btoProjectRow[0];
-		String neighborhood = btoProjectRow[1];
-
-		Map<FlatType, FlatTypeDetails> flatTypes = new HashMap<FlatType, FlatTypeDetails>();
-
-		for (int i = 2; i < 8; i += 3) {
-			FlatType flatType = parseFlatType(btoProjectRow[i]);
-			int numberOfUnits = Integer.parseInt(btoProjectRow[i + 1]);
-			double sellingPrice = Double.parseDouble(btoProjectRow[i + 2]);
-
-			FlatTypeDetails flatTypeDetails = new FlatTypeDetails(numberOfUnits, sellingPrice);
-			flatTypes.put(flatType, flatTypeDetails);
-		}
-
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate applicationOpeningDate = LocalDate.parse(btoProjectRow[8], formatter);
-		LocalDate applicationClosingDate = LocalDate.parse(btoProjectRow[9], formatter);
-
-		String managerName = btoProjectRow[10];
-		HDBManager manager = null;
-		// Find manager by name
-		for (HDBManager m : DataStore.getHDBManagersData().values()) {
-			if (m.getName().equals(managerName)) {
-				manager = m;
-				break;
-			}
-		}
-		
-		int officerSlots = Integer.parseInt(btoProjectRow[11]);
-		
-		// Get all officers from remaining columns
-		List<HDBOfficer> hdbOfficers = new ArrayList<HDBOfficer>();
-		for (int i = 12; i < btoProjectRow.length; i++) {
-			String officerName = btoProjectRow[i];
-			// Find officer by name
-			for (HDBOfficer o : DataStore.getHDBOfficersData().values()) {
-				if (o.getName().equals(officerName)) {
-					hdbOfficers.add(o);
-					break;
-				}
-			}
-		}
-
-		return new BTOProject(projectName, neighborhood, applicationOpeningDate, applicationClosingDate, 
-							flatTypes, manager, officerSlots, hdbOfficers, false);
 	}
 
 	@Override

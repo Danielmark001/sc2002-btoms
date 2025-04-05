@@ -1,11 +1,14 @@
 package controllers;
 
+import enumeration.FlatType;
 import java.util.Scanner;
 import java.util.List;
 import models.Applicant;
 import models.BTOProject;
 import stores.AuthStore;
 import view.BTOProjectAvailableView;
+import services.CsvDataService;
+import utils.EnumParser;
 
 public class ApplicantController extends UserController {
 
@@ -26,6 +29,8 @@ public class ApplicantController extends UserController {
             System.out.println("2. View Available BTO Projects");
             System.out.println("3. Apply for a BTO Project");
 
+            System.out.println("0. Logout");
+
             choice = sc.nextInt();
             sc.nextLine(); // consume newline
 
@@ -43,6 +48,10 @@ public class ApplicantController extends UserController {
                 case 3:
                     applyForBTOProject();
                     break;
+                case 0:
+                    System.out.println("Logging out...");
+                    AuthController.endSession();
+                    return;
                 default:
                     System.out.println("Invalid choice. Please try again.");
             }
@@ -62,6 +71,61 @@ public class ApplicantController extends UserController {
         for (BTOProject project : availableProjects) {
             projectView.displayProjectInfo(project);
             System.out.println("----------------------------------------");
+        }
+    }
+
+    private void applyForBTOProject() {
+        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+        List<BTOProject> availableProjects = projectService.getAvailableProjects(applicant);
+
+        if (availableProjects.isEmpty()) {
+            System.out.println("\nNo available BTO projects at the moment.");
+            return;
+        }
+
+        System.out.print("Enter the project name you want to apply for (Enter X to cancel): ");
+        String projectName = sc.nextLine();
+
+        if (projectName.equalsIgnoreCase("X")) {
+            return;
+        }
+
+        BTOProject selectedProject = null;
+        for (BTOProject project : availableProjects) {
+            if (project.getProjectName().equals(projectName)) {
+                selectedProject = project;
+                break;
+            }
+        }
+
+        if (selectedProject == null) {
+            System.out.println("Invalid project name. Please try again.");
+            return;
+        }
+
+        FlatType flatType = null;
+        // if only 1 flat type is eligible, apply for it
+        if (projectService.getEligibleFlatTypes(selectedProject, applicant).size() == 1) {
+            flatType = projectService.getEligibleFlatTypes(selectedProject, applicant).keySet().iterator().next();
+        } else {
+            System.out.print("Enter the flat type you want to apply for (Enter X to cancel): ");
+            String flatTypeString = sc.nextLine();
+            if (flatTypeString.equalsIgnoreCase("X")) {
+                System.out.println("Exiting apply for BTO project...");
+                return;
+            }
+            try {
+                FlatType selectedFlatType = EnumParser.parseFlatType(flatTypeString);
+                if (projectService.getEligibleFlatTypes(selectedProject, applicant).containsKey(selectedFlatType)) {
+                    System.out.println("Applying for " + selectedFlatType + "...");
+                } else {
+                    System.out.println("Invalid flat type. Please try again.");
+                    return;
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid flat type. Please try again.");
+                return;
+            }
         }
     }
 }

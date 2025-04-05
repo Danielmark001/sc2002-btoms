@@ -6,6 +6,7 @@ import models.BTOProject;
 import models.FlatTypeDetails;
 import stores.DataStore;
 import enumeration.FlatType;
+import enumeration.MaritalStatus;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,7 +36,7 @@ public class BTOProjectApplicantService implements IBTOProjectApplicantService {
         Map<FlatType, FlatTypeDetails> eligibleFlatTypes = new HashMap<>();
         
         int age = applicant.getAge();
-        boolean isMarried = applicant.getMaritalStatus().toString().equals("MARRIED");
+        boolean isMarried = applicant.getMaritalStatus() == MaritalStatus.MARRIED;
         
         // Married applicants 21 and above can apply for any flat type
         if (isMarried && age >= 21) {
