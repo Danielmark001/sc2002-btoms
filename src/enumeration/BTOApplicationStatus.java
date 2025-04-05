@@ -3,7 +3,7 @@ package enumeration;
 /**
  * Enumeration representing the possible statuses of a BTO application
  */
-public enum ApplicationStatus {
+public enum BTOApplicationStatus {
     /**
      * Initial status upon application submission
      */
@@ -22,12 +22,7 @@ public enum ApplicationStatus {
     /**
      * Flat has been booked after successful application
      */
-    BOOKED("Booked"),
-    
-    /**
-     * Application has been withdrawn by the applicant
-     */
-    WITHDRAWN("Withdrawn");
+    BOOKED("Booked");
     
     private final String displayName;
     
@@ -35,7 +30,7 @@ public enum ApplicationStatus {
      * Constructor
      * @param displayName Display name of the status
      */
-    ApplicationStatus(String displayName) {
+    BTOApplicationStatus(String displayName) {
         this.displayName = displayName;
     }
     

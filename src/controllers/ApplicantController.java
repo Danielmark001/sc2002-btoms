@@ -4,6 +4,7 @@ import enumeration.FlatType;
 import java.util.Scanner;
 import java.util.List;
 import models.Applicant;
+import models.BTOApplication;
 import models.BTOProject;
 import stores.AuthStore;
 import view.BTOProjectAvailableView;
@@ -60,6 +61,8 @@ public class ApplicantController extends UserController {
 
     private void viewAvailableBTOProjects() {
         Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+
+        
         List<BTOProject> availableProjects = projectService.getAvailableProjects(applicant);
         
         if (availableProjects.isEmpty()) {
@@ -76,6 +79,13 @@ public class ApplicantController extends UserController {
 
     private void applyForBTOProject() {
         Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+        
+        // Check if applicant already has an application
+        if (projectService.hasExistingApplication(applicant)) {
+            System.out.println("\nYou already have an existing BTO application. Only one application is allowed at a time.");
+            return;
+        }
+        
         List<BTOProject> availableProjects = projectService.getAvailableProjects(applicant);
 
         if (availableProjects.isEmpty()) {
@@ -103,30 +113,10 @@ public class ApplicantController extends UserController {
             return;
         }
 
-        FlatType flatType = null;
-        // if only 1 flat type is eligible, apply for it
-        if (projectService.getEligibleFlatTypes(selectedProject, applicant).size() == 1) {
-            flatType = projectService.getEligibleFlatTypes(selectedProject, applicant).keySet().iterator().next();
-        } else {
-            System.out.print("Enter the flat type you want to apply for (Enter X to cancel): ");
-            String flatTypeString = sc.nextLine();
-            if (flatTypeString.equalsIgnoreCase("X")) {
-                System.out.println("Exiting apply for BTO project...");
-                return;
-            }
-            try {
-                FlatType selectedFlatType = EnumParser.parseFlatType(flatTypeString);
-                if (projectService.getEligibleFlatTypes(selectedProject, applicant).containsKey(selectedFlatType)) {
-                    System.out.println("Applying for " + selectedFlatType + "...");
-                } else {
-                    System.out.println("Invalid flat type. Please try again.");
-                    return;
-                }
-            } catch (IllegalArgumentException e) {
-                System.out.println("Invalid flat type. Please try again.");
-                return;
-            }
-        }
+        BTOApplication application = new BTOApplication(applicant, selectedProject);
+        projectService.applyForBTOProject(application);
+
+        System.out.println("Application submitted successfully. An HDB officer will contact you for flat booking if your application is successful.");
     }
 }
 

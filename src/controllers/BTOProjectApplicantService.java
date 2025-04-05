@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
+import models.BTOApplication;
 
 public class BTOProjectApplicantService implements IBTOProjectApplicantService {
 
@@ -51,5 +52,14 @@ public class BTOProjectApplicantService implements IBTOProjectApplicantService {
         }
         
         return eligibleFlatTypes;
+    }
+
+    public void applyForBTOProject(BTOApplication application) {
+        DataStore.getBTOApplicationsData().put(application.getApplicationId(), application);
+    }
+
+    public boolean hasExistingApplication(Applicant applicant) {
+        return DataStore.getBTOApplicationsData().values().stream()
+            .anyMatch(application -> application.getApplicant().equals(applicant));
     }
 }

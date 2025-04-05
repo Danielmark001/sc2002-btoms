@@ -8,6 +8,7 @@ import models.Applicant;
 import models.BTOProject;
 import models.HDBManager;
 import models.HDBOfficer;
+import models.BTOApplication;
 
 /**
  * The {@link DataStore} class provides utility methods for managing data
@@ -49,6 +50,12 @@ public class DataStore {
 	 * objects as the value.
 	 */
 	private static Map<String, BTOProject> btoProjectsData = new HashMap<String, BTOProject>();
+
+	/**
+	 * A {@link Map} containing BTO application ID as the key and {@link BTOApplication}
+	 * objects as the value.
+	 */
+	private static Map<String, BTOApplication> btoApplicationsData = new HashMap<String, BTOApplication>();
 
 	/**	 * Private constructor to prevent instantiation of the class.
 	 */
@@ -172,4 +179,12 @@ public class DataStore {
 		fileDataService.exportBTOProjectData(filePathsMap.get("btoProject"), btoProjectsData);
 	}
 	
+	// ---------- BTO Application ---------- //
+	public static Map<String, BTOApplication> getBTOApplicationsData() {
+		return DataStore.btoApplicationsData;
+	}
+
+	public static void setBTOApplicationsData(Map<String, BTOApplication> btoApplicationsData) {
+		DataStore.btoApplicationsData = btoApplicationsData;
+	}
 }
