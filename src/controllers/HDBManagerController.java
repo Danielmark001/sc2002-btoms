@@ -23,6 +23,7 @@ import models.HDBOfficerRegistration;
 import models.User;
 import models.Applicant;
 import models.Enquiry;
+import models.WithdrawalRequest;
 import services.BTOProjectService;
 import services.EnquiryService;
 import services.ReportService;
@@ -656,37 +657,39 @@ public class HDBManagerController extends UserController {
             return;
         }
         
-        // Get successful applications for these projects
-        List<BTOApplication> successfulApplications = DataStore.getBTOApplicationsData().values().stream()
-            .filter(application -> myProjects.contains(application.getProject()) && 
-                                 application.getStatus() == BTOApplicationStatus.SUCCESSFUL)
+        // Get pending withdrawal requests for these projects
+        List<WithdrawalRequest> pendingRequests = DataStore.getWithdrawalRequestsData().values().stream()
+            .filter(request -> myProjects.contains(request.getApplication().getProject()) && !request.isApproved())
             .collect(Collectors.toList());
         
-        if (successfulApplications.isEmpty()) {
-            System.out.println("No successful BTO applications found for your projects.");
+        if (pendingRequests.isEmpty()) {
+            System.out.println("No pending withdrawal requests found for your projects.");
             return;
         }
         
-        // Display successful applications
-        for (int i = 0; i < successfulApplications.size(); i++) {
-            BTOApplication application = successfulApplications.get(i);
-            System.out.println("\nApplication " + (i + 1) + ":");
+        // Display pending withdrawal requests
+        for (int i = 0; i < pendingRequests.size(); i++) {
+            WithdrawalRequest request = pendingRequests.get(i);
+            BTOApplication application = request.getApplication();
+            System.out.println("\nRequest " + (i + 1) + ":");
+            System.out.println("Request ID: " + request.getRequestId());
             System.out.println("Application ID: " + application.getApplicationId());
             System.out.println("Applicant: " + application.getApplicant().getName() + " (" + application.getApplicant().getNric() + ")");
             System.out.println("Project: " + application.getProject().getProjectName());
-            System.out.println("Flat Type: " + application.getFlatType().getDisplayName());
+            System.out.println("Requested At: " + request.getRequestedAt());
+            System.out.println("----------------------------------------");
         }
         
-        // Select application to approve/reject withdrawal
-        System.out.print("Enter application number to approve/reject withdrawal (0 to cancel): ");
-        int choice = 0;
+        // Select request to approve/reject
+        System.out.print("\nEnter request number to approve/reject (0 to cancel): ");
+        int choice;
         try {
             choice = Integer.parseInt(sc.nextLine());
             if (choice == 0) {
                 return;
             }
-            if (choice < 1 || choice > successfulApplications.size()) {
-                System.out.println("Invalid application number.");
+            if (choice < 1 || choice > pendingRequests.size()) {
+                System.out.println("Invalid request number.");
                 return;
             }
         } catch (NumberFormatException e) {
@@ -694,22 +697,25 @@ public class HDBManagerController extends UserController {
             return;
         }
         
-        BTOApplication application = successfulApplications.get(choice - 1);
-        BTOProject project = application.getProject();
+        WithdrawalRequest selectedRequest = pendingRequests.get(choice - 1);
+        BTOApplication application = selectedRequest.getApplication();
         
-        System.out.print("Approve withdrawal? (yes/no): ");
+        // Check if application is already booked
+        if (application.getStatus() == BTOApplicationStatus.BOOKED) {
+            System.out.println("\nCannot process withdrawal for an application that has already been booked.");
+            return;
+        }
+        
+        System.out.print("Approve withdrawal request? (yes/no): ");
         String approval = sc.nextLine().toLowerCase();
         
         if (approval.equals("yes")) {
-            // Increase the number of available units
-            FlatTypeDetails flatTypeDetails = project.getFlatTypes().get(application.getFlatType());
-            flatTypeDetails.setUnits(flatTypeDetails.getUnits() + 1);
-            
-            // Remove the application
-            DataStore.getBTOApplicationsData().remove(application.getApplicationId());
-            System.out.println("Withdrawal approved successfully!");
+            selectedRequest.approve(hdbManager.getName());
+            System.out.println("Withdrawal request approved successfully!");
+            System.out.println("The application has been marked as unsuccessful.");
         } else {
-            System.out.println("Withdrawal rejected.");
+            selectedRequest.reject(hdbManager.getName());
+            System.out.println("Withdrawal request rejected.");
         }
         
         DataStore.saveData();
@@ -1004,4 +1010,3 @@ public class HDBManagerController extends UserController {
         }
     }
 }
-

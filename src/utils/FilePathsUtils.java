@@ -45,6 +45,7 @@ public class FilePathsUtils {
 		filePathsMap.put("btoApplication", "data/BTOApplicationList.csv");
 		filePathsMap.put("hdbOfficerRegistrations", "data/HDBOfficerRegistrationList.csv");
 		filePathsMap.put("enquiry", "data/EnquiryList.csv");
+		filePathsMap.put("withdrawalRequest", "data/WithdrawalRequestList.csv");
 
 		return filePathsMap;
 	}

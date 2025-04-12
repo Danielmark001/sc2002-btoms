@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import services.EnquiryService;
 import models.FlatTypeDetails;
 import java.util.Map;
+import models.WithdrawalRequest;
 
 public class ApplicantController extends UserController {
 
@@ -282,7 +283,81 @@ public class ApplicantController extends UserController {
     }
 
     protected void withdrawBTOApplication() {
-        // Implementation of withdrawBTOApplication method
+        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+        
+        // Get all applications for this applicant
+        List<BTOApplication> myApplications = projectService.getApplicationsByApplicant(applicant);
+        
+        if (myApplications.isEmpty()) {
+            System.out.println("\nYou have no BTO applications to withdraw.");
+            return;
+        }
+        
+        // Display applications
+        System.out.println("\n===== Your BTO Applications =====");
+        for (int i = 0; i < myApplications.size(); i++) {
+            BTOApplication application = myApplications.get(i);
+            System.out.println("\n" + (i + 1) + ". Application ID: " + application.getApplicationId());
+            System.out.println("   Project: " + application.getProject().getProjectName());
+            System.out.println("   Status: " + application.getStatus());
+            if (application.getFlatType() != null) {
+                System.out.println("   Flat Type: " + application.getFlatType().getDisplayName());
+            }
+            System.out.println("----------------------------------------");
+        }
+        
+        // Select application to withdraw
+        System.out.print("\nEnter application number to withdraw (0 to cancel): ");
+        int choice;
+        try {
+            choice = Integer.parseInt(sc.nextLine());
+            if (choice == 0) {
+                return;
+            }
+            if (choice < 1 || choice > myApplications.size()) {
+                System.out.println("Invalid application number.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+            return;
+        }
+        
+        BTOApplication selectedApplication = myApplications.get(choice - 1);
+        
+        // Check if application is already booked
+        if (selectedApplication.getStatus() == BTOApplicationStatus.BOOKED) {
+            System.out.println("\nCannot withdraw an application that has already been booked.");
+            return;
+        }
+        
+        // Check if there's already a pending withdrawal request
+        boolean hasPendingRequest = DataStore.getWithdrawalRequestsData().values().stream()
+            .anyMatch(request -> request.getApplication().equals(selectedApplication) && !request.isApproved());
+        
+        if (hasPendingRequest) {
+            System.out.println("\nYou already have a pending withdrawal request for this application.");
+            return;
+        }
+        
+        // Confirm withdrawal
+        System.out.print("Are you sure you want to withdraw your application for " + 
+                        selectedApplication.getProject().getProjectName() + "? (yes/no): ");
+        String confirmation = sc.nextLine().toLowerCase();
+        
+        if (!confirmation.equals("yes")) {
+            System.out.println("Withdrawal cancelled.");
+            return;
+        }
+        
+        // Create withdrawal request
+        WithdrawalRequest request = new WithdrawalRequest(selectedApplication);
+        DataStore.getWithdrawalRequestsData().put(request.getRequestId(), request);
+        DataStore.saveData();
+        
+        System.out.println("\nWithdrawal request submitted successfully!");
+        System.out.println("Request ID: " + request.getRequestId());
+        System.out.println("An HDB officer will process your request shortly.");
     }
 
     /**

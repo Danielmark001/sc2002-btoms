@@ -11,6 +11,7 @@ import models.HDBOfficer;
 import models.BTOApplication;
 import models.HDBOfficerRegistration;
 import models.Enquiry;
+import models.WithdrawalRequest;
 
 /**
  * The {@link DataStore} class provides utility methods for managing data
@@ -71,6 +72,12 @@ public class DataStore {
 	 */
 	private static Map<String, Enquiry> enquiriesData = new HashMap<String, Enquiry>();
 
+	/**
+	 * A {@link Map} containing withdrawal request ID as the key and {@link WithdrawalRequest}
+	 * objects as the value.
+	 */
+	private static Map<String, WithdrawalRequest> withdrawalRequestsData = new HashMap<>();
+
 	/**	 * Private constructor to prevent instantiation of the class.
 	 */
 	private DataStore() {
@@ -100,6 +107,7 @@ public class DataStore {
 		DataStore.btoApplicationsData = fileDataService.importBTOApplicationData(filePathsMap.get("btoApplication"));
 		DataStore.hdbOfficerRegistrationsData = fileDataService.importHDBOfficerRegistrationData(filePathsMap.get("hdbOfficerRegistrations"));
 		DataStore.enquiriesData = fileDataService.importEnquiryData(filePathsMap.get("enquiry"));
+		DataStore.withdrawalRequestsData = fileDataService.importWithdrawalRequestData(filePathsMap.get("withdrawalRequest"));
 
 		// Set up handled projects for HDB officers
 		for (BTOProject project : btoProjectsData.values()) {
@@ -125,6 +133,7 @@ public class DataStore {
 		DataStore.setBTOApplicationsData(btoApplicationsData);
 		DataStore.setHDBOfficerRegistrationsData(hdbOfficerRegistrationsData);
 		DataStore.setEnquiriesData(enquiriesData);
+		DataStore.setWithdrawalRequestsData(withdrawalRequestsData);
 
 		return true;
 	}
@@ -248,5 +257,22 @@ public class DataStore {
 	public static void setEnquiriesData(Map<String, Enquiry> enquiriesData) {
 		DataStore.enquiriesData = enquiriesData;
 		fileDataService.exportEnquiryData(filePathsMap.get("enquiry"), enquiriesData);
+	}
+
+	/**
+	 * Gets the map of withdrawal requests data
+	 * @return The map of withdrawal requests data
+	 */
+	public static Map<String, WithdrawalRequest> getWithdrawalRequestsData() {
+		return withdrawalRequestsData;
+	}
+
+	/**
+	 * Sets the map of withdrawal requests data
+	 * @param withdrawalRequestsData The map of withdrawal requests data
+	 */
+	public static void setWithdrawalRequestsData(Map<String, WithdrawalRequest> withdrawalRequestsData) {
+		DataStore.withdrawalRequestsData = withdrawalRequestsData;
+		fileDataService.exportWithdrawalRequestData(filePathsMap.get("withdrawalRequest"), withdrawalRequestsData);
 	}
 }

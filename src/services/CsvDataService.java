@@ -28,6 +28,7 @@ import view.CommonView;
 import models.User;
 import models.HDBOfficerRegistration;
 import models.Enquiry;
+import models.WithdrawalRequest;
 
 /**
  * The {@link CsvDataService} class implements the {@link IFileDataService}
@@ -72,6 +73,11 @@ public class CsvDataService implements IFileDataService {
 	private static List<String> enquiryCsvHeaders = new ArrayList<String>();
 
 	/**
+	 * The list of headers for the CSV file that stores withdrawal request data.
+	 */
+	private static List<String> withdrawalRequestCsvHeaders = new ArrayList<String>();
+
+	/**
 	 * Constructs an instance of the {@link CsvDataService} class.
 	 */
     public CsvDataService() {
@@ -83,6 +89,15 @@ public class CsvDataService implements IFileDataService {
 	 * Initializes all CSV headers for different data types
 	 */
 	private void initializeHeaders() {
+		//clear all headers
+		applicantCsvHeaders.clear();
+		hdbManagerCsvHeaders.clear();
+		hdbOfficerCsvHeaders.clear();
+		btoProjectCsvHeaders.clear();
+		btoApplicationCsvHeaders.clear();
+		hdbOfficerRegistrationCsvHeaders.clear();
+		enquiryCsvHeaders.clear();
+		withdrawalRequestCsvHeaders.clear();
 		// User-related headers (Applicant, HDBManager, HDBOfficer)
 		List<String> userHeaders = List.of("Name", "NRIC", "Age", "MaritalStatus", "Password");
 		applicantCsvHeaders.addAll(userHeaders);
@@ -110,6 +125,11 @@ public class CsvDataService implements IFileDataService {
 		enquiryCsvHeaders.addAll(List.of(
 			"EnquiryID", "ApplicantNRIC", "ProjectName", "Message", "Reply", "CreatedAt", "RepliedAt"
 		));
+
+		// Withdrawal Request headers
+		withdrawalRequestCsvHeaders.addAll(List.of(
+			"RequestId", "ApplicationId", "RequestedAt", "IsApproved", "ProcessedAt", "ProcessedBy"
+		));
 	}
 
 	/**
@@ -133,6 +153,8 @@ public class CsvDataService implements IFileDataService {
 				return new ArrayList<>(hdbOfficerRegistrationCsvHeaders);
 			case "enquiry":
 				return new ArrayList<>(enquiryCsvHeaders);
+			case "withdrawalRequest":
+				return new ArrayList<>(withdrawalRequestCsvHeaders);
 			default:
 				return new ArrayList<>();
 		}
@@ -160,7 +182,8 @@ public class CsvDataService implements IFileDataService {
 								filePath.contains("BTOProject") ? "btoProject" :
 								filePath.contains("BTOApplication") ? "btoApplication" :
 								filePath.contains("HDBOfficerRegistration") ? "hdbOfficerRegistration" :
-								filePath.contains("Enquiry") ? "enquiry" : "";
+								filePath.contains("Enquiry") ? "enquiry" :
+								filePath.contains("WithdrawalRequest") ? "withdrawalRequest" : "";
 				
 				headers.addAll(getHeadersForFileType(fileType));
 				return dataList;
@@ -632,5 +655,60 @@ public class CsvDataService implements IFileDataService {
 		}
 
 		return this.writeCsvFile(enquiryFilePath, enquiryCsvHeaders, enquiryLines);
+	}
+
+	@Override
+	public Map<String, WithdrawalRequest> importWithdrawalRequestData(String withdrawalRequestFilePath) {
+		Map<String, WithdrawalRequest> withdrawalRequestMap = new HashMap<String, WithdrawalRequest>();
+
+		List<String[]> withdrawalRequestRows = this.readCsvFile(withdrawalRequestFilePath);
+
+		for (String[] withdrawalRequestRow : withdrawalRequestRows) {
+			WithdrawalRequest request = parseWithdrawalRequestRow(withdrawalRequestRow);
+			if (request != null) {
+				withdrawalRequestMap.put(request.getRequestId(), request);
+			}
+		}
+
+		return withdrawalRequestMap;
+	}
+
+	private WithdrawalRequest parseWithdrawalRequestRow(String[] withdrawalRequestRow) {
+		String requestId = withdrawalRequestRow[0];
+		String applicationId = withdrawalRequestRow[1];
+		LocalDateTime requestedAt = LocalDateTime.parse(withdrawalRequestRow[2]);
+		boolean isApproved = Boolean.parseBoolean(withdrawalRequestRow[3]);
+		LocalDateTime processedAt = withdrawalRequestRow[4].equals("null") ? null : LocalDateTime.parse(withdrawalRequestRow[4]);
+		String processedBy = withdrawalRequestRow[5].equals("null") ? null : withdrawalRequestRow[5];
+
+		BTOApplication application = DataStore.getBTOApplicationsData().get(applicationId);
+		if (application == null) {
+			System.out.println("Warning: Skipping invalid withdrawal request " + requestId + 
+				" - Application not found: " + applicationId);
+			return null;
+		}
+
+		WithdrawalRequest request = new WithdrawalRequest(application);
+		request.approve(processedBy);
+		return request;
+	}
+
+	@Override
+	public boolean exportWithdrawalRequestData(String withdrawalRequestFilePath, Map<String, WithdrawalRequest> withdrawalRequestMap) {
+		List<String> withdrawalRequestLines = new ArrayList<String>();
+
+		for (WithdrawalRequest request : withdrawalRequestMap.values()) {
+			StringBuilder line = new StringBuilder();
+			line.append(request.getRequestId()).append(",");
+			line.append(request.getApplication().getApplicationId()).append(",");
+			line.append(request.getRequestedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).append(",");
+			line.append(request.isApproved()).append(",");
+			line.append(request.getProcessedAt() != null ? request.getProcessedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "null").append(",");
+			line.append(request.getProcessedBy() != null ? request.getProcessedBy() : "null");
+			
+			withdrawalRequestLines.add(line.toString());
+		}
+
+		return this.writeCsvFile(withdrawalRequestFilePath, withdrawalRequestCsvHeaders, withdrawalRequestLines);
 	}
 }
