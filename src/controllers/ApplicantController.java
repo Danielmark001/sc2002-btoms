@@ -357,7 +357,7 @@ public class ApplicantController extends UserController {
         
         System.out.println("\nWithdrawal request submitted successfully!");
         System.out.println("Request ID: " + request.getRequestId());
-        System.out.println("An HDB officer will process your request shortly.");
+        System.out.println("Please wait for the HDB manager to process your request.");
     }
 
     /**
