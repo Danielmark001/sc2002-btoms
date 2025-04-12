@@ -10,6 +10,7 @@ import models.HDBManager;
 import models.HDBOfficer;
 import models.BTOApplication;
 import models.HDBOfficerRegistration;
+import models.Enquiry;
 
 /**
  * The {@link DataStore} class provides utility methods for managing data
@@ -64,6 +65,12 @@ public class DataStore {
 	 */
 	private static Map<String, HDBOfficerRegistration> hdbOfficerRegistrationsData = new HashMap<String, HDBOfficerRegistration>();
 
+	/**
+	 * A {@link Map} containing enquiry ID as the key and {@link Enquiry}
+	 * objects as the value.
+	 */
+	private static Map<String, Enquiry> enquiriesData = new HashMap<String, Enquiry>();
+
 	/**	 * Private constructor to prevent instantiation of the class.
 	 */
 	private DataStore() {
@@ -92,6 +99,7 @@ public class DataStore {
 		DataStore.btoProjectsData = fileDataService.importBTOProjectData(filePathsMap.get("btoProject"));
 		DataStore.btoApplicationsData = fileDataService.importBTOApplicationData(filePathsMap.get("btoApplication"));
 		DataStore.hdbOfficerRegistrationsData = fileDataService.importHDBOfficerRegistrationData(filePathsMap.get("hdbOfficerRegistrations"));
+		DataStore.enquiriesData = fileDataService.importEnquiryData(filePathsMap.get("enquiry"));
 
 		// Set up handled projects for HDB officers
 		for (BTOProject project : btoProjectsData.values()) {
@@ -116,6 +124,7 @@ public class DataStore {
 		DataStore.setBTOProjectsData(btoProjectsData);
 		DataStore.setBTOApplicationsData(btoApplicationsData);
 		DataStore.setHDBOfficerRegistrationsData(hdbOfficerRegistrationsData);
+		DataStore.setEnquiriesData(enquiriesData);
 
 		return true;
 	}
@@ -208,7 +217,7 @@ public class DataStore {
 	}
 
 	/**
-	 * Gets the map of HDB officer registrations data.
+	 * Gets the map of HDB officer registrations data
 	 * @return The map of HDB officer registrations data
 	 */
 	public static Map<String, HDBOfficerRegistration> getHDBOfficerRegistrationsData() {
@@ -216,11 +225,28 @@ public class DataStore {
 	}
 
 	/**
-	 * Sets the HDB officer registrations data map and saves the data to the file system.
+	 * Sets the map of HDB officer registrations data
 	 * @param hdbOfficerRegistrationsData The map of HDB officer registrations data
 	 */
 	public static void setHDBOfficerRegistrationsData(Map<String, HDBOfficerRegistration> hdbOfficerRegistrationsData) {
 		DataStore.hdbOfficerRegistrationsData = hdbOfficerRegistrationsData;
 		fileDataService.exportHDBOfficerRegistrationData(filePathsMap.get("hdbOfficerRegistrations"), hdbOfficerRegistrationsData);
+	}
+
+	/**
+	 * Gets the map of enquiries data
+	 * @return The map of enquiries data
+	 */
+	public static Map<String, Enquiry> getEnquiriesData() {
+		return enquiriesData;
+	}
+
+	/**
+	 * Sets the map of enquiries data
+	 * @param enquiriesData The map of enquiries data
+	 */
+	public static void setEnquiriesData(Map<String, Enquiry> enquiriesData) {
+		DataStore.enquiriesData = enquiriesData;
+		fileDataService.exportEnquiryData(filePathsMap.get("enquiry"), enquiriesData);
 	}
 }

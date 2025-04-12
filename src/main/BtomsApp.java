@@ -66,6 +66,7 @@ public class BtomsApp {
 					case HDB_MANAGER:
 						new HDBManagerController((models.HDBManager)user).start();
 						break;
+					
 				}
 			} while (true);
 		} catch (Exception e) {

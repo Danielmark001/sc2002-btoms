@@ -8,6 +8,7 @@ import models.HDBManager;
 import models.HDBOfficer;
 import models.BTOApplication;
 import models.HDBOfficerRegistration;
+import models.Enquiry;
 
 /**
  * The {@link IFileDataService} interface defines a contract for importing and
@@ -129,4 +130,20 @@ public interface IFileDataService {
 	 * @return true if the export was successful, false otherwise
 	 */
 	boolean exportHDBOfficerRegistrationData(String hdbOfficerRegistrationsFilePath, Map<String, HDBOfficerRegistration> hdbOfficerRegistrationMap);
+
+	// ---------- Enquiry ---------- //
+	/**
+	 * Imports enquiry data from a CSV file.
+	 * @param enquiryFilePath The file path of the CSV file
+	 * @return A map of enquiry data
+	 */
+	Map<String, Enquiry> importEnquiryData(String enquiryFilePath);
+
+	/**
+	 * Exports enquiry data to a CSV file.
+	 * @param enquiryFilePath The file path of the CSV file
+	 * @param enquiryMap The map of enquiry data
+	 * @return true if the export was successful, false otherwise
+	 */
+	boolean exportEnquiryData(String enquiryFilePath, Map<String, Enquiry> enquiryMap);
 }
