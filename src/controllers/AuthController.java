@@ -114,6 +114,7 @@ public class AuthController {
 
             if (choice == 0) {
                 System.out.println("Shutting down BTOMS...");
+                System.exit(0);
                 return;
             }
 

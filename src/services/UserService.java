@@ -2,9 +2,6 @@ package services;
 
 import interfaces.IUserService;
 import models.User;
-import models.Applicant;
-import models.HDBOfficer;
-import models.HDBManager;
 import stores.AuthStore;
 import stores.DataStore;
 

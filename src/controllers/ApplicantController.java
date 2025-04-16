@@ -239,8 +239,8 @@ public class ApplicantController extends UserController {
                 System.out.println("Invalid project number.");
                 return;
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a number.");
+        } catch (Exception e) {
+            System.out.println("Invalid input. Please enter a valid project number.");
             return;
         }
         
@@ -329,8 +329,8 @@ public class ApplicantController extends UserController {
                 System.out.println("Invalid application number.");
                 return;
             }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a number.");
+        } catch (Exception e) {
+            System.out.println("Invalid input. Please enter a valid application number.");
             return;
         }
         
