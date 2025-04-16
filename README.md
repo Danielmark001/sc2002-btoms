@@ -1,6 +1,7 @@
 # Build-To-Order Management System
 
 ![UML Class Diagram](https://img.shields.io/badge/UML%20Class%20Diagram-1976D2?style=for-the-badge&logoColor=white)
+![UML Sequence Diagram](https://img.shields.io/badge/UML%20Sequence%20Diagram-1976D2?style=for-the-badge&logoColor=white)
 ![Solid Design Principles](https://img.shields.io/badge/SOLID%20Design%20Principles-C71A36?style=for-the-badge&logoColor=white)
 ![OOP Concepts](https://img.shields.io/badge/OOP%20Concepts-C71A36?style=for-the-badge&logoColor=white)
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=java&logoColor=white)
@@ -13,7 +14,7 @@
 
 
 **Docs:** [Report](https://github.com/Danielmark001/sc2002-btoms/blob/main/report.pdf) | 
-[UML Class Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-class-diagram.jpg) |
+[UML Class Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-class-diagram.pdf) |
 [UML Sequence Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-sequence-diagram.png) | 
 [Java Docs](https://Danielmark001.github.io/sc2002_btoms/module-summary.html)
 

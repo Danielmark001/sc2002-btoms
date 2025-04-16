@@ -831,105 +831,109 @@ do {
     /**
      * View and reply to project enquiries
      */
-    private void viewAndReplyToProjectEnquiries() {
-        // Get all BTO projects
-        List<BTOProject> projects = new ArrayList<BTOProject>(DataStore.getBTOProjectsData().values());
-        
-        if (projects.isEmpty()) {
-            System.out.println("\nThere are no BTO projects available.");
-            return;
-        }
-        
-        // Display projects
-        System.out.println("\n===== BTO Projects =====");
-        for (int i = 0; i < projects.size(); i++) {
-            BTOProject project = projects.get(i);
-            System.out.println((i + 1) + ". " + project.getProjectName());
-        }
-        
-        // Select project
-        System.out.print("\nEnter project number: ");
-        int projectChoice;
-        try {
-            projectChoice = Integer.parseInt(sc.nextLine());
-            if (projectChoice < 1 || projectChoice > projects.size()) {
-                System.out.println("Invalid project number.");
-                return;
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a number.");
-            return;
-        }
-        
-        BTOProject selectedProject = projects.get(projectChoice - 1);
-        
-        // Get enquiries for selected project
-        List<Enquiry> projectEnquiries = enquiryService.getEnquiriesByProject(selectedProject);
-        
-        if (projectEnquiries.isEmpty()) {
-            System.out.println("\nThere are no enquiries for this project.");
-            return;
-        }
-        
-        // Display enquiries
-        System.out.println("\n===== Project Enquiries =====");
-        for (int i = 0; i < projectEnquiries.size(); i++) {
-            Enquiry enquiry = projectEnquiries.get(i);
-            System.out.println("\n" + (i + 1) + ". Enquiry ID: " + enquiry.getEnquiryId());
-            System.out.println("   Applicant: " + enquiry.getApplicant().getName() + " (" + enquiry.getApplicant().getNric() + ")");
-            System.out.println("   Message: " + enquiry.getMessage());
-            System.out.println("   Submitted: " + enquiry.getCreatedAt());
-            if (enquiry.hasReply()) {
-                System.out.println("   Reply: " + enquiry.getReply());
-                System.out.println("   Replied: " + enquiry.getRepliedAt());
-            } else {
-                System.out.println("   Status: Pending reply");
-            }
-            System.out.println("----------------------------------------");
-        }
-        
-        // Select enquiry to reply
-        System.out.print("\nEnter enquiry number to reply (0 to cancel): ");
-        int choice;
-        try {
-            choice = Integer.parseInt(sc.nextLine());
-            if (choice == 0) {
-                return;
-            }
-            if (choice < 1 || choice > projectEnquiries.size()) {
-                System.out.println("Invalid enquiry number.");
-                return;
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a number.");
-            return;
-        }
-        
-        Enquiry selectedEnquiry = projectEnquiries.get(choice - 1);
-        
-        // Check if already replied
-        if (selectedEnquiry.hasReply()) {
-            System.out.println("\nThis enquiry has already been replied to.");
-            return;
-        }
-        
-        // Get reply
-        System.out.print("Enter your reply: ");
-        String reply = sc.nextLine();
-        
-        if (reply.trim().isEmpty()) {
-            System.out.println("Reply cannot be empty.");
-            return;
-        }
-        
-        // Use the service to reply
-        if (enquiryService.replyToEnquiry(selectedEnquiry, reply)) {
-            System.out.println("\nReply submitted successfully!");
-        } else {
-            System.out.println("\nFailed to submit reply.");
-        }
+    /**
+ * View and reply to project enquiries for projects managed by this HDB Manager
+ */
+private void viewAndReplyToProjectEnquiries() {
+    // Get projects managed by this HDB Manager
+    List<BTOProject> managedProjects = DataStore.getBTOProjectsData().values().stream()
+        .filter(project -> project.getHDBManager().equals(hdbManager))
+        .collect(Collectors.toList());
+    
+    if (managedProjects.isEmpty()) {
+        System.out.println("\nYou have not created any projects.");
+        return;
     }
-
+    
+    // Display managed projects
+    System.out.println("\n===== Your Managed Projects =====");
+    for (int i = 0; i < managedProjects.size(); i++) {
+        BTOProject project = managedProjects.get(i);
+        System.out.println((i + 1) + ". " + project.getProjectName());
+    }
+    
+    // Select project
+    System.out.print("\nEnter project number: ");
+    int projectChoice;
+    try {
+        projectChoice = Integer.parseInt(sc.nextLine());
+        if (projectChoice < 1 || projectChoice > managedProjects.size()) {
+            System.out.println("Invalid project number.");
+            return;
+        }
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input. Please enter a number.");
+        return;
+    }
+    
+    BTOProject selectedProject = managedProjects.get(projectChoice - 1);
+    
+    // Get enquiries for selected project
+    List<Enquiry> projectEnquiries = enquiryService.getEnquiriesByProject(selectedProject);
+    
+    if (projectEnquiries.isEmpty()) {
+        System.out.println("\nThere are no enquiries for this project.");
+        return;
+    }
+    
+    // Display enquiries
+    System.out.println("\n===== Project Enquiries =====");
+    for (int i = 0; i < projectEnquiries.size(); i++) {
+        Enquiry enquiry = projectEnquiries.get(i);
+        System.out.println("\n" + (i + 1) + ". Enquiry ID: " + enquiry.getEnquiryId());
+        System.out.println("   Applicant: " + enquiry.getApplicant().getName() + " (" + enquiry.getApplicant().getNric() + ")");
+        System.out.println("   Message: " + enquiry.getMessage());
+        System.out.println("   Submitted: " + enquiry.getCreatedAt());
+        if (enquiry.hasReply()) {
+            System.out.println("   Reply: " + enquiry.getReply());
+            System.out.println("   Replied: " + enquiry.getRepliedAt());
+        } else {
+            System.out.println("   Status: Pending reply");
+        }
+        System.out.println("----------------------------------------");
+    }
+    
+    // Select enquiry to reply
+    System.out.print("\nEnter enquiry number to reply (0 to cancel): ");
+    int choice;
+    try {
+        choice = Integer.parseInt(sc.nextLine());
+        if (choice == 0) {
+            return;
+        }
+        if (choice < 1 || choice > projectEnquiries.size()) {
+            System.out.println("Invalid enquiry number.");
+            return;
+        }
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input. Please enter a number.");
+        return;
+    }
+    
+    Enquiry selectedEnquiry = projectEnquiries.get(choice - 1);
+    
+    // Check if already replied
+    if (selectedEnquiry.hasReply()) {
+        System.out.println("\nThis enquiry has already been replied to.");
+        return;
+    }
+    
+    // Get reply
+    System.out.print("Enter your reply: ");
+    String reply = sc.nextLine();
+    
+    if (reply.trim().isEmpty()) {
+        System.out.println("Reply cannot be empty.");
+        return;
+    }
+    
+    // Use the service to reply
+    if (enquiryService.replyToEnquiry(selectedEnquiry, reply)) {
+        System.out.println("\nReply submitted successfully!");
+    } else {
+        System.out.println("\nFailed to submit reply.");
+    }
+}
     /**
      * Select a project from a list
      * @param prompt The prompt to display
