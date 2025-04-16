@@ -73,9 +73,21 @@ public class BTOProjectService implements IBTOProjectService {
     @Override
     public List<BTOProject> getAvailableProjects(User user) {
         return DataStore.getBTOProjectsData().values().stream()
-            .filter(project -> isEligible(user, project))
-            .collect(Collectors.toList());
+                .filter(project -> isEligible(user, project))
+                .collect(Collectors.toList());
     }
+    /**
+ * Gets all visible BTO projects regardless of application status
+ * @param user The user requesting projects
+ * @return List of all visible BTO projects
+ */
+public List<BTOProject> getEnquirableProjects(User user) {
+    return DataStore.getBTOProjectsData().values().stream()
+        .filter(project -> project.isVisible() || 
+                          DataStore.getBTOApplicationsData().values().stream()
+                              .anyMatch(app -> app.getApplicant().equals(user) && app.getProject().equals(project)))
+        .collect(Collectors.toList());
+}
 
     /**
      * Gets a filtered map of flat types that the applicant is eligible for

@@ -36,6 +36,7 @@ public class ApplicantController extends UserController {
         this.applicationView = new BTOApplicationView();
         this.enquiryService = new EnquiryService();
     }
+    
 
     public void start() {
         int choice;
@@ -205,62 +206,67 @@ public class ApplicantController extends UserController {
             applicationView.displayApplicationInfo(application);
         }
     }
+    
 
     /**
      * Submit an enquiry about a BTO project
      */
-    protected void submitEnquiry() {
-        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
-        
-        // Get available projects
-        List<BTOProject> availableProjects = projectService.getAvailableProjects(applicant);
-        
-        if (availableProjects.isEmpty()) {
-            System.out.println("\nNo available BTO projects at the moment.");
-            return;
-        }
-        
-        // Display available projects
-        System.out.println("\nAvailable BTO Projects:");
-        for (int i = 0; i < availableProjects.size(); i++) {
-            BTOProject project = availableProjects.get(i);
-            System.out.println((i + 1) + ". " + project.getProjectName());
-        }
-        
-        // Select project
-        System.out.print("\nEnter project number (0 to cancel): ");
-        int projectChoice;
-        try {
-            projectChoice = Integer.parseInt(sc.nextLine());
-            if (projectChoice == 0) {
-                return;
-            }
-            if (projectChoice < 1 || projectChoice > availableProjects.size()) {
-                System.out.println("Invalid project number.");
-                return;
-            }
-        } catch (Exception e) {
-            System.out.println("Invalid input. Please enter a valid project number.");
-            return;
-        }
-        
-        BTOProject selectedProject = availableProjects.get(projectChoice - 1);
-        
-        // Get enquiry message
-        System.out.print("Enter your enquiry message: ");
-        String message = sc.nextLine();
-        
-        if (message.trim().isEmpty()) {
-            System.out.println("Enquiry message cannot be empty.");
-            return;
-        }
-        
-        // Use the service to create enquiry
-        Enquiry enquiry = enquiryService.createEnquiry(applicant, selectedProject, message);
-        
-        System.out.println("\nEnquiry submitted successfully!");
-        System.out.println("Enquiry ID: " + enquiry.getEnquiryId());
+    /**
+    * Submit an enquiry about a BTO project
+    * 
+    */
+protected void submitEnquiry() {
+    Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+    
+    // Use the new method to get all enquirable projects instead of just available ones
+    List<BTOProject> enquirableProjects = projectService.getEnquirableProjects(applicant);
+    
+    if (enquirableProjects.isEmpty()) {
+        System.out.println("\nNo BTO projects available for enquiry at the moment.");
+        return;
     }
+    
+    // Display available projects
+    System.out.println("\nProjects Available for Enquiry:");
+    for (int i = 0; i < enquirableProjects.size(); i++) {
+        BTOProject project = enquirableProjects.get(i);
+        System.out.println((i + 1) + ". " + project.getProjectName());
+    }
+    
+    // Select project
+    System.out.print("\nEnter project number (0 to cancel): ");
+    int projectChoice;
+    try {
+        projectChoice = Integer.parseInt(sc.nextLine());
+        if (projectChoice == 0) {
+            return;
+        }
+        if (projectChoice < 1 || projectChoice > enquirableProjects.size()) {
+            System.out.println("Invalid project number.");
+            return;
+        }
+    } catch (Exception e) {
+        System.out.println("Invalid input. Please enter a valid project number.");
+        return;
+    }
+    
+    BTOProject selectedProject = enquirableProjects.get(projectChoice - 1);
+    
+    // Get enquiry message
+    System.out.print("Enter your enquiry message: ");
+    String message = sc.nextLine();
+    
+    if (message.trim().isEmpty()) {
+        System.out.println("Enquiry message cannot be empty.");
+        return;
+    }
+    
+    // Use the service to create enquiry
+    Enquiry enquiry = enquiryService.createEnquiry(applicant, selectedProject, message);
+    
+    System.out.println("\nEnquiry submitted successfully!");
+    System.out.println("Enquiry ID: " + enquiry.getEnquiryId());
+}
 
     /**
      * View enquiries submitted by the applicant
