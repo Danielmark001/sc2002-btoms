@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import enumeration.BTOApplicationStatus;
 import enumeration.FlatType;
-import enumeration.HDBOfficerRegistrationStatus;
+import enumeration.RegistrationStatus;
 import enumeration.MaritalStatus;
 import models.BTOApplication;
 import models.BTOProject;
@@ -20,9 +20,9 @@ import models.FlatTypeDetails;
 import models.HDBManager;
 import models.HDBOfficer;
 import models.HDBOfficerRegistration;
-import models.User;
 import services.BTOProjectService;
 import stores.DataStore;
+
 
 /**
  * Controller for HDB Manager operations
@@ -611,7 +611,7 @@ public class HDBManagerController extends UserController {
         // Get pending registrations for these projects
         List<HDBOfficerRegistration> pendingRegistrations = DataStore.getHDBOfficerRegistrationsData().values().stream()
             .filter(registration -> myProjects.contains(registration.getProject()) && 
-                                  registration.getStatus() == HDBOfficerRegistrationStatus.PENDING)
+                                  registration.getStatus() == RegistrationStatus.PENDING)
             .collect(Collectors.toList());
         
         if (pendingRegistrations.isEmpty()) {
@@ -659,12 +659,12 @@ public class HDBManagerController extends UserController {
         String approval = sc.nextLine().toLowerCase();
         
         if (approval.equals("yes")) {
-            registration.setStatus(HDBOfficerRegistrationStatus.APPROVED);
+            registration.setStatus(RegistrationStatus.APPROVED);
             project.addHDBOfficer(officer);
             officer.addHandledProject(project);
             System.out.println("Registration approved successfully!");
         } else {
-            registration.setStatus(HDBOfficerRegistrationStatus.REJECTED);
+            registration.setStatus(RegistrationStatus.REJECTED);
             System.out.println("Registration rejected.");
         }
         

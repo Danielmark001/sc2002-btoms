@@ -1,0 +1,5 @@
+ApplicationID,ApplicantNRIC,ProjectName,FlatType,ApplicationDate,Status,BookedUnit
+1,S1234567A,Meadow View,2-Room,2024-02-20,PENDING,
+2,S7654321B,Sunrise Gardens,3-Room,2024-03-10,SUCCESSFUL,
+3,S2345678C,Meadow View,2-Room,2024-03-01,UNSUCCESSFUL,
+4,S8765432D,Sunrise Gardens,3-Room,2024-03-15,BOOKED,Unit-301

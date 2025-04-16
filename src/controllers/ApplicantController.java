@@ -1,6 +1,4 @@
 package controllers;
-
-import enumeration.FlatType;
 import java.util.Scanner;
 import java.util.List;
 import models.Applicant;

@@ -20,10 +20,8 @@ import enumeration.MaritalStatus;
 import models.BTOApplication;
 import models.BTOProject;
 import models.FlatTypeDetails;
-import utils.FilePathsUtils;
 import utils.EnumParser;
 import stores.DataStore;
-import view.CommonView;
 import models.User;
 import models.HDBOfficerRegistration;
 
@@ -531,7 +529,7 @@ public class CsvDataService implements IFileDataService {
 			return null;
 		}
 		
-		return new HDBOfficerRegistration(registrationId, hdbOfficer, project, EnumParser.parseHDBOfficerRegistrationStatus(status));
+		return new HDBOfficerRegistration(registrationId, hdbOfficer, project, EnumParser.parseRegistrationStatus(status));
 	}
 
 	@Override
