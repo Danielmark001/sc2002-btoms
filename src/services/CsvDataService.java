@@ -674,9 +674,6 @@ public class CsvDataService implements IFileDataService {
 	private WithdrawalRequest parseWithdrawalRequestRow(String[] withdrawalRequestRow) {
 		String requestId = withdrawalRequestRow[0];
 		String applicationId = withdrawalRequestRow[1];
-		LocalDateTime requestedAt = LocalDateTime.parse(withdrawalRequestRow[2]);
-		boolean isApproved = Boolean.parseBoolean(withdrawalRequestRow[3]);
-		LocalDateTime processedAt = withdrawalRequestRow[4].equals("null") ? null : LocalDateTime.parse(withdrawalRequestRow[4]);
 		String processedBy = withdrawalRequestRow[5].equals("null") ? null : withdrawalRequestRow[5];
 
 		BTOApplication application = DataStore.getBTOApplicationsData().get(applicationId);

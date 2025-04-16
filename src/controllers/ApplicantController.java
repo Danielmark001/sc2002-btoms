@@ -113,7 +113,7 @@ public class ApplicantController extends UserController {
                     break;
                 case 0:
                     System.out.println("Logging out...");
-                    AuthController.endSession();
+                    AuthController.startSession();
                     return;
                 default:
                     System.out.println("Invalid choice. Please try again.");

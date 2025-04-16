@@ -114,6 +114,7 @@ public class AuthController {
 
             if (choice == 0) {
                 System.out.println("Shutting down BTOMS...");
+                DataStore.saveData();
                 System.exit(0);
                 return;
             }
@@ -346,5 +347,8 @@ public class AuthController {
         } else if (AuthStore.getCurrentUser() instanceof models.HDBManager) {
             new HDBManagerController((models.HDBManager) AuthStore.getCurrentUser()).start();
         }
+        return;
     }
+
+    
 }
