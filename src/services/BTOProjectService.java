@@ -1,6 +1,5 @@
 package services;
 
-import interfaces.IBTOProjectApplicantService;
 import models.Applicant;
 import models.BTOProject;
 import models.FlatTypeDetails;
@@ -16,11 +15,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
+import interfaces.IBTOProjectService;
 
 /**
  * Service class for BTO project operations that can be used by both applicants and HDB officers
  */
-public class BTOProjectService implements IBTOProjectApplicantService {
+public class BTOProjectService implements IBTOProjectService {
 
     /**
      * Checks if a user is eligible to apply for a project

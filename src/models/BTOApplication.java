@@ -64,6 +64,12 @@ public class BTOApplication {
                     throw new IllegalArgumentException("Invalid status for pending application");
                 }
                 break;
+            case SUCCESSFUL:
+                if (!(status == BTOApplicationStatus.UNSUCCESSFUL ||
+                      status == BTOApplicationStatus.BOOKED)) {
+                    throw new IllegalArgumentException("Invalid status for successful application");
+                }
+                break;
         }
         this.status = status;
     }

@@ -10,6 +10,8 @@ import models.HDBManager;
 import models.HDBOfficer;
 import models.BTOApplication;
 import models.HDBOfficerRegistration;
+import models.Enquiry;
+import models.WithdrawalRequest;
 
 /**
  * The {@link DataStore} class provides utility methods for managing data
@@ -64,6 +66,18 @@ public class DataStore {
 	 */
 	private static Map<String, HDBOfficerRegistration> hdbOfficerRegistrationsData = new HashMap<String, HDBOfficerRegistration>();
 
+	/**
+	 * A {@link Map} containing enquiry ID as the key and {@link Enquiry}
+	 * objects as the value.
+	 */
+	private static Map<String, Enquiry> enquiriesData = new HashMap<String, Enquiry>();
+
+	/**
+	 * A {@link Map} containing withdrawal request ID as the key and {@link WithdrawalRequest}
+	 * objects as the value.
+	 */
+	private static Map<String, WithdrawalRequest> withdrawalRequestsData = new HashMap<>();
+
 	/**	 * Private constructor to prevent instantiation of the class.
 	 */
 	private DataStore() {
@@ -92,6 +106,8 @@ public class DataStore {
 		DataStore.btoProjectsData = fileDataService.importBTOProjectData(filePathsMap.get("btoProject"));
 		DataStore.btoApplicationsData = fileDataService.importBTOApplicationData(filePathsMap.get("btoApplication"));
 		DataStore.hdbOfficerRegistrationsData = fileDataService.importHDBOfficerRegistrationData(filePathsMap.get("hdbOfficerRegistrations"));
+		DataStore.enquiriesData = fileDataService.importEnquiryData(filePathsMap.get("enquiry"));
+		DataStore.withdrawalRequestsData = fileDataService.importWithdrawalRequestData(filePathsMap.get("withdrawalRequest"));
 
 		// Set up handled projects for HDB officers
 		for (BTOProject project : btoProjectsData.values()) {
@@ -116,6 +132,8 @@ public class DataStore {
 		DataStore.setBTOProjectsData(btoProjectsData);
 		DataStore.setBTOApplicationsData(btoApplicationsData);
 		DataStore.setHDBOfficerRegistrationsData(hdbOfficerRegistrationsData);
+		DataStore.setEnquiriesData(enquiriesData);
+		DataStore.setWithdrawalRequestsData(withdrawalRequestsData);
 
 		return true;
 	}
@@ -208,7 +226,7 @@ public class DataStore {
 	}
 
 	/**
-	 * Gets the map of HDB officer registrations data.
+	 * Gets the map of HDB officer registrations data
 	 * @return The map of HDB officer registrations data
 	 */
 	public static Map<String, HDBOfficerRegistration> getHDBOfficerRegistrationsData() {
@@ -216,11 +234,45 @@ public class DataStore {
 	}
 
 	/**
-	 * Sets the HDB officer registrations data map and saves the data to the file system.
+	 * Sets the map of HDB officer registrations data
 	 * @param hdbOfficerRegistrationsData The map of HDB officer registrations data
 	 */
 	public static void setHDBOfficerRegistrationsData(Map<String, HDBOfficerRegistration> hdbOfficerRegistrationsData) {
 		DataStore.hdbOfficerRegistrationsData = hdbOfficerRegistrationsData;
 		fileDataService.exportHDBOfficerRegistrationData(filePathsMap.get("hdbOfficerRegistrations"), hdbOfficerRegistrationsData);
+	}
+
+	/**
+	 * Gets the map of enquiries data
+	 * @return The map of enquiries data
+	 */
+	public static Map<String, Enquiry> getEnquiriesData() {
+		return enquiriesData;
+	}
+
+	/**
+	 * Sets the map of enquiries data
+	 * @param enquiriesData The map of enquiries data
+	 */
+	public static void setEnquiriesData(Map<String, Enquiry> enquiriesData) {
+		DataStore.enquiriesData = enquiriesData;
+		fileDataService.exportEnquiryData(filePathsMap.get("enquiry"), enquiriesData);
+	}
+
+	/**
+	 * Gets the map of withdrawal requests data
+	 * @return The map of withdrawal requests data
+	 */
+	public static Map<String, WithdrawalRequest> getWithdrawalRequestsData() {
+		return withdrawalRequestsData;
+	}
+
+	/**
+	 * Sets the map of withdrawal requests data
+	 * @param withdrawalRequestsData The map of withdrawal requests data
+	 */
+	public static void setWithdrawalRequestsData(Map<String, WithdrawalRequest> withdrawalRequestsData) {
+		DataStore.withdrawalRequestsData = withdrawalRequestsData;
+		fileDataService.exportWithdrawalRequestData(filePathsMap.get("withdrawalRequest"), withdrawalRequestsData);
 	}
 }

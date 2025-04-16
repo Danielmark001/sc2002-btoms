@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import interfaces.IFileDataService;
@@ -24,6 +25,8 @@ import utils.EnumParser;
 import stores.DataStore;
 import models.User;
 import models.HDBOfficerRegistration;
+import models.Enquiry;
+import models.WithdrawalRequest;
 
 /**
  * The {@link CsvDataService} class implements the {@link IFileDataService}
@@ -63,62 +66,108 @@ public class CsvDataService implements IFileDataService {
 	private static List<String> hdbOfficerRegistrationCsvHeaders = new ArrayList<String>();
 
 	/**
+	 * The list of headers for the CSV file that stores enquiry data.
+	 */
+	private static List<String> enquiryCsvHeaders = new ArrayList<String>();
+
+	/**
+	 * The list of headers for the CSV file that stores withdrawal request data.
+	 */
+	private static List<String> withdrawalRequestCsvHeaders = new ArrayList<String>();
+
+	/**
 	 * Constructs an instance of the {@link CsvDataService} class.
 	 */
     public CsvDataService() {
 		// Initialize CSV headers
-		applicantCsvHeaders.add("Name");
-		applicantCsvHeaders.add("NRIC");
-		applicantCsvHeaders.add("Age");
-		applicantCsvHeaders.add("MaritalStatus");
-		applicantCsvHeaders.add("Password");
+		initializeHeaders();
+	}
 
-		hdbManagerCsvHeaders.add("Name");
-		hdbManagerCsvHeaders.add("NRIC");
-		hdbManagerCsvHeaders.add("Age");
-		hdbManagerCsvHeaders.add("MaritalStatus");
-		hdbManagerCsvHeaders.add("Password");
+	/**
+	 * Initializes all CSV headers for different data types
+	 */
+	private void initializeHeaders() {
+		//clear all headers
+		applicantCsvHeaders.clear();
+		hdbManagerCsvHeaders.clear();
+		hdbOfficerCsvHeaders.clear();
+		btoProjectCsvHeaders.clear();
+		btoApplicationCsvHeaders.clear();
+		hdbOfficerRegistrationCsvHeaders.clear();
+		enquiryCsvHeaders.clear();
+		withdrawalRequestCsvHeaders.clear();
+		// User-related headers (Applicant, HDBManager, HDBOfficer)
+		List<String> userHeaders = List.of("Name", "NRIC", "Age", "MaritalStatus", "Password");
+		applicantCsvHeaders.addAll(userHeaders);
+		hdbManagerCsvHeaders.addAll(userHeaders);
+		hdbOfficerCsvHeaders.addAll(userHeaders);
 
-		hdbOfficerCsvHeaders.add("Name");
-		hdbOfficerCsvHeaders.add("NRIC");
-		hdbOfficerCsvHeaders.add("Age");
-		hdbOfficerCsvHeaders.add("MaritalStatus");
-		hdbOfficerCsvHeaders.add("Password");
+		// BTO Project headers
+		btoProjectCsvHeaders.addAll(List.of(
+			"ProjectName", "Neighborhood", "Type1", "NumberOfUnitsType1", "SellingPriceType1",
+			"Type2", "NumberOfUnitsType2", "SellingPriceType2", "ApplicationOpeningDate",
+			"ApplicationClosingDate", "Manager", "OfficerSlot", "Officers"
+		));
 
-		btoProjectCsvHeaders.add("ProjectName");
-		btoProjectCsvHeaders.add("Neighborhood");
-		btoProjectCsvHeaders.add("ApplicationOpeningDate");
-		btoProjectCsvHeaders.add("ApplicationClosingDate");
-		btoProjectCsvHeaders.add("HDBManagerNRIC");
-		btoProjectCsvHeaders.add("HDBOfficerSlots");
-		btoProjectCsvHeaders.add("HDBOfficerNRICs");
-		btoProjectCsvHeaders.add("FlatTypes");
-		btoProjectCsvHeaders.add("Visible");
+		// BTO Application headers
+		btoApplicationCsvHeaders.addAll(List.of(
+			"ApplicationId", "ApplicantNRIC", "ProjectName", "FlatType", "Status"
+		));
 
-		btoApplicationCsvHeaders.add("ApplicationID");
-		btoApplicationCsvHeaders.add("ApplicantNRIC");
-		btoApplicationCsvHeaders.add("ProjectName");
-		btoApplicationCsvHeaders.add("FlatType");
-		btoApplicationCsvHeaders.add("Status");
+		// HDB Officer Registration headers
+		hdbOfficerRegistrationCsvHeaders.addAll(List.of(
+			"RegistrationID", "HDBOfficerNRIC", "ProjectName", "Status"
+		));
 
-		hdbOfficerRegistrationCsvHeaders.add("RegistrationID");
-		hdbOfficerRegistrationCsvHeaders.add("HDBOfficerNRIC");
-		hdbOfficerRegistrationCsvHeaders.add("ProjectName");
-		hdbOfficerRegistrationCsvHeaders.add("Status");
-    };
+		// Enquiry headers
+		enquiryCsvHeaders.addAll(List.of(
+			"EnquiryID", "ApplicantNRIC", "ProjectName", "Message", "Reply", "CreatedAt", "RepliedAt"
+		));
 
-	// ---------- Helper Function ---------- //
+		// Withdrawal Request headers
+		withdrawalRequestCsvHeaders.addAll(List.of(
+			"RequestId", "ApplicationId", "RequestedAt", "IsApproved", "ProcessedAt", "ProcessedBy"
+		));
+	}
+
+	/**
+	 * Gets the appropriate headers based on file type
+	 * @param fileType The type of file
+	 * @return List of headers for the given file type
+	 */
+	private List<String> getHeadersForFileType(String fileType) {
+		switch (fileType) {
+			case "applicant":
+				return new ArrayList<>(applicantCsvHeaders);
+			case "hdbManager":
+				return new ArrayList<>(hdbManagerCsvHeaders);
+			case "hdbOfficer":
+				return new ArrayList<>(hdbOfficerCsvHeaders);
+			case "btoProject":
+				return new ArrayList<>(btoProjectCsvHeaders);
+			case "btoApplication":
+				return new ArrayList<>(btoApplicationCsvHeaders);
+			case "hdbOfficerRegistration":
+				return new ArrayList<>(hdbOfficerRegistrationCsvHeaders);
+			case "enquiry":
+				return new ArrayList<>(enquiryCsvHeaders);
+			case "withdrawalRequest":
+				return new ArrayList<>(withdrawalRequestCsvHeaders);
+			default:
+				return new ArrayList<>();
+		}
+	}
+
 	/**
 	 * Reads data from the CSV file located at the given file path and returns it as
 	 * a list of string arrays.
 	 *
 	 * @param filePath the file path of the CSV file to read
-	 * @param headers  the list of headers for the CSV file
-	 * @return a list of string arrays containing the CSV data
+	 * @return a list of string arrays containing the CSV data and the headers
 	 */
-	public List<String[]> readCsvFile(String filePath, List<String> headers) {
+	public List<String[]> readCsvFile(String filePath) {
 		List<String[]> dataList = new ArrayList<String[]>();
-		headers.clear();
+		List<String> headers = new ArrayList<String>();
 
 		try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
 			// Headers
@@ -129,23 +178,12 @@ public class CsvDataService implements IFileDataService {
 								filePath.contains("HDBManager") ? "hdbManager" :
 								filePath.contains("HDBOfficer") ? "hdbOfficer" :
 								filePath.contains("BTOProject") ? "btoProject" :
-								filePath.contains("BTOApplication") ? "btoApplication" : "";
+								filePath.contains("BTOApplication") ? "btoApplication" :
+								filePath.contains("HDBOfficerRegistration") ? "hdbOfficerRegistration" :
+								filePath.contains("Enquiry") ? "enquiry" :
+								filePath.contains("WithdrawalRequest") ? "withdrawalRequest" : "";
 				
-				switch (fileType) {
-					case "applicant":
-					case "hdbManager":
-					case "hdbOfficer":
-						headers.addAll(List.of("Name", "NRIC", "Age", "MaritalStatus", "Password"));
-						break;
-					case "btoProject":
-						headers.addAll(List.of("ProjectName", "Neighborhood", "Type1", "NumberOfUnitsType1", "SellingPriceType1", 
-							"Type2", "NumberOfUnitsType2", "SellingPriceType2", "ApplicationOpeningDate", "ApplicationClosingDate", 
-							"Manager", "OfficerSlot", "Officers"));
-						break;
-					case "btoApplication":
-						headers.addAll(List.of("ApplicationId", "ApplicantNRIC", "ProjectName", "FlatType", "Status"));
-						break;
-				}
+				headers.addAll(getHeadersForFileType(fileType));
 				return dataList;
 			}
 			
@@ -275,7 +313,7 @@ public class CsvDataService implements IFileDataService {
 	public Map<String, Applicant> importApplicantData(String applicantsFilePath) {
 		Map<String, Applicant> applicantsMap = new HashMap<String, Applicant>();
 
-		List<String[]> applicantsRows = this.readCsvFile(applicantsFilePath, applicantCsvHeaders);
+		List<String[]> applicantsRows = this.readCsvFile(applicantsFilePath);
 
 		for (String[] applicantRow : applicantsRows) {
 			Map<String, String> applicantInfoMap = parseUserRow(applicantRow);
@@ -319,7 +357,7 @@ public class CsvDataService implements IFileDataService {
 	public Map<String, HDBManager> importHDBManagerData(String hdbManagersFilePath) {
 		Map<String, HDBManager> hdbManagersMap = new HashMap<String, HDBManager>();
 
-		List<String[]> hdbManagersRows = this.readCsvFile(hdbManagersFilePath, hdbManagerCsvHeaders);
+		List<String[]> hdbManagersRows = this.readCsvFile(hdbManagersFilePath);
 
 		for (String[] hdbManagerRow : hdbManagersRows) {
 			Map<String, String> hdbManagerInfoMap = parseUserRow(hdbManagerRow);
@@ -363,7 +401,7 @@ public class CsvDataService implements IFileDataService {
 	public Map<String, HDBOfficer> importHDBOfficerData(String hdbOfficersFilePath) {
 		Map<String, HDBOfficer> hdbOfficersMap = new HashMap<String, HDBOfficer>();
 
-		List<String[]> hdbOfficersRows = this.readCsvFile(hdbOfficersFilePath, hdbOfficerCsvHeaders);
+		List<String[]> hdbOfficersRows = this.readCsvFile(hdbOfficersFilePath);
 
 		for (String[] hdbOfficerRow : hdbOfficersRows) {
 			Map<String, String> hdbOfficerInfoMap = parseUserRow(hdbOfficerRow);
@@ -407,7 +445,7 @@ public class CsvDataService implements IFileDataService {
 	public Map<String, BTOProject> importBTOProjectData(String btoProjectFilePath) {
 		Map<String, BTOProject> btoProjectsMap = new HashMap<String, BTOProject>();
 
-		List<String[]> btoProjectsRows = this.readCsvFile(btoProjectFilePath, btoProjectCsvHeaders);
+		List<String[]> btoProjectsRows = this.readCsvFile(btoProjectFilePath);
 
 		for (String[] btoProjectRow : btoProjectsRows) {
 			BTOProject btoProject = parseBTOProjectRow(btoProjectRow);
@@ -482,7 +520,7 @@ public class CsvDataService implements IFileDataService {
 	public Map<String, BTOApplication> importBTOApplicationData(String btoApplicationFilePath) {
 		Map<String, BTOApplication> btoApplicationsMap = new HashMap<String, BTOApplication>();
 
-		List<String[]> btoApplicationsRows = this.readCsvFile(btoApplicationFilePath, btoApplicationCsvHeaders);
+		List<String[]> btoApplicationsRows = this.readCsvFile(btoApplicationFilePath);
 
 		for (String[] btoApplicationRow : btoApplicationsRows) {
 			BTOApplication btoApplication = parseBTOApplicationRow(btoApplicationRow);
@@ -536,7 +574,7 @@ public class CsvDataService implements IFileDataService {
 	public Map<String, HDBOfficerRegistration> importHDBOfficerRegistrationData(String hdbOfficerRegistrationsFilePath) {
 		Map<String, HDBOfficerRegistration> hdbOfficerRegistrationsMap = new HashMap<String, HDBOfficerRegistration>();
 
-		List<String[]> hdbOfficerRegistrationsRows = this.readCsvFile(hdbOfficerRegistrationsFilePath, hdbOfficerRegistrationCsvHeaders);
+		List<String[]> hdbOfficerRegistrationsRows = this.readCsvFile(hdbOfficerRegistrationsFilePath);
 
 		for (String[] hdbOfficerRegistrationRow : hdbOfficerRegistrationsRows) {
 			HDBOfficerRegistration registration = parseHDBOfficerRegistrationRow(hdbOfficerRegistrationRow);
@@ -563,5 +601,112 @@ public class CsvDataService implements IFileDataService {
 		}
 
 		return this.writeCsvFile(hdbOfficerRegistrationsFilePath, hdbOfficerRegistrationCsvHeaders, hdbOfficerRegistrationLines);
+	}
+
+	@Override
+	public Map<String, Enquiry> importEnquiryData(String enquiryFilePath) {
+		Map<String, Enquiry> enquiryMap = new HashMap<>();
+		List<String[]> enquiryRows = this.readCsvFile(enquiryFilePath);
+
+		for (String[] enquiryRow : enquiryRows) {
+			String enquiryId = enquiryRow[0];
+			String applicantNric = enquiryRow[1];
+			String projectName = enquiryRow[2];
+			String message = enquiryRow[3];
+			String reply = enquiryRow[4];
+			LocalDateTime createdAt = LocalDateTime.parse(enquiryRow[5], DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+			LocalDateTime repliedAt = (enquiryRow.length > 6 && !enquiryRow[6].isEmpty()) ? LocalDateTime.parse(enquiryRow[6], DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
+
+			// Get the applicant and project from the data store
+			Applicant applicant = DataStore.getApplicantsData().get(applicantNric);
+			BTOProject project = DataStore.getBTOProjectsData().get(projectName);
+
+			// Skip invalid enquiries where applicant or project is not found
+			if (applicant == null || project == null) {
+				System.out.println("Warning: Skipping invalid enquiry " + enquiryId + 
+					" - " + (applicant == null ? "Applicant not found: " + applicantNric : "") +
+					(project == null ? "Project not found: " + projectName : ""));
+				continue;
+			}
+
+			Enquiry enquiry = new Enquiry(enquiryId, applicant, project, message, reply, createdAt, repliedAt);
+			enquiryMap.put(enquiryId, enquiry);
+		}
+		return enquiryMap;
+	}
+
+	@Override
+	public boolean exportEnquiryData(String enquiryFilePath, Map<String, Enquiry> enquiryMap) {
+		List<String> enquiryLines = new ArrayList<>();
+
+		for (Enquiry enquiry : enquiryMap.values()) {
+			String line = String.format("%s,%s,%s,%s,%s,%s,%s",
+				enquiry.getEnquiryId(),
+				enquiry.getApplicant() != null ? enquiry.getApplicant().getNric() : "",
+				enquiry.getProject() != null ? enquiry.getProject().getProjectName() : "",
+				enquiry.getMessage(),
+				enquiry.getReply() != null ? enquiry.getReply() : "",
+				enquiry.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+				enquiry.getRepliedAt() != null ? enquiry.getRepliedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : ""
+			);
+			enquiryLines.add(line);
+		}
+
+		return this.writeCsvFile(enquiryFilePath, enquiryCsvHeaders, enquiryLines);
+	}
+
+	@Override
+	public Map<String, WithdrawalRequest> importWithdrawalRequestData(String withdrawalRequestFilePath) {
+		Map<String, WithdrawalRequest> withdrawalRequestMap = new HashMap<String, WithdrawalRequest>();
+
+		List<String[]> withdrawalRequestRows = this.readCsvFile(withdrawalRequestFilePath);
+
+		for (String[] withdrawalRequestRow : withdrawalRequestRows) {
+			WithdrawalRequest request = parseWithdrawalRequestRow(withdrawalRequestRow);
+			if (request != null) {
+				withdrawalRequestMap.put(request.getRequestId(), request);
+			}
+		}
+
+		return withdrawalRequestMap;
+	}
+
+	private WithdrawalRequest parseWithdrawalRequestRow(String[] withdrawalRequestRow) {
+		String requestId = withdrawalRequestRow[0];
+		String applicationId = withdrawalRequestRow[1];
+		LocalDateTime requestedAt = LocalDateTime.parse(withdrawalRequestRow[2]);
+		boolean isApproved = Boolean.parseBoolean(withdrawalRequestRow[3]);
+		LocalDateTime processedAt = withdrawalRequestRow[4].equals("null") ? null : LocalDateTime.parse(withdrawalRequestRow[4]);
+		String processedBy = withdrawalRequestRow[5].equals("null") ? null : withdrawalRequestRow[5];
+
+		BTOApplication application = DataStore.getBTOApplicationsData().get(applicationId);
+		if (application == null) {
+			System.out.println("Warning: Skipping invalid withdrawal request " + requestId + 
+				" - Application not found: " + applicationId);
+			return null;
+		}
+
+		WithdrawalRequest request = new WithdrawalRequest(application);
+		request.approve(processedBy);
+		return request;
+	}
+
+	@Override
+	public boolean exportWithdrawalRequestData(String withdrawalRequestFilePath, Map<String, WithdrawalRequest> withdrawalRequestMap) {
+		List<String> withdrawalRequestLines = new ArrayList<String>();
+
+		for (WithdrawalRequest request : withdrawalRequestMap.values()) {
+			StringBuilder line = new StringBuilder();
+			line.append(request.getRequestId()).append(",");
+			line.append(request.getApplication().getApplicationId()).append(",");
+			line.append(request.getRequestedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).append(",");
+			line.append(request.isApproved()).append(",");
+			line.append(request.getProcessedAt() != null ? request.getProcessedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : "null").append(",");
+			line.append(request.getProcessedBy() != null ? request.getProcessedBy() : "null");
+			
+			withdrawalRequestLines.add(line.toString());
+		}
+
+		return this.writeCsvFile(withdrawalRequestFilePath, withdrawalRequestCsvHeaders, withdrawalRequestLines);
 	}
 }
