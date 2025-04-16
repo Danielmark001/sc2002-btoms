@@ -1,7 +1,6 @@
 package view;
 
 import models.HDBOfficerRegistration;
-import enumeration.HDBOfficerRegistrationStatus;
 import java.util.List;
 
 public class HDBOfficerRegistrationView {

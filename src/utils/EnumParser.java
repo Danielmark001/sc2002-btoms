@@ -3,7 +3,7 @@ package utils;
 import enumeration.BTOApplicationStatus;
 import enumeration.FlatType;
 import enumeration.MaritalStatus;
-import enumeration.HDBOfficerRegistrationStatus;
+import enumeration.RegistrationStatus;
 
 /**
  * Utility class for parsing enum values from display names
@@ -61,8 +61,8 @@ public class EnumParser {
         throw new IllegalArgumentException("Invalid BTO application status: " + status);
     }
 
-    public static HDBOfficerRegistrationStatus parseHDBOfficerRegistrationStatus(String status) {
-        for (HDBOfficerRegistrationStatus s : HDBOfficerRegistrationStatus.values()) {
+    public static RegistrationStatus parseRegistrationStatus(String status) {
+        for (RegistrationStatus s : RegistrationStatus.values()) {
             if (s.getDisplayName().equals(status)) {
                 return s;
             }

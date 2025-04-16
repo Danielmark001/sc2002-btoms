@@ -70,6 +70,10 @@ public class BTOApplication {
                     throw new IllegalArgumentException("Invalid status for successful application");
                 }
                 break;
+            case UNSUCCESSFUL:
+                throw new IllegalArgumentException("Cannot change status of an unsuccessful application");
+            case BOOKED:
+                throw new IllegalArgumentException("Cannot change status of a booked application");
         }
         this.status = status;
     }

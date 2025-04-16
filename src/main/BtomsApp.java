@@ -52,7 +52,7 @@ public class BtomsApp {
 				// Authentication - Log In
 				AuthController.startSession();
 				if (!AuthStore.isLoggedIn())
-					return;
+					break;
 
 				// Start session
 				User user = AuthStore.getCurrentUser();
@@ -64,10 +64,11 @@ public class BtomsApp {
 						new HDBOfficerController().start();
 						break;
 					case HDB_MANAGER:
-						new HDBManagerController((models.HDBManager)user).start();
+						new HDBManagerController((models.HDBManager) user).start();
 						break;
-					
+
 				}
+				
 			} while (true);
 		} catch (Exception e) {
 			// Save Data and Logout user
