@@ -12,6 +12,21 @@ public class EnquiryView {
     public void displayProjectEnquiriesHeader() {
         System.out.println("\n===== Project Enquiries =====");
     }
+    public void displayCannotModifyRepliedMessage() {
+    System.out.println("\nCannot modify or delete an enquiry that has already been replied to.");
+}
+
+public void displayEditSuccess() {
+    System.out.println("\nEnquiry edited successfully!");
+}
+
+public void displayDeleteSuccess() {
+    System.out.println("\nEnquiry deleted successfully!");
+}
+
+public void displayDeleteConfirmation() {
+    System.out.print("Are you sure you want to delete this enquiry? (yes/no): ");
+}
 
     public void displayEnquiryList(List<Enquiry> enquiries) {
         if (enquiries.isEmpty()) {

@@ -40,9 +40,38 @@ public class EnquiryService {
      */
     public List<Enquiry> getEnquiriesByApplicant(Applicant applicant) {
         return DataStore.getEnquiriesData().values().stream()
-            .filter(enquiry -> enquiry.getApplicant().equals(applicant))
-            .collect(Collectors.toList());
+                .filter(enquiry -> enquiry.getApplicant().equals(applicant))
+                .collect(Collectors.toList());
     }
+    // Add this method
+public boolean editEnquiry(Enquiry enquiry, String newMessage) {
+    // Cannot edit if already replied to
+    if (enquiry.hasReply()) {
+        return false;
+    }
+    
+    // Remove commas from the message to prevent CSV parsing issues
+    newMessage = newMessage.replace(",", " ");
+    
+    enquiry.setMessage(newMessage);
+    DataStore.saveData();
+    
+    return true;
+}
+
+// Update the existing deleteEnquiry method
+public boolean deleteEnquiry(Enquiry enquiry) {
+    // Cannot delete if already replied to
+    if (enquiry.hasReply()) {
+        return false;
+    }
+    
+    if (DataStore.getEnquiriesData().remove(enquiry.getEnquiryId()) != null) {
+        DataStore.saveData();
+        return true;
+    }
+    return false;
+}
 
     /**
      * Gets all pending (unreplied) enquiries
@@ -104,11 +133,5 @@ public class EnquiryService {
      * @param enquiry The enquiry to delete
      * @return true if deletion was successful, false otherwise
      */
-    public boolean deleteEnquiry(Enquiry enquiry) {
-        if (DataStore.getEnquiriesData().remove(enquiry.getEnquiryId()) != null) {
-            DataStore.saveData();
-            return true;
-        }
-        return false;
-    }
+   
 } 
