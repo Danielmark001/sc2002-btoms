@@ -272,33 +272,144 @@ protected void submitEnquiry() {
      * View enquiries submitted by the applicant
      */
     protected void viewMyEnquiries() {
-        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+    Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+    
+    // Get enquiries for this applicant using the service
+    List<Enquiry> myEnquiries = enquiryService.getEnquiriesByApplicant(applicant);
+    
+    if (myEnquiries.isEmpty()) {
+        System.out.println("\nYou have not submitted any enquiries.");
+        return;
+    }
+    
+    System.out.println("\nYour Enquiries:");
+    for (int i = 0; i < myEnquiries.size(); i++) {
+        Enquiry enquiry = myEnquiries.get(i);
+        System.out.println("\n" + (i + 1) + ". Enquiry ID: " + enquiry.getEnquiryId());
+        System.out.println("Project: " + enquiry.getProject().getProjectName());
+        System.out.println("Message: " + enquiry.getMessage());
+        System.out.println("Submitted: " + enquiry.getCreatedAt());
         
-        // Get enquiries for this applicant using the service
-        List<Enquiry> myEnquiries = enquiryService.getEnquiriesByApplicant(applicant);
-        
-        if (myEnquiries.isEmpty()) {
-            System.out.println("\nYou have not submitted any enquiries.");
+        if (enquiry.hasReply()) {
+            System.out.println("Reply: " + enquiry.getReply());
+            System.out.println("Replied: " + enquiry.getRepliedAt());
+        } else {
+            System.out.println("Status: Pending reply");
+        }
+        System.out.println("----------------------------------------");
+    }
+    
+    // Options for edit or delete
+    System.out.println("\nOptions:");
+    System.out.println("1. Edit an enquiry");
+    System.out.println("2. Delete an enquiry");
+    System.out.println("0. Back to main menu");
+    System.out.print("Enter your choice: ");
+    
+    int choice;
+    try {
+        choice = Integer.parseInt(sc.nextLine());
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input. Please enter a number.");
+        return;
+    }
+    
+    switch (choice) {
+        case 0:
+            return;
+        case 1:
+            editEnquiry(myEnquiries);
+            break;
+        case 2:
+            deleteEnquiry(myEnquiries);
+            break;
+        default:
+            System.out.println("Invalid choice.");
+    }
+}
+
+private void editEnquiry(List<Enquiry> enquiries) {
+    System.out.print("Enter enquiry number to edit (0 to cancel): ");
+    int choice;
+    try {
+        choice = Integer.parseInt(sc.nextLine());
+        if (choice == 0) {
             return;
         }
-        
-        System.out.println("\nYour Enquiries:");
-        for (Enquiry enquiry : myEnquiries) {
-            System.out.println("\nEnquiry ID: " + enquiry.getEnquiryId());
-            System.out.println("Project: " + enquiry.getProject().getProjectName());
-            System.out.println("Message: " + enquiry.getMessage());
-            System.out.println("Submitted: " + enquiry.getCreatedAt());
-            
-            if (enquiry.getReply() != null) {
-                System.out.println("Reply: " + enquiry.getReply());
-                System.out.println("Replied: " + enquiry.getRepliedAt());
-            } else {
-                System.out.println("Status: Pending reply");
-            }
-            System.out.println("----------------------------------------");
+        if (choice < 1 || choice > enquiries.size()) {
+            System.out.println("Invalid enquiry number.");
+            return;
         }
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input. Please enter a number.");
+        return;
     }
+    
+    Enquiry selectedEnquiry = enquiries.get(choice - 1);
+    
+    // Check if already replied
+    if (selectedEnquiry.hasReply()) {
+        System.out.println("\nCannot edit an enquiry that has already been replied to.");
+        return;
+    }
+    
+    System.out.println("Current message: " + selectedEnquiry.getMessage());
+    System.out.print("Enter new message: ");
+    String newMessage = sc.nextLine();
+    
+    if (newMessage.trim().isEmpty()) {
+        System.out.println("Message cannot be empty.");
+        return;
+    }
+    
+    // Use the service to edit
+    if (enquiryService.editEnquiry(selectedEnquiry, newMessage)) {
+        System.out.println("\nEnquiry edited successfully!");
+    } else {
+        System.out.println("\nFailed to edit enquiry.");
+    }
+}
 
+private void deleteEnquiry(List<Enquiry> enquiries) {
+    System.out.print("Enter enquiry number to delete (0 to cancel): ");
+    int choice;
+    try {
+        choice = Integer.parseInt(sc.nextLine());
+        if (choice == 0) {
+            return;
+        }
+        if (choice < 1 || choice > enquiries.size()) {
+            System.out.println("Invalid enquiry number.");
+            return;
+        }
+    } catch (NumberFormatException e) {
+        System.out.println("Invalid input. Please enter a number.");
+        return;
+    }
+    
+    Enquiry selectedEnquiry = enquiries.get(choice - 1);
+    
+    // Check if already replied
+    if (selectedEnquiry.hasReply()) {
+        System.out.println("\nCannot delete an enquiry that has already been replied to.");
+        return;
+    }
+    
+    System.out.print("Are you sure you want to delete this enquiry? (yes/no): ");
+    String confirmation = sc.nextLine().toLowerCase();
+    
+    if (!confirmation.equals("yes")) {
+        System.out.println("Deletion cancelled.");
+        return;
+    }
+    
+    // Use the service to delete
+    if (enquiryService.deleteEnquiry(selectedEnquiry)) {
+        System.out.println("\nEnquiry deleted successfully!");
+    } else {
+        System.out.println("\nFailed to delete enquiry.");
+    }
+}
     protected void withdrawBTOApplication() {
         Applicant applicant = (Applicant) AuthStore.getCurrentUser();
         
