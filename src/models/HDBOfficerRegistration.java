@@ -1,14 +1,14 @@
 package models;
 
-import enumeration.HDBOfficerRegistrationStatus;
+import enumeration.RegistrationStatus;
 
 public class HDBOfficerRegistration {
     private String registrationId;
     private final HDBOfficer hdbOfficer;
     private final BTOProject project;
-    private HDBOfficerRegistrationStatus status;
+    private RegistrationStatus status;
 
-    public HDBOfficerRegistration(String registrationId, HDBOfficer hdbOfficer, BTOProject project, HDBOfficerRegistrationStatus status) {
+    public HDBOfficerRegistration(String registrationId, HDBOfficer hdbOfficer, BTOProject project, RegistrationStatus status) {
         this.registrationId = registrationId;
         this.hdbOfficer = hdbOfficer;
         this.project = project;
@@ -16,7 +16,7 @@ public class HDBOfficerRegistration {
     }
 
     public HDBOfficerRegistration(HDBOfficer hdbOfficer, BTOProject project) {
-        this(generateRegistrationId(), hdbOfficer, project, HDBOfficerRegistrationStatus.PENDING);
+        this(generateRegistrationId(), hdbOfficer, project, RegistrationStatus.PENDING);
     }
 
     private static String generateRegistrationId() {
@@ -36,11 +36,11 @@ public class HDBOfficerRegistration {
         return project;
     }
 
-    public HDBOfficerRegistrationStatus getStatus() {
+    public RegistrationStatus getStatus() {
         return status;
     }
 
-    public void setStatus(HDBOfficerRegistrationStatus status) {
+    public void setStatus(RegistrationStatus status) {
         this.status = status;
     }
 } 

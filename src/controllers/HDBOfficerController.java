@@ -16,7 +16,6 @@ import stores.DataStore;
 import models.HDBOfficerRegistration;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
-import enumeration.HDBOfficerRegistrationStatus;
 import models.Enquiry;
 import services.EnquiryService;
 import java.util.ArrayList;
@@ -44,24 +43,35 @@ public class HDBOfficerController extends ApplicantController {
         int choice;
 
         do {
+            System.out.println();
+            System.out.println("==========================================");
             System.out.println(TextDecorationUtils.boldText("Hi, " + AuthStore.getCurrentUser().getName() + "!"));
+            System.out.println("==========================================");
+            System.out.println();
             
             System.out.println(TextDecorationUtils.underlineText("SETTINGS"));
-            System.out.println("1. Change Password");
+            System.out.println("└─ 1. Change Password");
+            System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("BTO PROJECTS"));
-            System.out.println("2. View Available BTO Projects");
-            System.out.println("3. Apply for a BTO Project");
-            System.out.println("4. View My BTO Applications");
+            System.out.println("└─ 2. View Available BTO Projects");
+            System.out.println("└─ 3. Apply for a BTO Project");
+            System.out.println("└─ 4. View My BTO Applications");
+            System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("BTO OFFICER"));
-            System.out.println("5. View Joinable BTO Projects");
-            System.out.println("6. Join BTO Project as Officer");
-            System.out.println("7. View Joined BTO Projects");
-            System.out.println("8. View HDB Officer Registrations");
-            System.out.println("9. Process Flat Booking Requests");
+            System.out.println("└─ 5. View Joinable BTO Projects");
+            System.out.println("└─ 6. Join BTO Project as Officer");
+            System.out.println("└─ 7. View Joined BTO Projects");
+            System.out.println("└─ 8. View HDB Officer Registrations");
+            System.out.println("└─ 9. Process Flat Booking Requests");
+            System.out.println();
 
-            System.out.println("\n0. Logout");
+            System.out.println(TextDecorationUtils.underlineText("LOGOUT"));
+            System.out.println("└─ 0. Logout");
+            System.out.println();
+            System.out.println("==========================================");
+            System.out.print("Enter your choice: ");
 
             String input = sc.nextLine();
             if (input.matches("[0-9]+")) {
@@ -204,6 +214,7 @@ public class HDBOfficerController extends ApplicantController {
         Map<String, HDBOfficerRegistration> registrations = DataStore.getHDBOfficerRegistrationsData();
         registrations.put(registration.getRegistrationId(), registration);
         DataStore.setHDBOfficerRegistrationsData(registrations);
+        DataStore.saveData();
         
         System.out.println("Registration request submitted successfully. Please wait for HDB Manager's approval.");
     }
@@ -258,7 +269,7 @@ public class HDBOfficerController extends ApplicantController {
         
         // Check if applicant already has an application
         if (projectService.hasExistingApplication(hdbOfficer)) {
-            System.out.println("\nYou already have an existing BTO application. Only one application is allowed at a time.");
+            System.out.println("\nYou already have an existing BTO application. Only 1 application is allowed at a time.");
             return;
         }
         

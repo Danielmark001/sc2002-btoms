@@ -41,23 +41,34 @@ public class ApplicantController extends UserController {
         int choice;
 
         do {
+            System.out.println();
+            System.out.println("==========================================");
             System.out.println(TextDecorationUtils.boldText("Hi, " + AuthStore.getCurrentUser().getName() + "!"));
+            System.out.println("==========================================");
+            System.out.println();
             
             System.out.println(TextDecorationUtils.underlineText("SETTINGS"));
-            System.out.println("1. Change Password");
+            System.out.println("└─ 1. Change Password");
+            System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("BTO PROJECTS"));
-            System.out.println("2. View Available BTO Projects");
-            System.out.println("3. Apply for a BTO Project");
-            System.out.println("4. View My BTO Applications");
-            System.out.println("5. Withdraw BTO Application");
-            System.out.println("6. Request Flat Booking");
+            System.out.println("└─ 2. View Available BTO Projects");
+            System.out.println("└─ 3. Apply for a BTO Project");
+            System.out.println("└─ 4. View My BTO Applications");
+            System.out.println("└─ 5. Withdraw BTO Application");
+            System.out.println("└─ 6. Request Flat Booking");
+            System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("ENQUIRIES"));
-            System.out.println("7. Submit Enquiry");
-            System.out.println("8. View My Enquiries");
+            System.out.println("└─ 7. Submit Enquiry");
+            System.out.println("└─ 8. View My Enquiries");
+            System.out.println();
 
-            System.out.println("\n0. Logout");
+            System.out.println(TextDecorationUtils.underlineText("LOGOUT"));
+            System.out.println("└─ 0. Logout");
+            System.out.println();
+            System.out.println("==========================================");
+            System.out.print("Enter your choice: ");
 
             String input = sc.nextLine();
             if (input.matches("[0-9]+")) {

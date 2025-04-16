@@ -1,8 +1,6 @@
 package controllers;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.stream.Collectors;
 
 import enumeration.BTOApplicationStatus;
 import enumeration.FlatType;
-import enumeration.HDBOfficerRegistrationStatus;
+import enumeration.RegistrationStatus;
 import enumeration.MaritalStatus;
 import models.BTOApplication;
 import models.BTOProject;
@@ -20,7 +18,6 @@ import models.FlatTypeDetails;
 import models.HDBManager;
 import models.HDBOfficer;
 import models.HDBOfficerRegistration;
-import models.User;
 import models.Applicant;
 import models.Enquiry;
 import models.WithdrawalRequest;
@@ -77,36 +74,48 @@ public class HDBManagerController extends UserController {
         int choice;
 
         do {
+            System.out.println();
+            System.out.println("==========================================");
             System.out.println(TextDecorationUtils.boldText("Hi, " + hdbManager.getName() + "!"));
+            System.out.println("==========================================");
+            System.out.println();
             
             System.out.println(TextDecorationUtils.underlineText("PROJECT MANAGEMENT"));
-            System.out.println("1. Create BTO Project");
-            System.out.println("2. Edit BTO Project");
-            System.out.println("3. Delete BTO Project");
-            System.out.println("4. View All Projects");
-            System.out.println("5. View My Projects");
-            System.out.println("6. Toggle Project Visibility");
+            System.out.println("└─ 1. Create BTO Project");
+            System.out.println("└─ 2. Edit BTO Project");
+            System.out.println("└─ 3. Delete BTO Project");
+            System.out.println("└─ 4. View All Projects");
+            System.out.println("└─ 5. View My Projects");
+            System.out.println("└─ 6. Toggle Project Visibility");
+            System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("HDB OFFICER MANAGEMENT"));
-            System.out.println("7. View HDB Officer Registrations");
-            System.out.println("8. Approve/Reject HDB Officer Registration");
+            System.out.println("└─ 7. View HDB Officer Registrations");
+            System.out.println("└─ 8. Approve/Reject HDB Officer Registration");
+            System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("APPLICATION MANAGEMENT"));
-            System.out.println("9. View BTO Applications");
-            System.out.println("10. Approve/Reject BTO Application");
-            System.out.println("11. Approve/Reject Application Withdrawal");
-            System.out.println("12. Generate Applicant Report");
+            System.out.println("└─ 9. View BTO Applications");
+            System.out.println("└─ 10. Approve/Reject BTO Application");
+            System.out.println("└─ 11. Approve/Reject Application Withdrawal");
+            System.out.println("└─ 12. Generate Applicant Report");
+            System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("ENQUIRY MANAGEMENT"));
-            System.out.println("13. View All Enquiries");
-            System.out.println("14. View and Reply to Project Enquiries");
+            System.out.println("└─ 13. View All Enquiries");
+            System.out.println("└─ 14. View and Reply to Project Enquiries");
+            System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("SETTINGS"));
-            System.out.println("15. Change Password");
+            System.out.println("└─ 15. Change Password");
+            System.out.println();
 
-            System.out.println("\n0. Logout");
+            System.out.println(TextDecorationUtils.underlineText("LOGOUT"));
+            System.out.println("└─ 0. Logout");
+            System.out.println();
+            System.out.println("==========================================");
             System.out.print("Enter your choice: ");
-            
+
             String input = sc.nextLine();
             if (input.matches("[0-9]+")) {
                 choice = Integer.parseInt(input);
@@ -441,7 +450,7 @@ public class HDBManagerController extends UserController {
         // Get pending registrations for these projects
         List<HDBOfficerRegistration> pendingRegistrations = DataStore.getHDBOfficerRegistrationsData().values().stream()
             .filter(registration -> myProjects.contains(registration.getProject()) && 
-                                  registration.getStatus() == HDBOfficerRegistrationStatus.PENDING)
+                                  registration.getStatus() == RegistrationStatus.PENDING)
             .collect(Collectors.toList());
         
         if (pendingRegistrations.isEmpty()) {
@@ -489,12 +498,12 @@ public class HDBManagerController extends UserController {
         String approval = sc.nextLine().toLowerCase();
         
         if (approval.equals("yes")) {
-            registration.setStatus(HDBOfficerRegistrationStatus.APPROVED);
+            registration.setStatus(RegistrationStatus.APPROVED);
             project.addHDBOfficer(officer);
             officer.addHandledProject(project);
             System.out.println("Registration approved successfully!");
         } else {
-            registration.setStatus(HDBOfficerRegistrationStatus.REJECTED);
+            registration.setStatus(RegistrationStatus.REJECTED);
             System.out.println("Registration rejected.");
         }
         

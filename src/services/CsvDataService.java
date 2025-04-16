@@ -569,7 +569,7 @@ public class CsvDataService implements IFileDataService {
 			return null;
 		}
 		
-		return new HDBOfficerRegistration(registrationId, hdbOfficer, project, EnumParser.parseHDBOfficerRegistrationStatus(status));
+		return new HDBOfficerRegistration(registrationId, hdbOfficer, project, EnumParser.parseRegistrationStatus(status));
 	}
 
 	@Override
