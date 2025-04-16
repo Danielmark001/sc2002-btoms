@@ -121,7 +121,7 @@ do {
             switch (choice) {
                 case 0:
                     System.out.println("Logging out...");
-                    AuthController.endSession();
+                    AuthController.startSession();
                     return;
                 case 1:
                     createBTOProject();

@@ -347,5 +347,8 @@ public class AuthController {
         } else if (AuthStore.getCurrentUser() instanceof models.HDBManager) {
             new HDBManagerController((models.HDBManager) AuthStore.getCurrentUser()).start();
         }
+        return;
     }
+
+    
 }
