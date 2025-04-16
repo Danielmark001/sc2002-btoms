@@ -178,7 +178,7 @@ do {
     /**
      * Create a new BTO project
      */
-    private void createBTOProject() {
+  private void createBTOProject() {
         // Check if the manager is already handling a project within an application period
         if (projectManagementService.isHandlingActiveProject(hdbManager)) {
             System.out.println("You are already handling a project within an application period.");
@@ -208,7 +208,15 @@ do {
             flatTypes.put((FlatType) entry.getKey(), (FlatTypeDetails) entry.getValue());
         }
         
-       
+        BTOProject project = projectManagementService.createProject(
+            (String) details[0],
+            (String) details[1],
+            (LocalDate) details[2],
+            (LocalDate) details[3],
+            flatTypes,
+            hdbManager,
+            (int) details[5]
+        );
         
         System.out.println("BTO Project created successfully!");
     }
