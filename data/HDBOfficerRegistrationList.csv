@@ -1,21 +1,21 @@
 RegistrationID,HDBOfficerNRIC,ProjectName,Status
-REG-20250416-2527bb9f,S6543210I,Acacia Breeze,Pending
-REG-20250416-b4274997,S6543210I,Binjai Hall,Approved
-REG-20250416-a1b2c3d4,T1234567J,Evergreen Heights,Approved
-REG-20250416-e5f6g7h8,T2109876H,Orchard Meadows,Approved
-REG-20250416-i9j0k1l2,S3210987K,Parkview Residences,Pending
-REG-20250416-m3n4o5p6,T4321098L,Lakeside Terraces,Approved
-REG-20250416-q7r8s9t0,S5432109M,Marina Heights,Approved
-REG-20250416-u1v2w3x4,T6543210N,Woodlands Sanctuary,Pending
+REG-20250416-q9r0s1t2,S5432109M,Evergreen Heights,Approved
 REG-20250416-y5z6a7b8,S7654321O,Urban Edge,Approved
-REG-20250416-c9d0e1f2,T8765432P,Garden Terraces,Pending
+REG-20250416-a1b2c3d4,T1234567J,Evergreen Heights,Approved
 REG-20250416-g3h4i5j6,S9876543Q,Bayfront Residences,Approved
-REG-20250416-k7l8m9n0,T0987654R,Hillview Haven,Approved
-REG-20250416-o1p2q3r4,S1098765S,Sengkang Sunrise,Pending
+REG-20250416-a3b4c5d6,T4321098V,Pasir Ris Sands,Approved
 REG-20250416-s5t6u7v8,T2109876T,Clementi Vista,Approved
 REG-20250416-w9x0y1z2,S3210987U,Waterfront Plaza,Pending
-REG-20250416-a3b4c5d6,T4321098V,Pasir Ris Sands,Approved
-REG-20250416-e7f8g9h0,T1234567J,City View,Pending
-REG-20250416-i1j2k3l4,S3210987K,Meadow View,Approved
+REG-20250416-m3n4o5p6,T4321098L,Lakeside Terraces,Approved
 REG-20250416-m5n6o7p8,T4321098L,Sunrise Gardens,Pending
-REG-20250416-q9r0s1t2,S5432109M,Evergreen Heights,Approved
+REG-20250416-q7r8s9t0,S5432109M,Marina Heights,Approved
+REG-20250416-i1j2k3l4,S3210987K,Meadow View,Approved
+REG-20250416-u1v2w3x4,T6543210N,Woodlands Sanctuary,Pending
+REG-20250416-e7f8g9h0,T1234567J,City View,Pending
+REG-20250416-b4274997,S6543210I,Binjai Hall,Approved
+REG-20250416-e5f6g7h8,T2109876H,Orchard Meadows,Approved
+REG-20250416-2527bb9f,S6543210I,Acacia Breeze,Pending
+REG-20250416-i9j0k1l2,S3210987K,Parkview Residences,Pending
+REG-20250416-c9d0e1f2,T8765432P,Garden Terraces,Pending
+REG-20250416-k7l8m9n0,T0987654R,Hillview Haven,Approved
+REG-20250416-o1p2q3r4,S1098765S,Sengkang Sunrise,Pending
