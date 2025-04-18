@@ -12,7 +12,22 @@ public enum FlatType {
     /**
      * 3-Room flat
      */
-    THREE_ROOM("3-Room");
+    THREE_ROOM("3-Room"),
+    
+    /**
+     * 4-Room flat
+     */
+    FOUR_ROOM("4-Room"),
+    
+    /**
+     * 5-Room flat
+     */
+    FIVE_ROOM("5-Room"),
+    
+    /**
+     * Executive flat
+     */
+    EXECUTIVE("Executive");
     
     private final String displayName;
     

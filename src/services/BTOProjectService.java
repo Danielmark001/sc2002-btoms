@@ -5,12 +5,14 @@ import models.BTOProject;
 import models.FlatTypeDetails;
 import models.HDBOfficer;
 import models.BTOApplication;
+import models.ProjectFilter;
 import models.User;
 import stores.DataStore;
 import enumeration.FlatType;
 import enumeration.MaritalStatus;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Map;
@@ -76,18 +78,51 @@ public class BTOProjectService implements IBTOProjectService {
                 .filter(project -> isEligible(user, project))
                 .collect(Collectors.toList());
     }
+    
     /**
- * Gets all visible BTO projects regardless of application status
- * @param user The user requesting projects
- * @return List of all visible BTO projects
- */
-public List<BTOProject> getEnquirableProjects(User user) {
-    return DataStore.getBTOProjectsData().values().stream()
-        .filter(project -> project.isVisible() || 
-                          DataStore.getBTOApplicationsData().values().stream()
-                              .anyMatch(app -> app.getApplicant().equals(user) && app.getProject().equals(project)))
-        .collect(Collectors.toList());
-}
+     * Gets available BTO projects for a user with filtering
+     * @param user The user to get projects for
+     * @param filter The filter to apply to the projects
+     * @return List of filtered available BTO projects
+     */
+    public List<BTOProject> getAvailableProjects(User user, ProjectFilter filter) {
+        List<BTOProject> availableProjects = getAvailableProjects(user);
+        return filter.applyFilter(availableProjects);
+    }
+    
+    /**
+     * Gets all visible BTO projects regardless of application status
+     * @param user The user requesting projects
+     * @return List of all visible BTO projects
+     */
+    public List<BTOProject> getEnquirableProjects(User user) {
+        return DataStore.getBTOProjectsData().values().stream()
+            .filter(project -> project.isVisible() || 
+                              DataStore.getBTOApplicationsData().values().stream()
+                                  .anyMatch(app -> app.getApplicant().equals(user) && app.getProject().equals(project)))
+            .collect(Collectors.toList());
+    }
+    
+    /**
+     * Gets all visible BTO projects with filtering
+     * @param user The user requesting projects
+     * @param filter The filter to apply
+     * @return List of filtered visible BTO projects
+     */
+    public List<BTOProject> getEnquirableProjects(User user, ProjectFilter filter) {
+        List<BTOProject> enquirableProjects = getEnquirableProjects(user);
+        return filter.applyFilter(enquirableProjects);
+    }
+    
+    /**
+     * Gets all BTO projects with filtering
+     * @param filter The filter to apply
+     * @return List of filtered BTO projects
+     */
+    public List<BTOProject> getAllProjects(ProjectFilter filter) {
+        List<BTOProject> allProjects = new ArrayList<>(DataStore.getBTOProjectsData().values());
+        return filter.applyFilter(allProjects);
+    }
 
     /**
      * Gets a filtered map of flat types that the applicant is eligible for
@@ -208,6 +243,17 @@ public List<BTOProject> getEnquirableProjects(User user) {
                     !project.getHDBOfficers().contains(hdbOfficer))
             .collect(Collectors.toList());
     }
+    
+    /**
+     * Gets all BTO projects that an HDB officer can join with filtering
+     * @param hdbOfficer The HDB officer
+     * @param filter The filter to apply
+     * @return List of filtered joinable BTO projects
+     */
+    public List<BTOProject> getJoinableProjects(HDBOfficer hdbOfficer, ProjectFilter filter) {
+        List<BTOProject> joinableProjects = getJoinableProjects(hdbOfficer);
+        return filter.applyFilter(joinableProjects);
+    }
 
     /**
      * Gets all BTO projects that an HDB officer has joined
@@ -218,6 +264,17 @@ public List<BTOProject> getEnquirableProjects(User user) {
         return DataStore.getBTOProjectsData().values().stream()
             .filter(project -> project.getHDBOfficers().contains(hdbOfficer))
             .collect(Collectors.toList());
+    }
+    
+    /**
+     * Gets all BTO projects that an HDB officer has joined with filtering
+     * @param hdbOfficer The HDB officer
+     * @param filter The filter to apply
+     * @return List of filtered joined BTO projects
+     */
+    public List<BTOProject> getJoinedProjects(HDBOfficer hdbOfficer, ProjectFilter filter) {
+        List<BTOProject> joinedProjects = getJoinedProjects(hdbOfficer);
+        return filter.applyFilter(joinedProjects);
     }
 
     /**

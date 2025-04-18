@@ -11,6 +11,7 @@ import enumeration.FlatType;
 import models.BTOProject;
 import models.FlatTypeDetails;
 import models.HDBManager;
+import models.ProjectFilter;
 import stores.DataStore;
 
 public class BTOProjectManagementService {
@@ -151,5 +152,26 @@ public class BTOProjectManagementService {
         return DataStore.getBTOProjectsData().values().stream()
             .filter(project -> project.getHDBManager().equals(hdbManager))
             .collect(Collectors.toList());
+    }
+    
+    /**
+     * Get filtered projects managed by a specific HDB Manager
+     * @param hdbManager Manager to get projects for
+     * @param filter Filter to apply
+     * @return Filtered list of managed projects
+     */
+    public List<BTOProject> getManagedProjects(HDBManager hdbManager, ProjectFilter filter) {
+        List<BTOProject> managedProjects = getManagedProjects(hdbManager);
+        return filter.applyFilter(managedProjects);
+    }
+    
+    /**
+     * Get all projects with filtering
+     * @param filter Filter to apply
+     * @return Filtered list of all projects
+     */
+    public List<BTOProject> getAllProjects(ProjectFilter filter) {
+        List<BTOProject> allProjects = new ArrayList<>(DataStore.getBTOProjectsData().values());
+        return filter.applyFilter(allProjects);
     }
 } 
