@@ -1,14 +1,13 @@
 package view;
 
-import models.ProjectFilter;
-import models.BTOProject;
-import models.User;
 import enumeration.FlatType;
-import stores.AuthStore;
-import stores.FilterStore;
-
 import java.util.List;
 import java.util.Scanner;
+import models.BTOProject;
+import models.ProjectFilter;
+import models.User;
+import stores.AuthStore;
+import stores.FilterStore;
 
 /**
  * View class for managing project filters
@@ -280,18 +279,6 @@ public class BTOProjectFilterView {
                 case 2:
                     filter.setFlatTypeFilter(FlatType.THREE_ROOM);
                     System.out.println("Projects will be filtered to only include 3-room flats.");
-                    break;
-                case 3:
-                    filter.setFlatTypeFilter(FlatType.FOUR_ROOM);
-                    System.out.println("Projects will be filtered to only include 4-room flats.");
-                    break;
-                case 4:
-                    filter.setFlatTypeFilter(FlatType.FIVE_ROOM);
-                    System.out.println("Projects will be filtered to only include 5-room flats.");
-                    break;
-                case 5:
-                    filter.setFlatTypeFilter(FlatType.EXECUTIVE);
-                    System.out.println("Projects will be filtered to only include executive flats.");
                     break;
                 default:
                     System.out.println("Invalid choice. Flat type filter not changed.");
