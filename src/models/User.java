@@ -1,7 +1,7 @@
 package models;
 
-import enumeration.UserType;
 import enumeration.MaritalStatus;
+import enumeration.UserType;
 
 public class User {
     private String name;

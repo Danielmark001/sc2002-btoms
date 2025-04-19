@@ -1,10 +1,6 @@
 package view;
 
-import models.BTOProject;
-import models.FlatTypeDetails;
-import models.ProjectFilter;
 import enumeration.FlatType;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -12,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import models.BTOProject;
+import models.FlatTypeDetails;
+import models.ProjectFilter;
 
 /**
  * View class for BTO project management operations
@@ -419,18 +418,6 @@ public class BTOProjectManagementView {
                 case 2:
                     filter.setFlatTypeFilter(FlatType.THREE_ROOM);
                     System.out.println("Projects will be filtered to only include 3-room flats.");
-                    break;
-                case 3:
-                    filter.setFlatTypeFilter(FlatType.FOUR_ROOM);
-                    System.out.println("Projects will be filtered to only include 4-room flats.");
-                    break;
-                case 4:
-                    filter.setFlatTypeFilter(FlatType.FIVE_ROOM);
-                    System.out.println("Projects will be filtered to only include 5-room flats.");
-                    break;
-                case 5:
-                    filter.setFlatTypeFilter(FlatType.EXECUTIVE);
-                    System.out.println("Projects will be filtered to only include executive flats.");
                     break;
                 default:
                     System.out.println("Invalid choice. Flat type filter not changed.");
