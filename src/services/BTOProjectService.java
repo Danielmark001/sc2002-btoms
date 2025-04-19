@@ -1,23 +1,23 @@
 package services;
 
+import enumeration.BTOApplicationStatus;
+import enumeration.FlatType;
+import enumeration.MaritalStatus;
+import interfaces.IBTOProjectService;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import models.Applicant;
+import models.BTOApplication;
 import models.BTOProject;
 import models.FlatTypeDetails;
 import models.HDBOfficer;
-import models.BTOApplication;
 import models.ProjectFilter;
 import models.User;
 import stores.DataStore;
-import enumeration.FlatType;
-import enumeration.MaritalStatus;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.Map;
-import java.util.HashMap;
-import interfaces.IBTOProjectService;
 
 /**
  * Service class for BTO project operations that can be used by both applicants and HDB officers
@@ -196,7 +196,7 @@ public class BTOProjectService implements IBTOProjectService {
      */
     public boolean hasExistingApplication(Applicant applicant) {
         return DataStore.getBTOApplicationsData().values().stream()
-            .anyMatch(application -> application.getApplicant().equals(applicant));
+            .anyMatch(application -> application.getApplicant().equals(applicant) && application.getStatus() != BTOApplicationStatus.UNSUCCESSFUL);
     }
 
     /**
