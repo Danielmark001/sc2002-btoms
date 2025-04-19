@@ -2,14 +2,17 @@ package controllers;
 
 import java.util.Scanner;
 import stores.AuthStore;
+import stores.FilterStore;
 import utils.TextDecorationUtils;
 import models.HDBOfficer;
 import models.BTOProject;
 import models.BTOApplication;
+import models.ProjectFilter;
 import models.User;
 import services.BTOProjectService;
 import view.BTOProjectAvailableView;
 import view.BTOApplicationView;
+import view.BTOProjectFilterView;
 import java.util.List;
 import java.util.Map;
 import stores.DataStore;
@@ -29,12 +32,14 @@ public class HDBOfficerController extends ApplicantController {
     private BTOProjectService projectService;
     private BTOProjectAvailableView projectView;
     private BTOApplicationView applicationView;
+    private BTOProjectFilterView filterView;
     private final EnquiryService enquiryService;
 
     public HDBOfficerController() {
         this.projectService = new BTOProjectService();
         this.projectView = new BTOProjectAvailableView();
         this.applicationView = new BTOApplicationView();
+        this.filterView = new BTOProjectFilterView();
         this.enquiryService = new EnquiryService();
     }
 
@@ -73,8 +78,18 @@ do {
             System.out.println("==========================================");
             System.out.print("Enter your choice: ");
 
-            choice = sc.nextInt();
-            sc.nextLine(); // consume newline
+            try {
+                String input = sc.nextLine().trim();
+                choice = Integer.parseInt(input);
+                
+                if (choice < 0 || choice > 9) {
+                    System.out.println("Invalid choice. Please enter 0-9!");
+                    continue;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                continue;
+            }
 
             switch (choice) {
                 case 1:
@@ -122,17 +137,98 @@ do {
      */
     private void viewJoinableBTOProjects() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
-        List<BTOProject> joinableProjects = projectService.getJoinableProjects(hdbOfficer);
         
-        if (joinableProjects.isEmpty()) {
-            System.out.println("\nNo joinable BTO projects at the moment.");
-            return;
+        // Get the user's filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(hdbOfficer);
+        
+        // Apply filters to get joinable projects
+        List<BTOProject> filteredProjects = projectService.getJoinableProjects(hdbOfficer, filter);
+        
+        if (filteredProjects.isEmpty()) {
+            System.out.println("\nNo joinable BTO projects match your current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all joinable projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(hdbOfficer, filter);
+                filteredProjects = projectService.getJoinableProjects(hdbOfficer);
+                
+                if (filteredProjects.isEmpty()) {
+                    System.out.println("\nNo joinable BTO projects at the moment.");
+                    return;
+                }
+            } else {
+                return;
+            }
         }
         
-        System.out.println("\nJoinable BTO Projects:");
-        for (BTOProject project : joinableProjects) {
-            projectView.displayProjectInfo(project);
-            System.out.println("----------------------------------------");
+        // Display projects with filter info
+        filterView.displayFilteredProjects(filteredProjects, filter);
+        
+        boolean done = false;
+        while (!done) {
+            System.out.println("\nOptions:");
+            System.out.println("1. View project details");
+            System.out.println("2. Filter projects");
+            System.out.println("0. Back to main menu");
+            System.out.print("Enter your choice: ");
+            
+            String input = sc.nextLine().trim();
+            
+            try {
+                int choice = Integer.parseInt(input);
+                
+                switch (choice) {
+                    case 0:
+                        done = true;
+                        break;
+                    case 1:
+                        viewProjectDetails(filteredProjects);
+                        break;
+                    case 2:
+                        // Show filter options
+                        filter = filterView.showFilterOptions(filter);
+                        // Apply updated filters
+                        filteredProjects = projectService.getJoinableProjects(hdbOfficer, filter);
+                        // Display projects with updated filters
+                        filterView.displayFilteredProjects(filteredProjects, filter);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+    }
+    
+    /**
+     * View details for a selected project
+     * @param projects List of projects to choose from
+     */
+    private void viewProjectDetails(List<BTOProject> projects) {
+        System.out.print("Enter project number (1-" + projects.size() + ") or 0 to cancel: ");
+        
+        try {
+            int choice = Integer.parseInt(sc.nextLine().trim());
+            
+            if (choice == 0) {
+                return;
+            }
+            
+            if (choice < 1 || choice > projects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+            
+            BTOProject selectedProject = projects.get(choice - 1);
+            projectView.displayProjectInfo(selectedProject);
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
         }
     }
 
@@ -145,38 +241,54 @@ do {
         // Check if officer has projects with overlapping application periods
         List<BTOProject> handledProjects = hdbOfficer.getHandledProjects();
         
-        List<BTOProject> joinableProjects = projectService.getJoinableProjects(hdbOfficer);
+        // Get filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(hdbOfficer);
+        
+        // Get filtered joinable projects
+        List<BTOProject> joinableProjects = projectService.getJoinableProjects(hdbOfficer, filter);
         
         if (joinableProjects.isEmpty()) {
-            System.out.println("\nNo joinable BTO projects at the moment.");
-            return;
-        }
-        
-        System.out.println("\nJoinable BTO Projects:");
-        for (BTOProject project : joinableProjects) {
-            projectView.displayProjectInfo(project);
-            System.out.println("----------------------------------------");
-        }
-        
-        System.out.print("Enter the project name you want to join (Enter X to cancel): ");
-        String projectName = sc.nextLine();
-        
-        if (projectName.equalsIgnoreCase("X")) {
-            return;
-        }
-        
-        BTOProject selectedProject = null;
-        for (BTOProject project : joinableProjects) {
-            if (project.getProjectName().equals(projectName)) {
-                selectedProject = project;
-                break;
+            System.out.println("\nNo joinable BTO projects match your current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all joinable projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(hdbOfficer, filter);
+                joinableProjects = projectService.getJoinableProjects(hdbOfficer);
+                
+                if (joinableProjects.isEmpty()) {
+                    System.out.println("\nNo joinable BTO projects at the moment.");
+                    return;
+                }
+            } else {
+                return;
             }
         }
         
-        if (selectedProject == null) {
-            System.out.println("Invalid project name. Please try again.");
+        // Display filtered projects
+        filterView.displayFilteredProjects(joinableProjects, filter);
+        
+        // Select project to join
+        System.out.print("\nEnter project number to join (1-" + joinableProjects.size() + ") or 0 to cancel: ");
+        int projectChoice;
+        try {
+            projectChoice = Integer.parseInt(sc.nextLine().trim());
+            if (projectChoice == 0) {
+                return;
+            }
+            if (projectChoice < 1 || projectChoice > joinableProjects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
             return;
         }
+        
+        BTOProject selectedProject = joinableProjects.get(projectChoice - 1);
 
         // Check if project is within application period
         LocalDate today = LocalDate.now();
@@ -197,6 +309,15 @@ do {
                                  " to " + handledProject.getApplicationClosingDate());
                 return;
             }
+        }
+        
+        // Confirm joining
+        System.out.print("Confirm joining " + selectedProject.getProjectName() + " as an officer? (yes/no): ");
+        String confirmation = sc.nextLine().trim().toLowerCase();
+        
+        if (!confirmation.equals("yes")) {
+            System.out.println("Registration cancelled.");
+            return;
         }
         
         // Create a new HDBOfficerRegistration with pending status
@@ -221,35 +342,78 @@ do {
      */
     private void viewJoinedBTOProjects() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
-        List<BTOProject> joinedProjects = projectService.getJoinedProjects(hdbOfficer);
         
-        if (joinedProjects.isEmpty()) {
-            System.out.println("\nYou have not joined any BTO projects.");
-            return;
+        // Get the user's filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(hdbOfficer);
+        
+        // Apply filters to get joined projects
+        List<BTOProject> filteredProjects = projectService.getJoinedProjects(hdbOfficer, filter);
+        
+        if (filteredProjects.isEmpty()) {
+            System.out.println("\nNo joined BTO projects match your current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all joined projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(hdbOfficer, filter);
+                filteredProjects = projectService.getJoinedProjects(hdbOfficer);
+                
+                if (filteredProjects.isEmpty()) {
+                    System.out.println("\nYou have not joined any BTO projects.");
+                    return;
+                }
+            } else {
+                return;
+            }
         }
         
-        System.out.println("\nJoined BTO Projects:");
-        for (BTOProject project : joinedProjects) {
-            projectView.displayProjectInfo(project);
-            System.out.println("----------------------------------------");
+        // Display projects with filter info
+        filterView.displayFilteredProjects(filteredProjects, filter);
+        
+        boolean done = false;
+        while (!done) {
+            System.out.println("\nOptions:");
+            System.out.println("1. View project details");
+            System.out.println("2. Filter projects");
+            System.out.println("0. Back to main menu");
+            System.out.print("Enter your choice: ");
+            
+            String input = sc.nextLine().trim();
+            
+            try {
+                int choice = Integer.parseInt(input);
+                
+                switch (choice) {
+                    case 0:
+                        done = true;
+                        break;
+                    case 1:
+                        viewProjectDetails(filteredProjects);
+                        break;
+                    case 2:
+                        // Show filter options
+                        filter = filterView.showFilterOptions(filter);
+                        // Apply updated filters
+                        filteredProjects = projectService.getJoinedProjects(hdbOfficer, filter);
+                        // Display projects with updated filters
+                        filterView.displayFilteredProjects(filteredProjects, filter);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
         }
     }
 
     @Override
     protected void viewAvailableBTOProjects() {
-        User user = AuthStore.getCurrentUser();
-        List<BTOProject> availableProjects = projectService.getAvailableProjects(user);
-        
-        if (availableProjects.isEmpty()) {
-            System.out.println("\nNo available BTO projects at the moment.");
-            return;
-        }
-        
-        System.out.println("\nAvailable BTO Projects:");
-        for (BTOProject project : availableProjects) {
-            projectView.displayProjectInfo(project);
-            System.out.println("----------------------------------------");
-        }
+        // We're reusing the implementation from ApplicantController that already has filtering
+        super.viewAvailableBTOProjects();
     }
 
     @Override
@@ -262,36 +426,67 @@ do {
             return;
         }
         
-        List<BTOProject> availableProjects = projectService.getAvailableProjects(hdbOfficer);
-
+        // Get filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(hdbOfficer);
+        
+        // Get filtered available projects
+        List<BTOProject> availableProjects = projectService.getAvailableProjects(hdbOfficer, filter);
+        
         if (availableProjects.isEmpty()) {
-            System.out.println("\nNo available BTO projects at the moment.");
-            return;
-        }
-
-        System.out.print("Enter the project name you want to apply for (Enter X to cancel): ");
-        String projectName = sc.nextLine();
-
-        if (projectName.equalsIgnoreCase("X")) {
-            return;
-        }
-
-        BTOProject selectedProject = null;
-        for (BTOProject project : availableProjects) {
-            if (project.getProjectName().equals(projectName)) {
-                selectedProject = project;
-                break;
+            System.out.println("\nNo available BTO projects match your current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all available projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(hdbOfficer, filter);
+                availableProjects = projectService.getAvailableProjects(hdbOfficer);
+                
+                if (availableProjects.isEmpty()) {
+                    System.out.println("\nNo available BTO projects at the moment.");
+                    return;
+                }
+            } else {
+                return;
             }
         }
-
-        if (selectedProject == null) {
-            System.out.println("Invalid project name. Please try again.");
+        
+        // Display filtered projects
+        filterView.displayFilteredProjects(availableProjects, filter);
+        
+        // Select project to apply for
+        System.out.print("\nEnter project number to apply for (1-" + availableProjects.size() + ") or 0 to cancel: ");
+        int projectChoice;
+        try {
+            projectChoice = Integer.parseInt(sc.nextLine().trim());
+            if (projectChoice == 0) {
+                return;
+            }
+            if (projectChoice < 1 || projectChoice > availableProjects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
             return;
         }
+        
+        BTOProject selectedProject = availableProjects.get(projectChoice - 1);
 
         // Check if the HDB officer is already assigned to the project
         if (!projectService.canOfficerApplyForProject(selectedProject, hdbOfficer)) {
             System.out.println("You cannot apply for a project that you are assigned to as an HDB officer.");
+            return;
+        }
+        
+        // Confirm application
+        System.out.print("Confirm application for " + selectedProject.getProjectName() + "? (yes/no): ");
+        String confirmation = sc.nextLine().trim().toLowerCase();
+        
+        if (!confirmation.equals("yes")) {
+            System.out.println("Application cancelled.");
             return;
         }
 

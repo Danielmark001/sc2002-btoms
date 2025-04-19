@@ -7,10 +7,13 @@ import java.util.List;
 import models.Applicant;
 import models.BTOApplication;
 import models.BTOProject;
+import models.ProjectFilter;
 import models.User;
 import stores.AuthStore;
+import stores.FilterStore;
 import view.BTOProjectAvailableView;
 import view.BTOApplicationView;
+import view.BTOProjectFilterView;
 import services.BTOProjectService;
 import utils.TextDecorationUtils;
 import java.time.LocalDate;
@@ -28,12 +31,14 @@ public class ApplicantController extends UserController {
     private BTOProjectService projectService;
     private BTOProjectAvailableView projectView;
     private BTOApplicationView applicationView;
+    private BTOProjectFilterView filterView;
     private final EnquiryService enquiryService;
 
     public ApplicantController() {
         this.projectService = new BTOProjectService();
         this.projectView = new BTOProjectAvailableView();
         this.applicationView = new BTOApplicationView();
+        this.filterView = new BTOProjectFilterView();
         this.enquiryService = new EnquiryService();
     }
     
@@ -124,49 +129,152 @@ public class ApplicantController extends UserController {
 
     protected void viewAvailableBTOProjects() {
         User user = AuthStore.getCurrentUser();
-        List<BTOProject> availableProjects = projectService.getAvailableProjects(user);
         
-        if (availableProjects.isEmpty()) {
-            System.out.println("\nNo available BTO projects at the moment.");
-            return;
+        // Get the user's filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(user);
+        
+        // Apply filters to get available projects
+        List<BTOProject> filteredProjects = projectService.getAvailableProjects(user, filter);
+        
+        if (filteredProjects.isEmpty()) {
+            System.out.println("\nNo available BTO projects match your current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all available projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(user, filter);
+                filteredProjects = projectService.getAvailableProjects(user);
+                
+                if (filteredProjects.isEmpty()) {
+                    System.out.println("\nNo available BTO projects at the moment.");
+                    return;
+                }
+            } else {
+                return;
+            }
         }
         
-        System.out.println("\nAvailable BTO Projects:");
-        for (BTOProject project : availableProjects) {
-            projectView.displayProjectInfo(project);
-            System.out.println("----------------------------------------");
+        // Display projects with filter info
+        filterView.displayFilteredProjects(filteredProjects, filter);
+        
+        boolean done = false;
+        while (!done) {
+            System.out.println("\nOptions:");
+            System.out.println("1. View project details");
+            System.out.println("2. Filter projects");
+            System.out.println("0. Back to main menu");
+            System.out.print("Enter your choice: ");
+            
+            String input = sc.nextLine().trim();
+            
+            try {
+                int choice = Integer.parseInt(input);
+                
+                switch (choice) {
+                    case 0:
+                        done = true;
+                        break;
+                    case 1:
+                        viewProjectDetails(filteredProjects);
+                        break;
+                    case 2:
+                        // Show filter options
+                        filter = filterView.showFilterOptions(filter);
+                        // Apply updated filters
+                        filteredProjects = projectService.getAvailableProjects(user, filter);
+                        // Display projects with updated filters
+                        filterView.displayFilteredProjects(filteredProjects, filter);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+    }
+    
+    /**
+     * View details for a selected project
+     * @param projects List of projects to choose from
+     */
+    private void viewProjectDetails(List<BTOProject> projects) {
+        System.out.print("Enter project number (1-" + projects.size() + ") or 0 to cancel: ");
+        
+        try {
+            int choice = Integer.parseInt(sc.nextLine().trim());
+            
+            if (choice == 0) {
+                return;
+            }
+            
+            if (choice < 1 || choice > projects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+            
+            BTOProject selectedProject = projects.get(choice - 1);
+            projectView.displayProjectInfo(selectedProject);
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
         }
     }
 
     protected void applyForBTOProject() {
         Applicant applicant = (Applicant) AuthStore.getCurrentUser();
         
-        List<BTOProject> availableProjects = projectService.getAvailableProjects(applicant);
+        // Get filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(applicant);
+        
+        // Get filtered available projects
+        List<BTOProject> availableProjects = projectService.getAvailableProjects(applicant, filter);
 
         if (availableProjects.isEmpty()) {
-            System.out.println("\nNo available BTO projects at the moment.");
-            return;
-        }
-
-        System.out.print("Enter the project name you want to apply for (Enter X to cancel): ");
-        String projectName = sc.nextLine();
-
-        if (projectName.equalsIgnoreCase("X")) {
-            return;
-        }
-
-        BTOProject selectedProject = null;
-        for (BTOProject project : availableProjects) {
-            if (project.getProjectName().equals(projectName)) {
-                selectedProject = project;
-                break;
+            System.out.println("\nNo available BTO projects match your current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all available projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(applicant, filter);
+                availableProjects = projectService.getAvailableProjects(applicant);
+                
+                if (availableProjects.isEmpty()) {
+                    System.out.println("\nNo available BTO projects at the moment.");
+                    return;
+                }
+            } else {
+                return;
             }
         }
-
-        if (selectedProject == null) {
-            System.out.println("Invalid project name. Please try again.");
+        
+        // Display filtered projects
+        filterView.displayFilteredProjects(availableProjects, filter);
+        
+        // Select project to apply for
+        System.out.print("\nEnter project number to apply for (1-" + availableProjects.size() + ") or 0 to cancel: ");
+        int projectChoice;
+        try {
+            projectChoice = Integer.parseInt(sc.nextLine().trim());
+            if (projectChoice == 0) {
+                return;
+            }
+            if (projectChoice < 1 || projectChoice > availableProjects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
             return;
         }
+        
+        BTOProject selectedProject = availableProjects.get(projectChoice - 1);
 
         // Check eligibility one final time before applying
         if (!projectService.isEligible(applicant, selectedProject)) {
@@ -183,6 +291,15 @@ public class ApplicantController extends UserController {
             if (projectService.hasExistingApplication(applicant)) {
                 System.out.println("You already have an existing BTO application.");
             }
+            return;
+        }
+        
+        // Confirm application
+        System.out.print("Confirm application for " + selectedProject.getProjectName() + "? (yes/no): ");
+        String confirmation = sc.nextLine().trim().toLowerCase();
+        
+        if (!confirmation.equals("yes")) {
+            System.out.println("Application cancelled.");
             return;
         }
 
@@ -206,67 +323,128 @@ public class ApplicantController extends UserController {
             applicationView.displayApplicationInfo(application);
         }
     }
-    
 
     /**
      * Submit an enquiry about a BTO project
      */
-    /**
-    * Submit an enquiry about a BTO project
-    * 
-    */
-protected void submitEnquiry() {
-    Applicant applicant = (Applicant) AuthStore.getCurrentUser();
-    
-    // Use the new method to get all enquirable projects instead of just available ones
-    List<BTOProject> enquirableProjects = projectService.getEnquirableProjects(applicant);
-    
-    if (enquirableProjects.isEmpty()) {
-        System.out.println("\nNo BTO projects available for enquiry at the moment.");
-        return;
-    }
-    
-    // Display available projects
-    System.out.println("\nProjects Available for Enquiry:");
-    for (int i = 0; i < enquirableProjects.size(); i++) {
-        BTOProject project = enquirableProjects.get(i);
-        System.out.println((i + 1) + ". " + project.getProjectName());
-    }
-    
-    // Select project
-    System.out.print("\nEnter project number (0 to cancel): ");
-    int projectChoice;
-    try {
-        projectChoice = Integer.parseInt(sc.nextLine());
-        if (projectChoice == 0) {
+    protected void submitEnquiry() {
+        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+        
+        // Get filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(applicant);
+        
+        // Get filtered enquirable projects
+        List<BTOProject> enquirableProjects = projectService.getEnquirableProjects(applicant, filter);
+        
+        if (enquirableProjects.isEmpty()) {
+            System.out.println("\nNo BTO projects match your current filters for enquiry.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all projects available for enquiry? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(applicant, filter);
+                enquirableProjects = projectService.getEnquirableProjects(applicant);
+                
+                if (enquirableProjects.isEmpty()) {
+                    System.out.println("\nNo BTO projects available for enquiry at the moment.");
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+        
+        // Display filtered projects
+        filterView.displayFilteredProjects(enquirableProjects, filter);
+        
+        // Options before selecting a project
+        boolean done = false;
+        while (!done) {
+            System.out.println("\nOptions:");
+            System.out.println("1. Select a project to submit enquiry");
+            System.out.println("2. Filter projects");
+            System.out.println("0. Back to main menu");
+            System.out.print("Enter your choice: ");
+            
+            String input = sc.nextLine().trim();
+            
+            try {
+                int choice = Integer.parseInt(input);
+                
+                switch (choice) {
+                    case 0:
+                        return;
+                    case 1:
+                        done = true;
+                        break;
+                    case 2:
+                        // Show filter options
+                        filter = filterView.showFilterOptions(filter);
+                        // Apply updated filters
+                        enquirableProjects = projectService.getEnquirableProjects(applicant, filter);
+                        // Display projects with updated filters
+                        filterView.displayFilteredProjects(enquirableProjects, filter);
+                        
+                        if (enquirableProjects.isEmpty()) {
+                            System.out.println("\nNo projects match your current filters. Please adjust your filters.");
+                            // Show filter options again
+                            filter = filterView.showFilterOptions(filter);
+                            // Apply updated filters
+                            enquirableProjects = projectService.getEnquirableProjects(applicant, filter);
+                            // Display projects with updated filters
+                            filterView.displayFilteredProjects(enquirableProjects, filter);
+                            
+                            if (enquirableProjects.isEmpty()) {
+                                System.out.println("\nStill no projects match your filters. Returning to main menu.");
+                                return;
+                            }
+                        }
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+        
+        // Select project
+        System.out.print("\nEnter project number (1-" + enquirableProjects.size() + ") or 0 to cancel: ");
+        int projectChoice;
+        try {
+            projectChoice = Integer.parseInt(sc.nextLine());
+            if (projectChoice == 0) {
+                return;
+            }
+            if (projectChoice < 1 || projectChoice > enquirableProjects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid input. Please enter a valid project number.");
             return;
         }
-        if (projectChoice < 1 || projectChoice > enquirableProjects.size()) {
-            System.out.println("Invalid project number.");
+        
+        BTOProject selectedProject = enquirableProjects.get(projectChoice - 1);
+        
+        // Get enquiry message
+        System.out.print("Enter your enquiry message: ");
+        String message = sc.nextLine();
+        
+        if (message.trim().isEmpty()) {
+            System.out.println("Enquiry message cannot be empty.");
             return;
         }
-    } catch (Exception e) {
-        System.out.println("Invalid input. Please enter a valid project number.");
-        return;
+        
+        // Use the service to create enquiry
+        Enquiry enquiry = enquiryService.createEnquiry(applicant, selectedProject, message);
+        
+        System.out.println("\nEnquiry submitted successfully!");
+        System.out.println("Enquiry ID: " + enquiry.getEnquiryId());
     }
-    
-    BTOProject selectedProject = enquirableProjects.get(projectChoice - 1);
-    
-    // Get enquiry message
-    System.out.print("Enter your enquiry message: ");
-    String message = sc.nextLine();
-    
-    if (message.trim().isEmpty()) {
-        System.out.println("Enquiry message cannot be empty.");
-        return;
-    }
-    
-    // Use the service to create enquiry
-    Enquiry enquiry = enquiryService.createEnquiry(applicant, selectedProject, message);
-    
-    System.out.println("\nEnquiry submitted successfully!");
-    System.out.println("Enquiry ID: " + enquiry.getEnquiryId());
-}
 
     /**
      * View enquiries submitted by the applicant
@@ -646,6 +824,3 @@ private void deleteEnquiry(List<Enquiry> enquiries) {
         return availableTypes.toString();
     }
 }
-
-
-

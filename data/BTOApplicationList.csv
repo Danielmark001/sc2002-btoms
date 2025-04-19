@@ -1,5 +1,23 @@
 ApplicationId,ApplicantNRIC,ProjectName,FlatType,Status
+APP-20250416-g3h4i5j6,S8901234N,Bayfront Residences,Executive,Booked
+APP-20250416-m5n6o7p8,S6789012V,Acacia Breeze,3-Room,Unsuccessful
+APP-20250416-m3n4o5p6,T3456789I,Lakeside Terraces,4-Room,Unsuccessful
+APP-20250416-s5t6u7v8,T1234567Q,Clementi Vista,4-Room,Unsuccessful
 20250416-eb2a9f89,T2345678D,Binjai Hall,2-Room,Unsuccessful
-20250416-5cc171db,S9876543C,Meadow View,3-Room,Booked
+APP-20250416-y5z6a7b8,S6789012L,Urban Edge,4-Room,Unsuccessful
 20250416-52c30d75,S3456789E,Sunrise Gardens,null,Unsuccessful
-20250412-cbf19f27,S1234567A,Sunrise Gardens,null,Unsuccessful
+APP-20250416-c9d0e1f2,T7890123M,Garden Terraces,5-Room,Unsuccessful
+APP-20250416-q9r0s1t2,T7890123W,Orchard Meadows,4-Room,Successful
+APP-20250416-o1p2q3r4,S0123456P,Sengkang Sunrise,3-Room,Unsuccessful
+APP-20250416-u3v4w5x6,S8901234X,Marina Heights,Executive,Pending
+APP-20250416-a1b2c3d4,S7890123F,Evergreen Heights,4-Room,Pending
+APP-20250416-k7l8m9n0,T9012345O,Hillview Haven,2-Room,Pending
+APP-20250416-e5f6g7h8,T8901234G,Orchard Meadows,5-Room,Unsuccessful
+APP-20250416-i9j0k1l2,S2345678H,Parkview Residences,3-Room,Pending
+APP-20250416-y7z8a9b0,T9012345Y,Urban Edge,3-Room,Booked
+APP-20250416-e7f8g9h0,S4567890T,City View,3-Room,Successful
+APP-20250416-q7r8s9t0,S4567890J,Marina Heights,5-Room,Booked
+APP-20250416-i1j2k3l4,T5678901U,Meadow View,2-Room,Pending
+APP-20250416-w9x0y1z2,S2345678R,Waterfront Plaza,5-Room,Unsuccessful
+APP-20250416-u1v2w3x4,T5678901K,Woodlands Sanctuary,3-Room,Unsuccessful
+APP-20250416-a3b4c5d6,T3456789S,Pasir Ris Sands,2-Room,Booked

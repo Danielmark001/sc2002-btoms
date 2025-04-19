@@ -20,11 +20,13 @@ import models.HDBOfficer;
 import models.HDBOfficerRegistration;
 import models.Applicant;
 import models.Enquiry;
+import models.ProjectFilter;
 import models.WithdrawalRequest;
 import services.BTOProjectService;
 import services.EnquiryService;
 import services.ReportService;
 import stores.DataStore;
+import stores.FilterStore;
 import view.ReportView;
 import utils.TextDecorationUtils;
 import services.BTOProjectManagementService;
@@ -321,40 +323,180 @@ do {
     }
 
     /**
-     * View all BTO projects
+     * View all BTO projects with filtering
      */
     private void viewAllProjects() {
         System.out.println("\n===== All BTO Projects =====");
         
-        List<BTOProject> projects = new ArrayList<BTOProject>(DataStore.getBTOProjectsData().values());
+        // Get filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(hdbManager);
         
-        if (projects.isEmpty()) {
-            System.out.println("No projects found.");
-            return;
+        // Apply filter to all projects
+        List<BTOProject> filteredProjects = btoProjectService.getAllProjects(filter);
+        
+        if (filteredProjects.isEmpty()) {
+            System.out.println("\nNo projects match the current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(hdbManager, filter);
+                filteredProjects = new ArrayList<>(DataStore.getBTOProjectsData().values());
+                
+                if (filteredProjects.isEmpty()) {
+                    System.out.println("No projects found.");
+                    return;
+                }
+            } else {
+                return;
+            }
         }
         
-        for (int i = 0; i < projects.size(); i++) {
-            System.out.println("\nProject " + (i + 1) + ":");
-            projectManagementView.displayProjectDetails(projects.get(i));
+        // Display filtered projects
+        projectManagementView.displayFilteredProjects(filteredProjects, filter);
+        
+        boolean done = false;
+        while (!done) {
+            System.out.println("\nOptions:");
+            System.out.println("1. View project details");
+            System.out.println("2. Filter projects");
+            System.out.println("0. Back to main menu");
+            System.out.print("Enter your choice: ");
+            
+            String input = sc.nextLine().trim();
+            
+            try {
+                int choice = Integer.parseInt(input);
+                
+                switch (choice) {
+                    case 0:
+                        done = true;
+                        break;
+                    case 1:
+                        viewProjectDetails(filteredProjects);
+                        break;
+                    case 2:
+                        // Show filter options
+                        filter = projectManagementView.showFilterOptions(filter);
+                        // Apply updated filters
+                        filteredProjects = btoProjectService.getAllProjects(filter);
+                        // Display projects with updated filters
+                        projectManagementView.displayFilteredProjects(filteredProjects, filter);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+    }
+    
+    /**
+     * View details for a selected project
+     * @param projects List of projects to choose from
+     */
+    private void viewProjectDetails(List<BTOProject> projects) {
+        System.out.print("Enter project number (1-" + projects.size() + ") or 0 to cancel: ");
+        
+        try {
+            int choice = Integer.parseInt(sc.nextLine().trim());
+            
+            if (choice == 0) {
+                return;
+            }
+            
+            if (choice < 1 || choice > projects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+            
+            BTOProject selectedProject = projects.get(choice - 1);
+            projectManagementView.displayProjectDetails(selectedProject);
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
         }
     }
 
     /**
-     * View projects created by the current HDB Manager
+     * View projects created by the current HDB Manager with filtering
      */
     private void viewMyProjects() {
         System.out.println("\n===== My BTO Projects =====");
         
+        // Get filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(hdbManager);
+        
+        // Get managed projects
         List<BTOProject> myProjects = projectManagementService.getManagedProjects(hdbManager);
         
-        if (myProjects.isEmpty()) {
-            System.out.println("You have not created any projects.");
-            return;
+        // Apply filter
+        List<BTOProject> filteredProjects = filter.applyFilter(myProjects);
+        
+        if (filteredProjects.isEmpty()) {
+            System.out.println("\nNo projects match the current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all your projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(hdbManager, filter);
+                filteredProjects = myProjects;
+                
+                if (filteredProjects.isEmpty()) {
+                    System.out.println("You have not created any projects.");
+                    return;
+                }
+            } else {
+                return;
+            }
         }
         
-        for (int i = 0; i < myProjects.size(); i++) {
-            System.out.println("\nProject " + (i + 1) + ":");
-            projectManagementView.displayProjectDetails(myProjects.get(i));
+        // Display filtered projects
+        projectManagementView.displayFilteredProjects(filteredProjects, filter);
+        
+        boolean done = false;
+        while (!done) {
+            System.out.println("\nOptions:");
+            System.out.println("1. View project details");
+            System.out.println("2. Filter projects");
+            System.out.println("0. Back to main menu");
+            System.out.print("Enter your choice: ");
+            
+            String input = sc.nextLine().trim();
+            
+            try {
+                int choice = Integer.parseInt(input);
+                
+                switch (choice) {
+                    case 0:
+                        done = true;
+                        break;
+                    case 1:
+                        viewProjectDetails(filteredProjects);
+                        break;
+                    case 2:
+                        // Show filter options
+                        filter = projectManagementView.showFilterOptions(filter);
+                        // Apply updated filters
+                        filteredProjects = filter.applyFilter(myProjects);
+                        // Save filter settings
+                        FilterStore.setProjectFilter(hdbManager, filter);
+                        // Display projects with updated filters
+                        projectManagementView.displayFilteredProjects(filteredProjects, filter);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
         }
     }
 
@@ -364,24 +506,66 @@ do {
     private void toggleProjectVisibility() {
         System.out.println("\n===== Toggle Project Visibility =====");
         
-        // Get project to toggle
-        BTOProject project = selectProject("Select project to toggle visibility: ", true);
-        if (project == null) {
-            return;
+        // Get filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(hdbManager);
+        
+        // Get managed projects with filter
+        List<BTOProject> myProjects = projectManagementService.getManagedProjects(hdbManager);
+        List<BTOProject> filteredProjects = filter.applyFilter(myProjects);
+        
+        if (filteredProjects.isEmpty()) {
+            System.out.println("\nNo projects match the current filters.");
+            
+            // Offer to reset filters
+            System.out.print("Would you like to reset filters and view all your projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(hdbManager, filter);
+                filteredProjects = myProjects;
+                
+                if (filteredProjects.isEmpty()) {
+                    System.out.println("You have not created any projects.");
+                    return;
+                }
+            } else {
+                return;
+            }
         }
         
-        System.out.println("\nCurrent project details:");
-        projectManagementView.displayProjectDetails(project);
+        // Display filtered projects
+        projectManagementView.displayFilteredProjects(filteredProjects, filter);
         
-        System.out.println("Current visibility: " + (project.isVisible() ? "Visible" : "Hidden"));
-        System.out.print("Set visibility to (true/false): ");
-        
+        // Select project to toggle visibility
+        System.out.print("\nEnter project number to toggle visibility (0 to cancel): ");
+        int choice;
         try {
-            boolean newVisibility = Boolean.parseBoolean(sc.nextLine());
-            projectManagementService.updateVisibility(project, newVisibility);
+            choice = Integer.parseInt(sc.nextLine().trim());
+            
+            if (choice == 0) {
+                return;
+            }
+            
+            if (choice < 1 || choice > filteredProjects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+            
+            BTOProject selectedProject = filteredProjects.get(choice - 1);
+            
+            System.out.println("\nCurrent project details:");
+            projectManagementView.displayProjectDetails(selectedProject);
+            
+            System.out.println("Current visibility: " + (selectedProject.isVisible() ? "Visible" : "Hidden"));
+            System.out.print("Set visibility to (true/false): ");
+            
+            boolean newVisibility = Boolean.parseBoolean(sc.nextLine().trim());
+            projectManagementService.updateVisibility(selectedProject, newVisibility);
             System.out.println("Project visibility updated successfully!");
-        } catch (Exception e) {
-            System.out.println("Invalid input. Please enter true or false.");
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
         }
     }
 
@@ -526,8 +710,65 @@ do {
             return;
         }
         
-        for (int i = 0; i < applications.size(); i++) {
-            BTOApplication application = applications.get(i);
+        System.out.println("\nFilter applications by:");
+        System.out.println("1. All applications");
+        System.out.println("2. Pending applications");
+        System.out.println("3. Successful applications");
+        System.out.println("4. Unsuccessful applications");
+        System.out.println("5. Booked applications");
+        System.out.print("Enter your choice: ");
+        
+        int filterChoice = 1;
+        try {
+            filterChoice = Integer.parseInt(sc.nextLine().trim());
+            if (filterChoice < 1 || filterChoice > 5) {
+                System.out.println("Invalid choice. Showing all applications.");
+                filterChoice = 1;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Showing all applications.");
+            filterChoice = 1;
+        }
+        
+        // Apply status filter
+        List<BTOApplication> filteredApplications = applications;
+        switch (filterChoice) {
+            case 2:
+                filteredApplications = applications.stream()
+                    .filter(application -> application.getStatus() == BTOApplicationStatus.PENDING)
+                    .collect(Collectors.toList());
+                System.out.println("\nShowing pending applications:");
+                break;
+            case 3:
+                filteredApplications = applications.stream()
+                    .filter(application -> application.getStatus() == BTOApplicationStatus.SUCCESSFUL)
+                    .collect(Collectors.toList());
+                System.out.println("\nShowing successful applications:");
+                break;
+            case 4:
+                filteredApplications = applications.stream()
+                    .filter(application -> application.getStatus() == BTOApplicationStatus.UNSUCCESSFUL)
+                    .collect(Collectors.toList());
+                System.out.println("\nShowing unsuccessful applications:");
+                break;
+            case 5:
+                filteredApplications = applications.stream()
+                    .filter(application -> application.getStatus() == BTOApplicationStatus.BOOKED)
+                    .collect(Collectors.toList());
+                System.out.println("\nShowing booked applications:");
+                break;
+            default:
+                System.out.println("\nShowing all applications:");
+                break;
+        }
+        
+        if (filteredApplications.isEmpty()) {
+            System.out.println("No applications found with the selected filter.");
+            return;
+        }
+        
+        for (int i = 0; i < filteredApplications.size(); i++) {
+            BTOApplication application = filteredApplications.get(i);
             System.out.println("\nApplication " + (i + 1) + ":");
             System.out.println("Application ID: " + application.getApplicationId());
             System.out.println("Applicant: " + application.getApplicant().getName() + " (" + application.getApplicant().getNric() + ")");
@@ -829,111 +1070,109 @@ do {
     }
 
     /**
-     * View and reply to project enquiries
+     * View and reply to project enquiries for projects managed by this HDB Manager
      */
-    /**
- * View and reply to project enquiries for projects managed by this HDB Manager
- */
-private void viewAndReplyToProjectEnquiries() {
-    // Get projects managed by this HDB Manager
-    List<BTOProject> managedProjects = DataStore.getBTOProjectsData().values().stream()
-        .filter(project -> project.getHDBManager().equals(hdbManager))
-        .collect(Collectors.toList());
-    
-    if (managedProjects.isEmpty()) {
-        System.out.println("\nYou have not created any projects.");
-        return;
-    }
-    
-    // Display managed projects
-    System.out.println("\n===== Your Managed Projects =====");
-    for (int i = 0; i < managedProjects.size(); i++) {
-        BTOProject project = managedProjects.get(i);
-        System.out.println((i + 1) + ". " + project.getProjectName());
-    }
-    
-    // Select project
-    System.out.print("\nEnter project number: ");
-    int projectChoice;
-    try {
-        projectChoice = Integer.parseInt(sc.nextLine());
-        if (projectChoice < 1 || projectChoice > managedProjects.size()) {
-            System.out.println("Invalid project number.");
+    private void viewAndReplyToProjectEnquiries() {
+        // Get projects managed by this HDB Manager
+        List<BTOProject> managedProjects = DataStore.getBTOProjectsData().values().stream()
+            .filter(project -> project.getHDBManager().equals(hdbManager))
+            .collect(Collectors.toList());
+        
+        if (managedProjects.isEmpty()) {
+            System.out.println("\nYou have not created any projects.");
             return;
         }
-    } catch (NumberFormatException e) {
-        System.out.println("Invalid input. Please enter a number.");
-        return;
-    }
-    
-    BTOProject selectedProject = managedProjects.get(projectChoice - 1);
-    
-    // Get enquiries for selected project
-    List<Enquiry> projectEnquiries = enquiryService.getEnquiriesByProject(selectedProject);
-    
-    if (projectEnquiries.isEmpty()) {
-        System.out.println("\nThere are no enquiries for this project.");
-        return;
-    }
-    
-    // Display enquiries
-    System.out.println("\n===== Project Enquiries =====");
-    for (int i = 0; i < projectEnquiries.size(); i++) {
-        Enquiry enquiry = projectEnquiries.get(i);
-        System.out.println("\n" + (i + 1) + ". Enquiry ID: " + enquiry.getEnquiryId());
-        System.out.println("   Applicant: " + enquiry.getApplicant().getName() + " (" + enquiry.getApplicant().getNric() + ")");
-        System.out.println("   Message: " + enquiry.getMessage());
-        System.out.println("   Submitted: " + enquiry.getCreatedAt());
-        if (enquiry.hasReply()) {
-            System.out.println("   Reply: " + enquiry.getReply());
-            System.out.println("   Replied: " + enquiry.getRepliedAt());
+        
+        // Display managed projects
+        System.out.println("\n===== Your Managed Projects =====");
+        for (int i = 0; i < managedProjects.size(); i++) {
+            BTOProject project = managedProjects.get(i);
+            System.out.println((i + 1) + ". " + project.getProjectName());
+        }
+        
+        // Select project
+        System.out.print("\nEnter project number: ");
+        int projectChoice;
+        try {
+            projectChoice = Integer.parseInt(sc.nextLine());
+            if (projectChoice < 1 || projectChoice > managedProjects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+            return;
+        }
+        
+        BTOProject selectedProject = managedProjects.get(projectChoice - 1);
+        
+        // Get enquiries for selected project
+        List<Enquiry> projectEnquiries = enquiryService.getEnquiriesByProject(selectedProject);
+        
+        if (projectEnquiries.isEmpty()) {
+            System.out.println("\nThere are no enquiries for this project.");
+            return;
+        }
+        
+        // Display enquiries
+        System.out.println("\n===== Project Enquiries =====");
+        for (int i = 0; i < projectEnquiries.size(); i++) {
+            Enquiry enquiry = projectEnquiries.get(i);
+            System.out.println("\n" + (i + 1) + ". Enquiry ID: " + enquiry.getEnquiryId());
+            System.out.println("   Applicant: " + enquiry.getApplicant().getName() + " (" + enquiry.getApplicant().getNric() + ")");
+            System.out.println("   Message: " + enquiry.getMessage());
+            System.out.println("   Submitted: " + enquiry.getCreatedAt());
+            if (enquiry.hasReply()) {
+                System.out.println("   Reply: " + enquiry.getReply());
+                System.out.println("   Replied: " + enquiry.getRepliedAt());
+            } else {
+                System.out.println("   Status: Pending reply");
+            }
+            System.out.println("----------------------------------------");
+        }
+        
+        // Select enquiry to reply
+        System.out.print("\nEnter enquiry number to reply (0 to cancel): ");
+        int choice;
+        try {
+            choice = Integer.parseInt(sc.nextLine());
+            if (choice == 0) {
+                return;
+            }
+            if (choice < 1 || choice > projectEnquiries.size()) {
+                System.out.println("Invalid enquiry number.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+            return;
+        }
+        
+        Enquiry selectedEnquiry = projectEnquiries.get(choice - 1);
+        
+        // Check if already replied
+        if (selectedEnquiry.hasReply()) {
+            System.out.println("\nThis enquiry has already been replied to.");
+            return;
+        }
+        
+        // Get reply
+        System.out.print("Enter your reply: ");
+        String reply = sc.nextLine();
+        
+        if (reply.trim().isEmpty()) {
+            System.out.println("Reply cannot be empty.");
+            return;
+        }
+        
+        // Use the service to reply
+        if (enquiryService.replyToEnquiry(selectedEnquiry, reply)) {
+            System.out.println("\nReply submitted successfully!");
         } else {
-            System.out.println("   Status: Pending reply");
+            System.out.println("\nFailed to submit reply.");
         }
-        System.out.println("----------------------------------------");
     }
     
-    // Select enquiry to reply
-    System.out.print("\nEnter enquiry number to reply (0 to cancel): ");
-    int choice;
-    try {
-        choice = Integer.parseInt(sc.nextLine());
-        if (choice == 0) {
-            return;
-        }
-        if (choice < 1 || choice > projectEnquiries.size()) {
-            System.out.println("Invalid enquiry number.");
-            return;
-        }
-    } catch (NumberFormatException e) {
-        System.out.println("Invalid input. Please enter a number.");
-        return;
-    }
-    
-    Enquiry selectedEnquiry = projectEnquiries.get(choice - 1);
-    
-    // Check if already replied
-    if (selectedEnquiry.hasReply()) {
-        System.out.println("\nThis enquiry has already been replied to.");
-        return;
-    }
-    
-    // Get reply
-    System.out.print("Enter your reply: ");
-    String reply = sc.nextLine();
-    
-    if (reply.trim().isEmpty()) {
-        System.out.println("Reply cannot be empty.");
-        return;
-    }
-    
-    // Use the service to reply
-    if (enquiryService.replyToEnquiry(selectedEnquiry, reply)) {
-        System.out.println("\nReply submitted successfully!");
-    } else {
-        System.out.println("\nFailed to submit reply.");
-    }
-}
     /**
      * Select a project from a list
      * @param prompt The prompt to display
@@ -941,6 +1180,9 @@ private void viewAndReplyToProjectEnquiries() {
      * @return The selected project, or null if none selected
      */
     private BTOProject selectProject(String prompt, boolean myProjectsOnly) {
+        // Get filter settings
+        ProjectFilter filter = FilterStore.getProjectFilter(hdbManager);
+        
         List<BTOProject> projects;
         
         if (myProjectsOnly) {
@@ -951,16 +1193,38 @@ private void viewAndReplyToProjectEnquiries() {
             projects = new ArrayList<BTOProject>(DataStore.getBTOProjectsData().values());
         }
         
+        // Apply filter
+        projects = filter.applyFilter(projects);
+        
         if (projects.isEmpty()) {
-            System.out.println("No projects found.");
-            return null;
+            // Offer to reset filters
+            System.out.println("\nNo projects match the current filters.");
+            System.out.print("Would you like to reset filters and view all projects? (yes/no): ");
+            String response = sc.nextLine().trim().toLowerCase();
+            
+            if (response.equals("yes")) {
+                filter.resetFilters();
+                FilterStore.setProjectFilter(hdbManager, filter);
+                
+                if (myProjectsOnly) {
+                    projects = DataStore.getBTOProjectsData().values().stream()
+                        .filter(project -> project.getHDBManager().equals(hdbManager))
+                        .collect(Collectors.toList());
+                } else {
+                    projects = new ArrayList<BTOProject>(DataStore.getBTOProjectsData().values());
+                }
+                
+                if (projects.isEmpty()) {
+                    System.out.println("No projects found.");
+                    return null;
+                }
+            } else {
+                return null;
+            }
         }
         
-        System.out.println("\nAvailable projects:");
-        for (int i = 0; i < projects.size(); i++) {
-            BTOProject project = projects.get(i);
-            System.out.println((i + 1) + ". " + project.getProjectName() + " (" + project.getNeighborhood() + ")");
-        }
+        // Display filtered projects
+        projectManagementView.displayFilteredProjects(projects, filter);
         
         System.out.print(prompt);
         int choice = 0;
@@ -977,10 +1241,4 @@ private void viewAndReplyToProjectEnquiries() {
         
         return projects.get(choice - 1);
     }
-
-    /**
-     * Display the details of a project
-     * @param project The project to display
-     */
-
 }
