@@ -1,6 +1,6 @@
 ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers
 Pasir Ris Sands,Pasir Ris,2-Room,38,330000.0,3-Room,42,430000.0,2023-01-01,2026-12-31,Mark,5,
-Eastwood Residences,Bedok,2-Room,35,350000.0,3-Room,40,450000.0,2023-01-01,2026-12-31,Jessica,5,
+Eastwood Residences,Bedok,2-Room,35,350000.0,3-Room,40,450000.0,2026-01-01,2028-12-31,Jessica,5,
 Meadow View,Boon Lay,2-Room,25,320000.0,3-Room,19,420000.0,2023-01-01,2026-12-31,Michael,3,David
 Rumah Daniel baru,Marina Bay Sands,2-Room,2,1000000.0,3-Room,5,5.0E7,2023-01-01,2026-12-31,Daniel,5,
 Binjai Hall,North Hill,2-Room,10,250000.0,3-Room,15,150000.0,2023-01-01,2026-12-31,Mark,9,Emily
