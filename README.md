@@ -14,7 +14,7 @@
 
 
 **Docs:** [Report](https://github.com/Danielmark001/sc2002-btoms/blob/main/report.png) | 
-[UML Class Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-class-diagram.pdf) |
+[UML Class Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-class-diagram.png) |
 [UML Sequence Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-sequence-diagram.png) | 
 [Java Docs](https://Danielmark001.github.io/sc2002_btoms/module-summary.html)
 
