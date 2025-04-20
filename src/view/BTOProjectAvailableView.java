@@ -32,18 +32,31 @@ public class BTOProjectAvailableView implements IProjectView {
         if (user instanceof Applicant) {
             eligibleFlatTypes = projectService.getEligibleFlatTypes(project, (Applicant) user);
         } else {
-            // Default to empty map for other user types
+            // Default to all flat types for other user types
             eligibleFlatTypes = project.getFlatTypes();
         }
         
         System.out.println("\nAvailable Flat Types:");
+        boolean hasAvailableUnits = false;
+        
         for (Map.Entry<FlatType, FlatTypeDetails> entry : eligibleFlatTypes.entrySet()) {
             FlatType flatType = entry.getKey();
             FlatTypeDetails details = entry.getValue();
             
+            // Show all flat types but indicate if units are available
             System.out.println(flatType.getDisplayName() + ":");
             System.out.println("  - Available Units: " + details.getUnits());
             System.out.println("  - Price: $" + details.getPrice());
+            
+            if (details.getUnits() > 0) {
+                hasAvailableUnits = true;
+            }
+        }
+        
+        if (eligibleFlatTypes.isEmpty()) {
+            System.out.println("  No eligible flat types for your profile.");
+        } else if (!hasAvailableUnits) {
+            System.out.println("  No units currently available for eligible flat types.");
         }
             
         System.out.println("\nProject Manager: " + project.getHDBManager().getName());

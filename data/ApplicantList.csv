@@ -1,9 +1,11 @@
 Name,NRIC,Age,MaritalStatus,Password
 Lucas,T7890123W,36,Married,password
+Charlotte,S6789012J,30,Single,password
 Michael,S0123456P,39,Single,password
 Michelle,T8901234G,32,Married,password
 Mason,T9012345Y,44,Married,password
 Olivia,T5678901K,36,Single,password
+Charlotte,S5678901H,31,Married,password
 Isabella,S6789012V,31,Married,password
 Emma,T7890123M,41,Married,password
 Noah,S8901234N,24,Single,password
@@ -23,4 +25,4 @@ Alex,S7890123F,27,Single,password
 Chloe,T1234567Q,26,Single,password
 Daniel,S2345678R,34,Married,password
 Grace,S9876543C,37,Married,password
-Sophia,T3456789I,22,Single,password
+Sophia,T3456789I,37,Single,password

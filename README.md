@@ -13,7 +13,7 @@
 [<img src="https://github.com/CekCong.png" height="20" width="20" /> Soh Cek Cong](https://github.com/CekCong)
 
 
-**Docs:** [Report](https://github.com/Danielmark001/sc2002-btoms/blob/main/report.pdf) | 
+**Docs:** [Report](https://github.com/Danielmark001/sc2002-btoms/blob/main/report.png) | 
 [UML Class Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-class-diagram.pdf) |
 [UML Sequence Diagram](https://github.com/Danielmark001/sc2002-btoms/blob/main/uml%20diagram/uml-sequence-diagram.png) | 
 [Java Docs](https://Danielmark001.github.io/sc2002_btoms/module-summary.html)
