@@ -1,30 +1,32 @@
 package controllers;
 
-import java.util.Scanner;
-import stores.AuthStore;
-import stores.FilterStore;
-import utils.TextDecorationUtils;
-import models.HDBOfficer;
-import models.BTOProject;
-import models.BTOApplication;
-import models.ProjectFilter;
-import models.User;
-import services.BTOProjectService;
-import view.BTOProjectAvailableView;
-import view.BTOApplicationView;
-import view.BTOProjectFilterView;
+import enumeration.BTOApplicationStatus;
+import enumeration.FlatType;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import stores.DataStore;
-import models.HDBOfficerRegistration;
-import java.time.LocalDate;
+import java.util.Scanner;
 import java.util.stream.Collectors;
-import models.Enquiry;
-import services.EnquiryService;
-import java.util.ArrayList;
 import models.Applicant;
+import models.BTOApplication;
+import models.BTOProject;
+import models.Enquiry;
 import models.FlatTypeDetails;
-import enumeration.BTOApplicationStatus;
+import models.HDBOfficer;
+import models.HDBOfficerRegistration;
+import models.ProjectFilter;
+import services.BTOProjectService;
+import services.EnquiryService;
+import stores.AuthStore;
+import stores.DataStore;
+import stores.FilterStore;
+import utils.TextDecorationUtils;
+import view.BTOApplicationView;
+import view.BTOProjectAvailableView;
+import view.BTOProjectFilterView;
 
 public class HDBOfficerController extends ApplicantController {
 
@@ -70,6 +72,7 @@ do {
             System.out.println("└─ 7. View Joined BTO Projects");
             System.out.println("└─ 8. View HDB Officer Registrations");
             System.out.println("└─ 9. Process Flat Booking Requests");
+            System.out.println("└─ 10. Generate Booking Receipt");
             System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("LOGOUT"));
@@ -82,8 +85,8 @@ do {
                 String input = sc.nextLine().trim();
                 choice = Integer.parseInt(input);
                 
-                if (choice < 0 || choice > 9) {
-                    System.out.println("Invalid choice. Please enter 0-9!");
+                if (choice < 0 || choice > 10) {
+                    System.out.println("Invalid choice. Please enter 0-10!");
                     continue;
                 }
             } catch (NumberFormatException e) {
@@ -122,6 +125,9 @@ do {
                     break;
                 case 9:
                     processFlatBookingRequests();
+                    break;
+                case 10:
+                    generateBookingReceipt();
                     break;
                 case 0:
                     System.out.println("Logging out...");
@@ -718,4 +724,99 @@ do {
         System.out.println("Project: " + project.getProjectName());
         System.out.println("Flat Type: " + selectedApplication.getFlatType().getDisplayName());
     }
+
+    /**
+     * Generate receipt for an applicant's flat booking
+     */
+    private void generateBookingReceipt() {
+        HDBOfficer officer = (HDBOfficer) AuthStore.getCurrentUser();
+        
+        // Get projects the officer is assigned to
+        List<BTOProject> assignedProjects = DataStore.getBTOProjectsData().values().stream()
+            .filter(project -> project.getHDBOfficers().contains(officer))
+            .collect(Collectors.toList());
+        
+        if (assignedProjects.isEmpty()) {
+            System.out.println("\nYou are not assigned to any projects.");
+            return;
+        }
+        
+        // Get booked applications for assigned projects
+        List<BTOApplication> bookedApplications = DataStore.getBTOApplicationsData().values().stream()
+            .filter(application -> assignedProjects.contains(application.getProject()) && 
+                                application.getStatus() == BTOApplicationStatus.BOOKED)
+            .collect(Collectors.toList());
+        
+        if (bookedApplications.isEmpty()) {
+            System.out.println("\nNo booked applications found for your assigned projects.");
+            return;
+        }
+        
+        // Display booked applications
+        System.out.println("\n===== Booked Applications =====");
+        for (int i = 0; i < bookedApplications.size(); i++) {
+            BTOApplication application = bookedApplications.get(i);
+            System.out.println("\n" + (i + 1) + ". Application ID: " + application.getApplicationId());
+            System.out.println("   Applicant: " + application.getApplicant().getName() + " (" + application.getApplicant().getNric() + ")");
+            System.out.println("   Project: " + application.getProject().getProjectName());
+            System.out.println("   Flat Type: " + application.getFlatType().getDisplayName());
+            System.out.println("----------------------------------------");
+        }
+        
+        // Select application to generate receipt for
+        System.out.print("\nEnter application number to generate receipt (0 to cancel): ");
+        int choice;
+        try {
+            choice = Integer.parseInt(sc.nextLine());
+            if (choice == 0) {
+                return;
+            }
+            if (choice < 1 || choice > bookedApplications.size()) {
+                System.out.println("Invalid application number.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+            return;
+        }
+        
+        BTOApplication selectedApplication = bookedApplications.get(choice - 1);
+        BTOProject project = selectedApplication.getProject();
+        Applicant applicant = (Applicant) selectedApplication.getApplicant();
+        FlatType flatType = selectedApplication.getFlatType();
+        FlatTypeDetails flatTypeDetails = project.getFlatTypes().get(flatType);
+        
+        // Generate and display the receipt
+        System.out.println("\n========================================");
+        System.out.println(TextDecorationUtils.boldText("          FLAT BOOKING RECEIPT          "));
+        System.out.println("========================================");
+        System.out.println("Date: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        System.out.println("Application ID: " + selectedApplication.getApplicationId());
+        System.out.println("HDB Officer: " + officer.getName());
+        System.out.println("----------------------------------------");
+        
+        System.out.println(TextDecorationUtils.boldText("APPLICANT DETAILS"));
+        System.out.println("Name: " + applicant.getName());
+        System.out.println("NRIC: " + applicant.getNric());
+        System.out.println("Age: " + applicant.getAge());
+        System.out.println("Marital Status: " + applicant.getMaritalStatus().getDisplayName());
+        System.out.println("----------------------------------------");
+        
+        System.out.println(TextDecorationUtils.boldText("PROJECT DETAILS"));
+        System.out.println("Project Name: " + project.getProjectName());
+        System.out.println("Neighborhood: " + project.getNeighborhood());
+        System.out.println("HDB Manager: " + project.getHDBManager().getName());
+        System.out.println("----------------------------------------");
+        
+        System.out.println(TextDecorationUtils.boldText("FLAT DETAILS"));
+        System.out.println("Flat Type: " + flatType.getDisplayName());
+        System.out.println("Price: $" + flatTypeDetails.getPrice());
+        System.out.println("----------------------------------------");
+        
+        System.out.println(TextDecorationUtils.boldText("BOOKING STATUS:") + " CONFIRMED");
+        System.out.println("========================================");
+
+        System.out.print("\nPress Enter to continue...");
+        sc.nextLine();
+}
 }
