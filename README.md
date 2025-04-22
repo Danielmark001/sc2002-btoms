@@ -136,6 +136,41 @@ Congratulations, you have successfully created and viewed the JavaDocs.
 
 Congratulations, you have successfully created and viewed the JavaDocs.
 
+## Sample CSV Data
+
+The system uses CSV files to store all data. The repository includes a utility program for populating CSV files with sample data to get you started.
+
+### Populating CSV Files
+
+1. Make sure a `data` directory exists in the project root folder.
+
+2. Compile the data populator program:
+
+   ```bash
+   javac BTOSystemDataPopulator.java
+   ```
+
+3. Run the data populator program:
+
+   ```bash
+   java BTOSystemDataPopulator
+   ```
+
+4. The program will create or update the following CSV files with sample data:
+   - `ApplicantList.csv`: Contains information about applicants
+   - `HDBManagerList.csv`: Contains information about HDB managers
+   - `HDBOfficerList.csv`: Contains information about HDB officers
+   - `BTOProjectList.csv`: Contains information about BTO projects
+   - `BTOApplicationList.csv`: Contains information about BTO applications
+   - `HDBOfficerRegistrationList.csv`: Initial empty file with header
+   - `EnquiryList.csv`: Initial empty file with header
+   - `WithdrawalRequestList.csv`: Initial empty file with header
+   - `FailedLoginAttempts.csv`: Initial empty file with header
+
+5. The sample data includes various users, projects, and application scenarios to help you test all the system features.
+
+Note: If you want to modify the sample data, you can edit the `BTOSystemDataPopulator.java` file before compiling and running it.
+
 # Usage
 
 ## Login Credentials
