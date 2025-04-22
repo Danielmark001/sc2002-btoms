@@ -2,15 +2,17 @@
  * 
  */
 /**
- * This project is a Java-based application for managing final year projects
- * (FYP) for students in tertiary institutions.
+ * This project is a Java-based application for applicants and HDB staffs to
+ * apply and manage Build-To-Order (BTO) projects.
  * 
- * @author Toh Jing Qiang
- * @author Toh Jing Hua
- * @author Trini
+ * 
+ * @author Daniel Mark
+ * @author William Notowibowo
+ * @author Lim Hwee Woon
+ * @author Soh Cek Cong
  *
  */
-module sc2002_fypms {
+module sc2002_btoms {
     exports controllers;
     exports enumeration;
     exports interfaces;

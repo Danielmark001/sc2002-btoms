@@ -101,7 +101,7 @@ Follow the steps below to generate JavaDocs using the terminal:
 3. Run the following command in the terminal:
 
    ```bash
-    javadoc -d docs -sourcepath src -subpackages controllers:enums:interfaces:main:models:services:stores:utils:views -private
+    javadoc -d docs -author -private -noqualifier all -version -sourcepath src -subpackages controllers:enumeration:interfaces:main:models:services:stores:utils:view
    ```
 
    This command will generate the JavaDocs and save them in the docs directory in HTML format.
