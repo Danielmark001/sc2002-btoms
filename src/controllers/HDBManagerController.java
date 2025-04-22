@@ -33,7 +33,16 @@ import services.BTOProjectManagementService;
 import view.BTOProjectManagementView;
 
 /**
- * Controller for HDB Manager operations
+ * Controller class for handling HDB Manager operations in the BTO system.
+ * 
+ * This controller manages the administrative functions for HDB Managers,
+ * including BTO project creation and management, HDB officer registration approval,
+ * BTO application processing, withdrawal request handling, report generation,
+ * and enquiry management. It extends the base UserController class and implements
+ * the HDB Manager-specific menu system and workflows.
+ * 
+ * @author BTOMS Team
+ * @version 1.0
  */
 public class HDBManagerController extends UserController {
 

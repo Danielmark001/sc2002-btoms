@@ -61,6 +61,12 @@ public class EnumParser {
         throw new IllegalArgumentException("Invalid BTO application status: " + status);
     }
 
+    /**
+     * Parses a string to a RegistrationStatus enum value
+     * @param status The registration status string (display name)
+     * @return The corresponding RegistrationStatus enum value
+     * @throws IllegalArgumentException if the status is invalid
+     */
     public static RegistrationStatus parseRegistrationStatus(String status) {
         for (RegistrationStatus s : RegistrationStatus.values()) {
             if (s.getDisplayName().equals(status)) {

@@ -10,6 +10,16 @@ import models.BTOApplication;
 import models.BTOProject;
 import stores.DataStore;
 
+/**
+ * Service class for generating reports and statistical analysis of BTO applications.
+ * 
+ * This class provides functionality to retrieve and filter BTO applications based on
+ * various criteria such as project, flat type, applicant marital status, and age range.
+ * It serves as the business logic layer for report generation features in the system.
+ * 
+ * @author BTOMS Team
+ * @version 1.0
+ */
 public class ReportService {
     
     /**

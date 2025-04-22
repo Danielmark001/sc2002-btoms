@@ -3,6 +3,9 @@ package view;
 import models.Enquiry;
 import java.util.List;
 
+/**
+ * View class for Enquiries
+ */
 public class EnquiryView {
     
     public void displayAllEnquiriesHeader() {

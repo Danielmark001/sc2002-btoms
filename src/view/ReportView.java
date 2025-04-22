@@ -7,7 +7,9 @@ import models.BTOApplication;
 import models.BTOProject;
 import enumeration.FlatType;
 import enumeration.MaritalStatus;
-
+/**
+ * View class for Reports
+ */
 public class ReportView {
     private static final Scanner sc = new Scanner(System.in);
     

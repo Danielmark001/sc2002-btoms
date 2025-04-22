@@ -28,6 +28,18 @@ import view.BTOApplicationView;
 import view.BTOProjectAvailableView;
 import view.BTOProjectFilterView;
 
+/**
+ * Controller for handling HDB Officer operations in the BTO system.
+ * 
+ * This controller manages the user interface and business logic for HDB Officer users,
+ * including viewing and joining BTO projects, processing flat booking requests,
+ * generating booking receipts, and handling their own BTO applications. It extends
+ * the ApplicantController class to inherit applicant functions while adding
+ * officer-specific capabilities.
+ * 
+ * @author BTOMS Team
+ * @version 1.0
+ */
 public class HDBOfficerController extends ApplicantController {
 
     private static final Scanner sc = new Scanner(System.in);
@@ -37,6 +49,9 @@ public class HDBOfficerController extends ApplicantController {
     private BTOProjectFilterView filterView;
     private final EnquiryService enquiryService;
 
+    /**
+     * Constructs a new HDBOfficerController with the necessary services and views.
+     */
     public HDBOfficerController() {
         this.projectService = new BTOProjectService();
         this.projectView = new BTOProjectAvailableView();
@@ -45,6 +60,11 @@ public class HDBOfficerController extends ApplicantController {
         this.enquiryService = new EnquiryService();
     }
 
+    /**
+     * Starts the HDB Officer menu system, displaying options and handling user selections.
+     * This method overrides the start method in ApplicantController to present
+     * officer-specific menu options.
+     */
     @Override
     public void start() {
         int choice;
@@ -138,8 +158,11 @@ do {
             }
         } while (true);
     }
+    
     /**
-     * Displays all BTO projects that the HDB officer can join
+     * Displays all BTO projects that the HDB officer can join.
+     * Filters projects based on user preferences and allows officers
+     * to view details of potential projects they could join.
      */
     private void viewJoinableBTOProjects() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
@@ -212,7 +235,8 @@ do {
     }
     
     /**
-     * View details for a selected project
+     * View details for a selected project.
+     * 
      * @param projects List of projects to choose from
      */
     private void viewProjectDetails(List<BTOProject> projects) {
@@ -239,7 +263,11 @@ do {
     }
 
     /**
-     * Allows the HDB officer to join a BTO project
+     * Allows the HDB officer to join a BTO project.
+     * 
+     * Checks for project eligibility, application period validity,
+     * and potential conflicts with other projects before submitting
+     * a registration request for manager approval.
      */
     private void joinBTOProjectAsOfficer() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
@@ -336,7 +364,11 @@ do {
     }
 
     /**
-     * Checks if two projects have overlapping application periods
+     * Checks if two projects have overlapping application periods.
+     * 
+     * @param project1 The first project to check
+     * @param project2 The second project to check
+     * @return true if the projects have overlapping application periods, false otherwise
      */
     private boolean hasOverlappingPeriod(BTOProject project1, BTOProject project2) {
         return !project1.getApplicationClosingDate().isBefore(project2.getApplicationOpeningDate()) &&
@@ -344,7 +376,10 @@ do {
     }
 
     /**
-     * Displays all BTO projects that the HDB officer has joined
+     * Displays all BTO projects that the HDB officer has joined.
+     * 
+     * Filters projects based on user preferences and allows the officer
+     * to view details of projects they are currently handling.
      */
     private void viewJoinedBTOProjects() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
@@ -416,12 +451,23 @@ do {
         }
     }
 
+    /**
+     * Displays available BTO projects for personal application.
+     * This method overrides the implementation from ApplicantController.
+     */
     @Override
     protected void viewAvailableBTOProjects() {
         // We're reusing the implementation from ApplicantController that already has filtering
         super.viewAvailableBTOProjects();
     }
 
+    /**
+     * Allows an HDB Officer to apply for a BTO project as a personal applicant.
+     * 
+     * This method overrides the implementation from ApplicantController to include
+     * additional checks for officer-specific constraints, such as not applying for
+     * projects they are assigned to as an officer.
+     */
     @Override
     protected void applyForBTOProject() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
@@ -502,6 +548,10 @@ do {
         System.out.println("Application submitted successfully. An HDB officer will contact you for flat booking if your application is successful.");
     }
 
+    /**
+     * Displays the HDB Officer's personal BTO applications.
+     * This method overrides the implementation from ApplicantController.
+     */
     @Override
     protected void viewMyBTOApplications() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
@@ -518,6 +568,9 @@ do {
         }
     }
 
+    /**
+     * Displays the HDB Officer's project registration requests and their status.
+     */
     private void viewHDBOfficerRegistrations() {
         HDBOfficer hdbOfficer = (HDBOfficer) AuthStore.getCurrentUser();
         List<HDBOfficerRegistration> registrations = DataStore.getHDBOfficerRegistrationsData().values().stream()
@@ -538,7 +591,10 @@ do {
     }
 
     /**
-     * View and reply to enquiries for projects the officer is assigned to
+     * View and reply to enquiries for projects the officer is assigned to.
+     * 
+     * Allows officers to respond to applicant enquiries about BTO projects
+     * they are handling.
      */
     protected void viewAndReplyToEnquiries() {
         HDBOfficer officer = (HDBOfficer) AuthStore.getCurrentUser();
@@ -625,7 +681,11 @@ do {
     }
 
     /**
-     * Process flat booking requests from applicants
+     * Process flat booking requests from applicants.
+     * 
+     * Displays successful applications for projects the officer is assigned to
+     * and allows the officer to approve flat bookings, updating application status
+     * and reducing available unit counts.
      */
     private void processFlatBookingRequests() {
         HDBOfficer officer = (HDBOfficer) AuthStore.getCurrentUser();
@@ -726,7 +786,10 @@ do {
     }
 
     /**
-     * Generate receipt for an applicant's flat booking
+     * Generate receipt for an applicant's flat booking.
+     * 
+     * Creates and displays a formatted receipt for a booked application,
+     * including applicant details, project information, and flat specifications.
      */
     private void generateBookingReceipt() {
         HDBOfficer officer = (HDBOfficer) AuthStore.getCurrentUser();

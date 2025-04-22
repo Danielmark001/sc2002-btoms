@@ -206,20 +206,44 @@ public class DataStore {
 	}
 
 	// ---------- BTO Project ---------- //
+	/**
+	 * Gets the BTO projects data map.
+	 *
+	 * @return a {@link Map} containing BTO project ID as the key and
+	 *         {@link BTOProject} objects as the value
+	 */
 	public static Map<String, BTOProject> getBTOProjectsData() {
 		return DataStore.btoProjectsData;
 	}
 
+	/**
+	 * Sets the BTO projects data map and saves the data to the file system.
+	 *
+	 * @param btoProjectsData a {@link Map} containing BTO project ID as the key and
+	 *                        {@link BTOProject} objects as the value
+	 */
 	public static void setBTOProjectsData(Map<String, BTOProject> btoProjectsData) {
 		DataStore.btoProjectsData = btoProjectsData;
 		fileDataService.exportBTOProjectData(filePathsMap.get("btoProject"), btoProjectsData);
 	}
 	
 	// ---------- BTO Application ---------- //
+	/**
+	 * Gets the BTO applications data map.
+	 *
+	 * @return a {@link Map} containing BTO application ID as the key and
+	 *         {@link BTOApplication} objects as the value
+	 */
 	public static Map<String, BTOApplication> getBTOApplicationsData() {
 		return DataStore.btoApplicationsData;
 	}
 
+	/**
+	 * Sets the BTO applications data map and saves the data to the file system.
+	 *
+	 * @param btoApplicationsData a {@link Map} containing BTO application ID as the key and
+	 *                           {@link BTOApplication} objects as the value
+	 */
 	public static void setBTOApplicationsData(Map<String, BTOApplication> btoApplicationsData) {
 		DataStore.btoApplicationsData = btoApplicationsData;
 		fileDataService.exportBTOApplicationData(filePathsMap.get("btoApplication"), btoApplicationsData);
@@ -227,15 +251,19 @@ public class DataStore {
 
 	/**
 	 * Gets the map of HDB officer registrations data
-	 * @return The map of HDB officer registrations data
+	 * 
+	 * @return a {@link Map} containing registration ID as the key and
+	 *         {@link HDBOfficerRegistration} objects as the value
 	 */
 	public static Map<String, HDBOfficerRegistration> getHDBOfficerRegistrationsData() {
 		return hdbOfficerRegistrationsData;
 	}
 
 	/**
-	 * Sets the map of HDB officer registrations data
-	 * @param hdbOfficerRegistrationsData The map of HDB officer registrations data
+	 * Sets the map of HDB officer registrations data and saves to the file system
+	 * 
+	 * @param hdbOfficerRegistrationsData a {@link Map} containing registration ID as the key and
+	 *                                  {@link HDBOfficerRegistration} objects as the value
 	 */
 	public static void setHDBOfficerRegistrationsData(Map<String, HDBOfficerRegistration> hdbOfficerRegistrationsData) {
 		DataStore.hdbOfficerRegistrationsData = hdbOfficerRegistrationsData;
@@ -244,15 +272,19 @@ public class DataStore {
 
 	/**
 	 * Gets the map of enquiries data
-	 * @return The map of enquiries data
+	 * 
+	 * @return a {@link Map} containing enquiry ID as the key and
+	 *         {@link Enquiry} objects as the value
 	 */
 	public static Map<String, Enquiry> getEnquiriesData() {
 		return enquiriesData;
 	}
 
 	/**
-	 * Sets the map of enquiries data
-	 * @param enquiriesData The map of enquiries data
+	 * Sets the map of enquiries data and saves to the file system
+	 * 
+	 * @param enquiriesData a {@link Map} containing enquiry ID as the key and
+	 *                    {@link Enquiry} objects as the value
 	 */
 	public static void setEnquiriesData(Map<String, Enquiry> enquiriesData) {
 		DataStore.enquiriesData = enquiriesData;
@@ -261,15 +293,19 @@ public class DataStore {
 
 	/**
 	 * Gets the map of withdrawal requests data
-	 * @return The map of withdrawal requests data
+	 * 
+	 * @return a {@link Map} containing withdrawal request ID as the key and
+	 *         {@link WithdrawalRequest} objects as the value
 	 */
 	public static Map<String, WithdrawalRequest> getWithdrawalRequestsData() {
 		return withdrawalRequestsData;
 	}
 
 	/**
-	 * Sets the map of withdrawal requests data
-	 * @param withdrawalRequestsData The map of withdrawal requests data
+	 * Sets the map of withdrawal requests data and saves to the file system
+	 * 
+	 * @param withdrawalRequestsData a {@link Map} containing withdrawal request ID as the key and
+	 *                             {@link WithdrawalRequest} objects as the value
 	 */
 	public static void setWithdrawalRequestsData(Map<String, WithdrawalRequest> withdrawalRequestsData) {
 		DataStore.withdrawalRequestsData = withdrawalRequestsData;

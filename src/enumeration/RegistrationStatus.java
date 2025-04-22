@@ -1,5 +1,8 @@
 package enumeration;
 
+/**
+ * Enumeration representing registration statuses for BTO applicants
+ */
 public enum RegistrationStatus {
     PENDING("Pending"),
     APPROVED("Approved"),

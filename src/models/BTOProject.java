@@ -6,6 +6,16 @@ import java.util.List;
 
 import enumeration.FlatType;
 
+/**
+ * Represents a Build-To-Order (BTO) housing project.
+ * 
+ * This class contains information about a BTO project including its name,
+ * location, application dates, available flat types, and assigned staff.
+ * It manages the core data structure for housing projects in the system.
+ * 
+ * @author BTOMS Team
+ * @version 1.0
+ */
 public class BTOProject {
 
     private String projectName;

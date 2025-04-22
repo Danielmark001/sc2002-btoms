@@ -25,6 +25,17 @@ import models.FlatTypeDetails;
 import java.util.Map;
 import models.WithdrawalRequest;
 
+/**
+ * Controller handling applicant-specific operations in the BTO management system.
+ * 
+ * This controller manages the user interface and business logic for applicant users,
+ * including BTO project viewing, application submission, enquiry management,
+ * and flat booking requests. It extends the base UserController class and implements
+ * the applicant-specific menu system and workflows.
+ * 
+ * @author BTOMS Team
+ * @version 1.0
+ */
 public class ApplicantController extends UserController {
 
     private static final Scanner sc = new Scanner(System.in);

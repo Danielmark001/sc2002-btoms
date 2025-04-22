@@ -10,6 +10,9 @@ import stores.AuthStore;
 import services.BTOProjectService;
 import java.util.Map;
 
+/**
+ * View class for managing BTO Projects
+ */
 public class BTOProjectAvailableView implements IProjectView {
     private BTOProjectService projectService;
 

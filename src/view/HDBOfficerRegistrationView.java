@@ -2,7 +2,9 @@ package view;
 
 import models.HDBOfficerRegistration;
 import java.util.List;
-
+/**
+ * Class for viewing HDB Officer Registrations
+ */
 public class HDBOfficerRegistrationView {
     
     public void displayRegistrationsHeader() {
