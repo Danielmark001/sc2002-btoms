@@ -23,8 +23,8 @@ public class BTOApplication {
     private final User applicant;
     private final BTOProject project;
     private FlatType flatType;  // Now optional
-
     private BTOApplicationStatus status;
+    private HDBManager handledBy; // The HDB Manager currently handling this application
 
     /**
      * Constructs a BTO application with all attributes specified.
@@ -41,6 +41,26 @@ public class BTOApplication {
         this.project = project;
         this.flatType = flatType;
         this.status = status;
+        this.handledBy = null;
+    }
+
+    /**
+     * Constructs a BTO application with all attributes specified including handledBy.
+     * 
+     * @param applicationId Unique identifier for the application
+     * @param applicant The user applying for the BTO flat
+     * @param project The BTO project being applied for
+     * @param flatType The type of flat requested (can be null initially)
+     * @param status The current status of the application
+     * @param handledBy The HDB Manager handling this application
+     */
+    public BTOApplication(String applicationId, User applicant, BTOProject project, FlatType flatType, BTOApplicationStatus status, HDBManager handledBy) {
+        this.applicationId = applicationId;
+        this.applicant = applicant;
+        this.project = project;
+        this.flatType = flatType;
+        this.status = status;
+        this.handledBy = handledBy;
     }
 
     /**
@@ -117,6 +137,33 @@ public class BTOApplication {
      */
     public BTOApplicationStatus getStatus() {
         return status;
+    }
+
+    /**
+     * Gets the HDB Manager currently handling this application.
+     * 
+     * @return The HDB Manager handling the application, or null if none
+     */
+    public HDBManager getHandledBy() {
+        return handledBy;
+    }
+
+    /**
+     * Sets the HDB Manager who is handling this application.
+     * 
+     * @param manager The HDB Manager to assign
+     */
+    public void setHandledBy(HDBManager manager) {
+        this.handledBy = manager;
+    }
+
+    /**
+     * Checks if this application is currently being handled by an HDB Manager.
+     * 
+     * @return true if an HDB Manager is handling this application, false otherwise
+     */
+    public boolean isBeingHandled() {
+        return handledBy != null;
     }
 
     /**

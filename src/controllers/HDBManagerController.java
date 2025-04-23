@@ -21,6 +21,7 @@ import models.HDBOfficerRegistration;
 import models.Applicant;
 import models.Enquiry;
 import models.ProjectFilter;
+import models.User;
 import models.WithdrawalRequest;
 import services.BTOProjectService;
 import services.EnquiryService;
@@ -54,6 +55,9 @@ public class HDBManagerController extends UserController {
     private final ReportService reportService;
     private final BTOProjectManagementService projectManagementService;
     private final BTOProjectManagementView projectManagementView;
+    
+    // Currently handled application by this manager
+    private BTOApplication currentApplication;
 
     /**
      * Constructor for HDBManagerController
@@ -67,6 +71,42 @@ public class HDBManagerController extends UserController {
         this.reportService = new ReportService();
         this.projectManagementService = new BTOProjectManagementService();
         this.projectManagementView = new BTOProjectManagementView();
+        this.currentApplication = null;
+    }
+    
+    /**
+     * Checks if this HDB Manager is already handling an application within the application period.
+     * 
+     * @return true if already handling an application, false otherwise
+     */
+    private boolean isHandlingApplication() {
+        if (currentApplication == null) {
+            return false;
+        }
+        
+        // Check if the application's project is within the application period
+        BTOProject project = currentApplication.getProject();
+        LocalDate today = LocalDate.now();
+        boolean inApplicationPeriod = today.isAfter(project.getApplicationOpeningDate()) && 
+                                     today.isBefore(project.getApplicationClosingDate());
+        
+        return inApplicationPeriod;
+    }
+    
+    /**
+     * Sets the current application being handled by this manager.
+     * 
+     * @param application The application to handle
+     */
+    private void setCurrentApplication(BTOApplication application) {
+        this.currentApplication = application;
+    }
+    
+    /**
+     * Clears the current application being handled by this manager.
+     */
+    private void clearCurrentApplication() {
+        this.currentApplication = null;
     }
 
     /**
@@ -116,6 +156,14 @@ do {
             System.out.println("└─ 0. Logout");
             System.out.println();
             System.out.println("==========================================");
+            
+            // Display current application if handling one
+            if (isHandlingApplication()) {
+                System.out.println("Currently handling application: " + currentApplication.getApplicationId());
+                System.out.println("Project: " + currentApplication.getProject().getProjectName());
+                System.out.println("==========================================");
+            }
+            
             System.out.print("Enter your choice: ");
             String input = sc.nextLine();
             if (input.matches("[0-9]+")) {
@@ -793,6 +841,16 @@ do {
     private void approveRejectBTOApplication() {
         System.out.println("\n===== Approve/Reject BTO Application =====");
         
+        // Check if manager is already handling an application within the application period
+        if (isHandlingApplication()) {
+            BTOProject currentProject = currentApplication.getProject();
+            System.out.println("You are already handling an application for " + 
+                              currentProject.getProjectName() + 
+                              " (ID: " + currentApplication.getApplicationId() + ").");
+            System.out.println("You cannot handle another application until you complete this one.");
+            return;
+        }
+        
         // Get projects managed by this HDB Manager
         List<BTOProject> myProjects = DataStore.getBTOProjectsData().values().stream()
             .filter(project -> project.getHDBManager().equals(hdbManager))
@@ -817,16 +875,29 @@ do {
         // Display pending applications
         for (int i = 0; i < pendingApplications.size(); i++) {
             BTOApplication application = pendingApplications.get(i);
+            User applicantUser = application.getApplicant();
             System.out.println("\nApplication " + (i + 1) + ":");
             System.out.println("Application ID: " + application.getApplicationId());
-            System.out.println("Applicant: " + application.getApplicant().getName() + " (" + application.getApplicant().getNric() + ")");
+            System.out.println("Applicant: " + applicantUser.getName() + " (" + applicantUser.getNric() + ")");
             System.out.println("Project: " + application.getProject().getProjectName());
             
-            // Get eligible flat types for this applicant
-            Map<FlatType, FlatTypeDetails> eligibleFlatTypes = btoProjectService.getEligibleFlatTypes(
-                application.getProject(), 
-                (Applicant) application.getApplicant()
-            );
+            // Get eligible flat types for this applicant - safely check type
+            Map<FlatType, FlatTypeDetails> eligibleFlatTypes;
+            
+            if (applicantUser instanceof Applicant) {
+                eligibleFlatTypes = btoProjectService.getEligibleFlatTypes(
+                    application.getProject(), 
+                    (Applicant) applicantUser
+                );
+            } else if (applicantUser instanceof HDBOfficer) {
+                eligibleFlatTypes = btoProjectService.getEligibleFlatTypes(
+                    application.getProject(), 
+                    (HDBOfficer) applicantUser
+                );
+            } else {
+                System.out.println("Unsupported user type for applicant. Skipping eligibility check.");
+                continue;
+            }
             
             // Display eligible flat types
             System.out.println("Eligible Flat Types:");
@@ -856,10 +927,32 @@ do {
         
         BTOApplication application = pendingApplications.get(choice - 1);
         BTOProject project = application.getProject();
-        Applicant applicant = (Applicant) application.getApplicant();
+        User applicantUser = application.getApplicant();
         
-        // Get eligible flat types for this applicant
-        Map<FlatType, FlatTypeDetails> eligibleFlatTypes = btoProjectService.getEligibleFlatTypes(project, applicant);
+        // Check if the project is in application period
+        LocalDate today = LocalDate.now();
+        boolean inApplicationPeriod = today.isAfter(project.getApplicationOpeningDate()) && 
+                                     today.isBefore(project.getApplicationClosingDate());
+        
+        // Set this as the current application being handled if in application period
+        if (inApplicationPeriod) {
+            setCurrentApplication(application);
+        }
+        
+        // Get eligible flat types for this applicant based on user type
+        Map<FlatType, FlatTypeDetails> eligibleFlatTypes;
+        
+        if (applicantUser instanceof Applicant) {
+            eligibleFlatTypes = btoProjectService.getEligibleFlatTypes(
+                project, (Applicant) applicantUser);
+        } else if (applicantUser instanceof HDBOfficer) {
+            eligibleFlatTypes = btoProjectService.getEligibleFlatTypes(
+                project, (HDBOfficer) applicantUser);
+        } else {
+            System.out.println("Unsupported user type for application.");
+            clearCurrentApplication();
+            return;
+        }
         
         // Check if there are any available units for eligible flat types
         boolean hasAvailableUnits = false;
@@ -872,6 +965,7 @@ do {
         
         if (!hasAvailableUnits) {
             System.out.println("No units available for any eligible flat type in this project.");
+            clearCurrentApplication();
             return;
         }
         
@@ -886,6 +980,9 @@ do {
             application.setStatus(BTOApplicationStatus.UNSUCCESSFUL);
             System.out.println("Application rejected.");
         }
+        
+        // Clear the current application being handled
+        clearCurrentApplication();
         
         DataStore.saveData();
     }
