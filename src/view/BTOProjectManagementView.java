@@ -258,8 +258,7 @@ public class BTOProjectManagementView {
             System.out.println("2. Filter by project name");
             System.out.println("3. Filter by neighborhood");
             System.out.println("4. Filter by flat type");
-            System.out.println("5. Toggle visibility filter");
-            System.out.println("6. Reset all filters");
+            System.out.println("5. Reset all filters");
             System.out.println("0. Back to previous menu");
             
             System.out.print("\nEnter your choice: ");
@@ -285,9 +284,6 @@ public class BTOProjectManagementView {
                         setFlatTypeFilter(filter);
                         break;
                     case 5:
-                        toggleVisibilityFilter(filter);
-                        break;
-                    case 6:
                         filter.resetFilters();
                         System.out.println("All filters have been reset to default.");
                         break;
@@ -395,9 +391,6 @@ public class BTOProjectManagementView {
         System.out.println("\n===== Filter by Flat Type =====");
         System.out.println("1. 2-room");
         System.out.println("2. 3-room");
-        System.out.println("3. 4-room");
-        System.out.println("4. 5-room");
-        System.out.println("5. Executive");
         System.out.println("0. Clear filter");
         
         System.out.print("\nEnter your choice: ");
@@ -424,21 +417,6 @@ public class BTOProjectManagementView {
             }
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Flat type filter not changed.");
-        }
-    }
-    
-    /**
-     * Toggle visibility filter
-     * @param filter The filter to update
-     */
-    private void toggleVisibilityFilter(ProjectFilter filter) {
-        boolean current = filter.isShowVisibleOnly();
-        filter.setShowVisibleOnly(!current);
-        
-        if (filter.isShowVisibleOnly()) {
-            System.out.println("Projects will be filtered to only show visible projects.");
-        } else {
-            System.out.println("Projects will include both visible and hidden projects.");
         }
     }
     
