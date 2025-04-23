@@ -87,9 +87,15 @@ public class BTOSampleDataPopulator {
         
         // Data provided
         managers.add("Michael,T8765432F,36,Single,password");
+        managers.add("Sophia,T3456789K,33,Married,password");
+        managers.add("Natalie,T6543210P,31,Single,password");
+        managers.add("Kevin,S9876543N,42,Married,password");
+        managers.add("Christopher,S2109876Q,34,Married,password");
+        managers.add("Raymond,S7890123L,38,Married,password");
         managers.add("Mark,T2345678H,30,Single,password");
         managers.add("Daniel,S1234567W,25,Married,mark");
         managers.add("Jessica,S5678901G,26,Married,password");
+        managers.add("Elizabeth,T1234567M,29,Single,password");
         
         // Write to file
         writeToFile(HDB_MANAGERS_FILE, managers);
@@ -134,16 +140,45 @@ public class BTOSampleDataPopulator {
         // CSV header
         projects.add("ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers");
         
-        // Data provided
-        projects.add("Pasir Ris Sands,Pasir Ris,2-Room,38,330000.0,3-Room,42,430000.0,2023-01-01,2026-12-31,Mark,5,Ryan");
-        projects.add("Eastwood Residences,Bedok,2-Room,35,350000.0,3-Room,40,450000.0,2026-01-01,2028-12-31,Jessica,5,");
-        projects.add("Meadow View,Boon Lay,2-Room,25,320000.0,3-Room,19,420000.0,2023-01-01,2026-12-31,Michael,3,David");
-        projects.add("Rumah Daniel baru,Marina Bay Sands,2-Room,2,1000000.0,3-Room,5,5.0E7,2023-01-01,2026-12-31,Daniel,5,");
-        projects.add("Binjai Hall,North Hill,2-Room,10,250000.0,3-Room,15,150000.0,2023-01-01,2026-12-31,Mark,9,Emily");
-        projects.add("Woodlands Sanctuary,Woodlands,2-Room,40,280000.0,3-Room,45,380000.0,2023-01-01,2026-12-31,Mark,6,");
-        projects.add("Acacia Breeze,Yishun,2-Room,20,350000.0,3-Room,15,450000.0,2023-01-01,2026-12-31,Jessica,3,Daniel");
-        projects.add("Sunrise Gardens,Tampines,2-Room,18,340000.0,3-Room,11,460000.0,2023-01-01,2026-12-31,Jessica,2,Daniel,David");
-        projects.add("Hillview Haven,Bukit Batok,2-Room,30,320000.0,3-Room,35,410000.0,2023-01-01,2026-12-31,Mark,5,");
+        // Data from BTOProjectList.csv
+        projects.add("Harmony Gardens,Geylang,2-Room,45,320000.0,3-Room,50,420000.0,2025-06-15,2025-08-15,Kevin,7,");
+        projects.add("Parkview Residence,Bukit Batok West,2-Room,35,330000.0,3-Room,40,430000.0,2025-08-15,2025-10-15,Christopher,6,");
+        projects.add("Heritage View,Chinatown,2-Room,20,390000.0,3-Room,25,490000.0,2025-01-15,2025-03-15,Kevin,4,");
+        projects.add("Binjai Hall,North Hill,2-Room,10,250000.0,3-Room,15,150000.0,2025-03-01,2025-04-30,Mark,9,Emily,Andrew");
+        projects.add("Emerald Heights,Sengkang,2-Room,45,310000.0,3-Room,50,410000.0,2025-01-15,2025-03-15,Sophia,4,");
+        projects.add("Garden Vista,Bishan,2-Room,40,330000.0,3-Room,45,430000.0,2025-04-15,2025-06-15,Raymond,7,");
+        projects.add("Urban Oasis,Kallang,2-Room,35,350000.0,3-Room,40,450000.0,2025-08-15,2025-10-15,Elizabeth,6,");
+        projects.add("Lakeside View,Jurong,2-Room,50,300000.0,3-Room,55,400000.0,2025-09-15,2025-11-15,Raymond,8,");
+        projects.add("Green Haven,Upper Thomson,2-Room,30,340000.0,3-Room,35,440000.0,2025-05-15,2025-07-15,Michael,5,");
+        projects.add("Pasir Ris Sands,Pasir Ris,2-Room,38,330000.0,3-Room,42,430000.0,2025-01-01,2025-02-28,Mark,5,Ryan");
+        projects.add("Forest Hill,Bukit Panjang,2-Room,40,320000.0,3-Room,45,420000.0,2025-01-01,2025-02-28,Christopher,7,");
+        projects.add("Highland Towers,Bukit Timah,2-Room,25,400000.0,3-Room,30,520000.0,2025-02-01,2025-03-31,Raymond,5,");
+        projects.add("Sunshine Court,Simei,2-Room,40,320000.0,3-Room,45,420000.0,2025-08-01,2025-09-30,Michael,7,");
+        projects.add("Rumah Daniel baru,Marina Bay Sands,2-Room,2,1000000.0,3-Room,5,5.0E7,2025-03-15,2025-04-30,Daniel,5,");
+        projects.add("Waterfront Bay,Pasir Panjang,2-Room,25,380000.0,3-Room,30,480000.0,2025-09-15,2025-11-15,Natalie,4,");
+        projects.add("Acacia Breeze,Yishun,2-Room,20,350000.0,3-Room,15,450000.0,2025-06-01,2025-07-31,Jessica,3,Daniel");
+        projects.add("Serenity Heights,Ang Mo Kio,2-Room,40,330000.0,3-Room,45,430000.0,2025-09-01,2025-10-31,Kevin,5,");
+        projects.add("Skyline Towers,Toa Payoh,2-Room,40,340000.0,3-Room,45,440000.0,2025-06-01,2025-07-31,Elizabeth,7,");
+        projects.add("Meadow Springs,Sembawang,2-Room,50,290000.0,3-Room,55,390000.0,2025-02-01,2025-03-31,Natalie,8,");
+        projects.add("Hillview Haven,Bukit Batok,2-Room,30,320000.0,3-Room,35,410000.0,2025-07-01,2025-08-31,Mark,5,");
+        projects.add("Tranquil Gardens,Thomson,2-Room,30,360000.0,3-Room,35,460000.0,2025-01-01,2025-02-28,Elizabeth,6,");
+        projects.add("Coastal Breeze,East Coast,2-Room,25,370000.0,3-Room,30,470000.0,2025-10-15,2025-12-15,Michael,5,");
+        projects.add("River Valley Heights,River Valley,2-Room,20,440000.0,3-Room,25,540000.0,2025-06-01,2025-07-31,Christopher,4,");
+        projects.add("Golden Heights,Hougang,2-Room,35,310000.0,3-Room,40,410000.0,2025-04-15,2025-06-15,Natalie,6,");
+        projects.add("Woodlands Sanctuary,Woodlands,2-Room,40,280000.0,3-Room,45,380000.0,2025-05-01,2025-06-30,Mark,6,");
+        projects.add("Boulevard Heights,Novena,2-Room,35,370000.0,3-Room,40,470000.0,2025-04-01,2025-05-31,Kevin,6,");
+        projects.add("Sunset Heights,Clementi,2-Room,35,320000.0,3-Room,40,420000.0,2025-07-01,2025-08-31,Raymond,4,");
+        projects.add("City Square,Bugis,2-Room,25,380000.0,3-Room,30,480000.0,2025-03-15,2025-05-15,Elizabeth,5,");
+        projects.add("Eastwood Residences,Bedok,2-Room,35,350000.0,3-Room,40,450000.0,2025-04-01,2025-05-31,Jessica,5,");
+        projects.add("Meadow View,Boon Lay,2-Room,25,320000.0,3-Room,19,420000.0,2025-04-01,2025-05-31,Michael,3,David");
+        projects.add("Central Park,Serangoon,2-Room,30,350000.0,3-Room,35,450000.0,2025-07-01,2025-08-31,Natalie,5,");
+        projects.add("Orchard Residences,Orchard,2-Room,10,500000.0,3-Room,15,650000.0,2025-09-01,2025-10-31,Sophia,2,");
+        projects.add("Pearl Gardens,Kembangan,2-Room,35,340000.0,3-Room,40,440000.0,2025-08-01,2025-09-30,Daniel,7,");
+        projects.add("Riverview Terrace,Punggol,2-Room,30,370000.0,3-Room,35,470000.0,2025-04-01,2025-05-31,Sophia,6,");
+        projects.add("Marina Gateway,Marina South,2-Room,15,450000.0,3-Room,20,550000.0,2025-06-15,2025-08-15,Sophia,3,");
+        projects.add("Sunrise Gardens,Tampines,2-Room,18,340000.0,3-Room,11,460000.0,2025-02-01,2025-03-31,Jessica,2,Daniel,David");
+        projects.add("Evergreen Residence,Choa Chu Kang,2-Room,45,300000.0,3-Room,50,400000.0,2025-03-15,2025-05-15,Christopher,8,");
+        projects.add("Mountain View,Upper Bukit Timah,2-Room,30,360000.0,3-Room,35,460000.0,2025-05-15,2025-07-15,Daniel,6,");
         
         // Write to file
         writeToFile(BTO_PROJECTS_FILE, projects);
@@ -158,18 +193,22 @@ public class BTOSampleDataPopulator {
         // CSV header
         applications.add("ApplicationId,ApplicantNRIC,ProjectName,FlatType,Status");
         
-        // Data provided
-        applications.add("20250416-m5n6o7p8,S6789012V,Acacia Breeze,3-Room,Unsuccessful");
-        applications.add("20250416-eb2a9f89,T2345678D,Binjai Hall,2-Room,Unsuccessful");
-        applications.add("20250419-c56ba963,T3456789I,Rumah Daniel baru,null,Unsuccessful");
-        applications.add("20250416-52c30d75,S3456789E,Sunrise Gardens,3-Room,Unsuccessful");
-        applications.add("20250416-i9j0k1l2,S2345678H,Eastwood Residences,3-Room,Pending");
-        applications.add("20250416-y7z8a9b0,T9012345Y,Eastwood Residences,3-Room,Pending");
-        applications.add("20250416-i1j2k3l4,T5678901U,Meadow View,2-Room,Pending");
-        applications.add("20250416-o1p2q3r4,S0123456P,Sunrise Gardens,3-Room,Unsuccessful");
-        applications.add("20250416-u1v2w3x4,T5678901K,Woodlands Sanctuary,3-Room,Unsuccessful");
-        applications.add("20250416-k7l8m9n0,T9012345O,Hillview Haven,2-Room,Pending");
-        applications.add("20250416-a3b4c5d6,T3456789S,Pasir Ris Sands,2-Room,Booked");
+        // Use the BTOApplication sample data
+        applications.add("20250301-a1b2c3d4,T7890123W,Harmony Gardens,3-Room,Successful");
+        applications.add("20250305-e5f6g7h8,S6789012J,Parkview Residence,2-Room,Successful");
+        applications.add("20250310-i9j0k1l2,S0123456P,Heritage View,null,Pending");
+        applications.add("20250312-m3n4o5p6,T8901234G,Binjai Hall,3-Room,Booked");
+        applications.add("20250315-q7r8s9t0,T9012345Y,Emerald Heights,null,Unsuccessful");
+        applications.add("20250320-u1v2w3x4,T5678901K,Garden Vista,2-Room,Successful");
+        applications.add("20250325-y5z6a7b8,S5678901H,Urban Oasis,3-Room,Booked");
+        applications.add("20250328-c9d0e1f2,S6789012V,Lakeside View,null,Pending");
+        applications.add("20250401-g3h4i5j6,T7890123M,Green Haven,3-Room,Successful");
+        applications.add("20250405-k7l8m9n0,S8901234N,Pasir Ris Sands,2-Room,Booked");
+        applications.add("20250408-o1p2q3r4,T5678901U,Forest Hill,null,Pending");
+        applications.add("20250412-s5t6u7v8,S1234567A,Highland Towers,2-Room,Successful");
+        applications.add("20250415-w9x0y1z2,S8901234X,Sunshine Court,null,Unsuccessful");
+        applications.add("20250418-a3b4c5d6,S6789012L,Waterfront Bay,3-Room,Successful");
+        applications.add("20250422-e7f8g9h0,T9012345O,Acacia Breeze,3-Room,Booked");
         
         // Write to file
         writeToFile(BTO_APPLICATIONS_FILE, applications);
