@@ -1,39 +1,39 @@
-ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers
-Harmony Gardens,Geylang,2-Room,45,320000.0,3-Room,50,420000.0,2025-06-15,2025-08-15,Kevin,7,
-Parkview Residence,Bukit Batok West,2-Room,35,330000.0,3-Room,40,430000.0,2025-08-15,2025-10-15,Christopher,6,
-Heritage View,Chinatown,2-Room,20,390000.0,3-Room,25,490000.0,2025-01-15,2025-03-15,Kevin,4,
-Binjai Hall,North Hill,2-Room,10,250000.0,3-Room,15,150000.0,2025-03-01,2025-04-30,Mark,9,Emily,Andrew
-Emerald Heights,Sengkang,2-Room,45,310000.0,3-Room,50,410000.0,2025-01-15,2025-03-15,Sophia,4,
-Garden Vista,Bishan,2-Room,40,330000.0,3-Room,45,430000.0,2025-04-15,2025-06-15,Raymond,7,
-Urban Oasis,Kallang,2-Room,35,350000.0,3-Room,40,450000.0,2025-08-15,2025-10-15,Elizabeth,6,
-Lakeside View,Jurong,2-Room,50,300000.0,3-Room,55,400000.0,2025-09-15,2025-11-15,Raymond,8,
-Green Haven,Upper Thomson,2-Room,30,340000.0,3-Room,35,440000.0,2025-05-15,2025-07-15,Michael,5,
-Pasir Ris Sands,Pasir Ris,2-Room,38,330000.0,3-Room,42,430000.0,2025-01-01,2025-02-28,Mark,5,Ryan
-Forest Hill,Bukit Panjang,2-Room,40,320000.0,3-Room,45,420000.0,2025-01-01,2025-02-28,Christopher,7,
-Highland Towers,Bukit Timah,2-Room,25,400000.0,3-Room,30,520000.0,2025-02-01,2025-03-31,Raymond,5,
-Sunshine Court,Simei,2-Room,40,320000.0,3-Room,45,420000.0,2025-08-01,2025-09-30,Michael,7,
-Rumah Daniel baru,Marina Bay Sands,2-Room,2,1000000.0,3-Room,5,5.0E7,2025-03-15,2025-04-30,Daniel,5,
-Waterfront Bay,Pasir Panjang,2-Room,25,380000.0,3-Room,30,480000.0,2025-09-15,2025-11-15,Natalie,4,
-Acacia Breeze,Yishun,2-Room,20,350000.0,3-Room,15,450000.0,2025-06-01,2025-07-31,Jessica,3,Daniel
-Serenity Heights,Ang Mo Kio,2-Room,40,330000.0,3-Room,45,430000.0,2025-09-01,2025-10-31,Kevin,5,
-Skyline Towers,Toa Payoh,2-Room,40,340000.0,3-Room,45,440000.0,2025-06-01,2025-07-31,Elizabeth,7,
-Meadow Springs,Sembawang,2-Room,50,290000.0,3-Room,55,390000.0,2025-02-01,2025-03-31,Natalie,8,
-Hillview Haven,Bukit Batok,2-Room,30,320000.0,3-Room,35,410000.0,2025-07-01,2025-08-31,Mark,5,
-Tranquil Gardens,Thomson,2-Room,30,360000.0,3-Room,35,460000.0,2025-01-01,2025-02-28,Elizabeth,6,
-Coastal Breeze,East Coast,2-Room,25,370000.0,3-Room,30,470000.0,2025-10-15,2025-12-15,Michael,5,
-River Valley Heights,River Valley,2-Room,20,440000.0,3-Room,25,540000.0,2025-06-01,2025-07-31,Christopher,4,
-Golden Heights,Hougang,2-Room,35,310000.0,3-Room,40,410000.0,2025-04-15,2025-06-15,Natalie,6,
-Woodlands Sanctuary,Woodlands,2-Room,40,280000.0,3-Room,45,380000.0,2025-05-01,2025-06-30,Mark,6,
-Boulevard Heights,Novena,2-Room,35,370000.0,3-Room,40,470000.0,2025-04-01,2025-05-31,Kevin,6,
-Sunset Heights,Clementi,2-Room,35,320000.0,3-Room,40,420000.0,2025-07-01,2025-08-31,Raymond,4,
-City Square,Bugis,2-Room,25,380000.0,3-Room,30,480000.0,2025-03-15,2025-05-15,Elizabeth,5,
-Eastwood Residences,Bedok,2-Room,35,350000.0,3-Room,40,450000.0,2025-04-01,2025-05-31,Jessica,5,
-Meadow View,Boon Lay,2-Room,25,320000.0,3-Room,19,420000.0,2025-04-01,2025-05-31,Michael,3,David
-Central Park,Serangoon,2-Room,30,350000.0,3-Room,35,450000.0,2025-07-01,2025-08-31,Natalie,5,
-Orchard Residences,Orchard,2-Room,10,500000.0,3-Room,15,650000.0,2025-09-01,2025-10-31,Sophia,2,
-Pearl Gardens,Kembangan,2-Room,35,340000.0,3-Room,40,440000.0,2025-08-01,2025-09-30,Daniel,7,
-Riverview Terrace,Punggol,2-Room,30,370000.0,3-Room,34,470000.0,2025-04-01,2025-05-31,Sophia,6,Jonathan
-Marina Gateway,Marina South,2-Room,15,450000.0,3-Room,20,550000.0,2025-06-15,2025-08-15,Sophia,3,
-Sunrise Gardens,Tampines,2-Room,18,340000.0,3-Room,11,460000.0,2025-02-01,2025-03-31,Jessica,2,Daniel,David
-Evergreen Residence,Choa Chu Kang,2-Room,45,300000.0,3-Room,50,400000.0,2025-03-15,2025-05-15,Christopher,8,
-Mountain View,Upper Bukit Timah,2-Room,30,360000.0,3-Room,35,460000.0,2025-05-15,2025-07-15,Daniel,6,
+ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers,Visible
+Harmony Gardens,Geylang,2-Room,45,320000.0,3-Room,50,420000.0,2025-06-15,2025-08-15,Kevin,7,true
+Parkview Residence,Bukit Batok West,2-Room,35,330000.0,3-Room,40,430000.0,2025-08-15,2025-10-15,Christopher,6,true
+Heritage View,Chinatown,2-Room,20,390000.0,3-Room,25,490000.0,2025-01-15,2025-03-15,Kevin,4,true
+Binjai Hall,North Hill,2-Room,10,250000.0,3-Room,15,150000.0,2025-03-01,2025-04-30,Mark,9,Emily,Andrew,true
+Emerald Heights,Sengkang,2-Room,45,310000.0,3-Room,50,410000.0,2025-01-15,2025-03-15,Sophia,4,true
+Garden Vista,Bishan,2-Room,40,330000.0,3-Room,45,430000.0,2025-04-15,2025-06-15,Raymond,7,true
+Urban Oasis,Kallang,2-Room,35,350000.0,3-Room,40,450000.0,2025-08-15,2025-10-15,Elizabeth,6,true
+Lakeside View,Jurong,2-Room,50,300000.0,3-Room,55,400000.0,2025-09-15,2025-11-15,Raymond,8,true
+Green Haven,Upper Thomson,2-Room,30,340000.0,3-Room,35,440000.0,2025-05-15,2025-07-15,Michael,5,true
+Pasir Ris Sands,Pasir Ris,2-Room,38,330000.0,3-Room,42,430000.0,2025-01-01,2025-02-28,Mark,5,Ryan,true
+Forest Hill,Bukit Panjang,2-Room,40,320000.0,3-Room,45,420000.0,2025-01-01,2025-02-28,Christopher,7,true
+Highland Towers,Bukit Timah,2-Room,25,400000.0,3-Room,30,520000.0,2025-02-01,2025-03-31,Raymond,5,true
+Sunshine Court,Simei,2-Room,40,320000.0,3-Room,45,420000.0,2025-08-01,2025-09-30,Michael,7,true
+Rumah Daniel baru,Marina Bay Sands,2-Room,2,1000000.0,3-Room,5,5.0E7,2025-03-15,2025-04-30,Daniel,5,true
+Waterfront Bay,Pasir Panjang,2-Room,25,380000.0,3-Room,30,480000.0,2025-09-15,2025-11-15,Natalie,4,true
+Acacia Breeze,Yishun,2-Room,20,350000.0,3-Room,15,450000.0,2025-06-01,2025-07-31,Jessica,3,Daniel,true
+Serenity Heights,Ang Mo Kio,2-Room,40,330000.0,3-Room,45,430000.0,2025-09-01,2025-10-31,Kevin,5,true
+Skyline Towers,Toa Payoh,2-Room,40,340000.0,3-Room,45,440000.0,2025-06-01,2025-07-31,Elizabeth,7,true
+Meadow Springs,Sembawang,2-Room,50,290000.0,3-Room,55,390000.0,2025-02-01,2025-03-31,Natalie,8,false
+Hillview Haven,Bukit Batok,2-Room,30,320000.0,3-Room,35,410000.0,2025-07-01,2025-08-31,Mark,5,true
+Tranquil Gardens,Thomson,2-Room,30,360000.0,3-Room,35,460000.0,2025-01-01,2025-02-28,Elizabeth,6,true
+Coastal Breeze,East Coast,2-Room,25,370000.0,3-Room,30,470000.0,2025-10-15,2025-12-15,Michael,5,true
+River Valley Heights,River Valley,2-Room,20,440000.0,3-Room,25,540000.0,2025-06-01,2025-07-31,Christopher,4,false
+Golden Heights,Hougang,2-Room,35,310000.0,3-Room,40,410000.0,2025-04-15,2025-06-15,Natalie,6,true
+Woodlands Sanctuary,Woodlands,2-Room,40,280000.0,3-Room,45,380000.0,2025-05-01,2025-06-30,Mark,6,true
+Boulevard Heights,Novena,2-Room,35,370000.0,3-Room,40,470000.0,2025-04-01,2025-05-31,Kevin,6,true
+Sunset Heights,Clementi,2-Room,35,320000.0,3-Room,40,420000.0,2025-07-01,2025-08-31,Raymond,4,true
+City Square,Bugis,2-Room,25,380000.0,3-Room,30,480000.0,2025-03-15,2025-05-15,Elizabeth,5,true
+Eastwood Residences,Bedok,2-Room,35,350000.0,3-Room,40,450000.0,2025-04-01,2025-05-31,Jessica,5,true
+Meadow View,Boon Lay,2-Room,25,320000.0,3-Room,19,420000.0,2025-04-01,2025-05-31,Michael,3,David,true
+Central Park,Serangoon,2-Room,30,350000.0,3-Room,35,450000.0,2025-07-01,2025-08-31,Natalie,5,true
+Orchard Residences,Orchard,2-Room,10,500000.0,3-Room,15,650000.0,2025-09-01,2025-10-31,Sophia,2,false
+Pearl Gardens,Kembangan,2-Room,35,340000.0,3-Room,40,440000.0,2025-08-01,2025-09-30,Daniel,7,true
+Riverview Terrace,Punggol,2-Room,30,370000.0,3-Room,34,470000.0,2025-04-01,2025-05-31,Sophia,6,Jonathan,false
+Marina Gateway,Marina South,2-Room,15,450000.0,3-Room,20,550000.0,2025-06-15,2025-08-15,Sophia,3,true
+Sunrise Gardens,Tampines,2-Room,18,340000.0,3-Room,11,460000.0,2025-02-01,2025-03-31,Jessica,2,Daniel,David,true
+Evergreen Residence,Choa Chu Kang,2-Room,45,300000.0,3-Room,50,400000.0,2025-03-15,2025-05-15,Christopher,8,true
+Mountain View,Upper Bukit Timah,2-Room,30,360000.0,3-Room,35,460000.0,2025-05-15,2025-07-15,Daniel,6,true

@@ -106,7 +106,7 @@ public class CsvDataService implements IFileDataService {
 		btoProjectCsvHeaders.addAll(List.of(
 			"ProjectName", "Neighborhood", "Type1", "NumberOfUnitsType1", "SellingPriceType1",
 			"Type2", "NumberOfUnitsType2", "SellingPriceType2", "ApplicationOpeningDate",
-			"ApplicationClosingDate", "Manager", "OfficerSlot", "Officers"
+			"ApplicationClosingDate", "Manager", "OfficerSlot", "Officers", "Visible"
 		));
 
 		// BTO Application headers
@@ -259,52 +259,89 @@ public class CsvDataService implements IFileDataService {
 	}
 
 	private BTOProject parseBTOProjectRow(String[] btoProjectRow) {
-		// ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers
-		String projectName = btoProjectRow[0];
-		String neighborhood = btoProjectRow[1];
+	// ProjectName,Neighborhood,Type1,NumberOfUnitsType1,SellingPriceType1,Type2,NumberOfUnitsType2,SellingPriceType2,ApplicationOpeningDate,ApplicationClosingDate,Manager,OfficerSlot,Officers,Visible
+	String projectName = btoProjectRow[0];
+	String neighborhood = btoProjectRow[1];
 
-		Map<FlatType, FlatTypeDetails> flatTypes = new HashMap<FlatType, FlatTypeDetails>();
+	Map<FlatType, FlatTypeDetails> flatTypes = new HashMap<FlatType, FlatTypeDetails>();
 
-		for (int i = 2; i < 8; i += 3) {
-			FlatType flatType = EnumParser.parseFlatType(btoProjectRow[i]);
-			int numberOfUnits = Integer.parseInt(btoProjectRow[i + 1]);
-			double sellingPrice = Double.parseDouble(btoProjectRow[i + 2]);
+	for (int i = 2; i < 8; i += 3) {
+	FlatType flatType = EnumParser.parseFlatType(btoProjectRow[i]);
+	int numberOfUnits = Integer.parseInt(btoProjectRow[i + 1]);
+	double sellingPrice = Double.parseDouble(btoProjectRow[i + 2]);
 
-			FlatTypeDetails flatTypeDetails = new FlatTypeDetails(numberOfUnits, sellingPrice);
-			flatTypes.put(flatType, flatTypeDetails);
-		}
+	FlatTypeDetails flatTypeDetails = new FlatTypeDetails(numberOfUnits, sellingPrice);
+	flatTypes.put(flatType, flatTypeDetails);
+	}
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDate applicationOpeningDate = LocalDate.parse(btoProjectRow[8], formatter);
-		LocalDate applicationClosingDate = LocalDate.parse(btoProjectRow[9], formatter);
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	LocalDate applicationOpeningDate = LocalDate.parse(btoProjectRow[8], formatter);
+	LocalDate applicationClosingDate = LocalDate.parse(btoProjectRow[9], formatter);
 
-		String managerName = btoProjectRow[10];
-		HDBManager manager = null;
-		// Find manager by name
-		for (HDBManager m : DataStore.getHDBManagersData().values()) {
-			if (m.getName().equals(managerName)) {
-				manager = m;
-				break;
+	String managerName = btoProjectRow[10];
+	HDBManager manager = null;
+	// Find manager by name
+	for (HDBManager m : DataStore.getHDBManagersData().values()) {
+	if (m.getName().equals(managerName)) {
+	manager = m;
+	break;
+	}
+	}
+	
+	int officerSlots = Integer.parseInt(btoProjectRow[11]);
+	
+	// Get all officers from remaining columns except the last one (visible)
+	List<HDBOfficer> hdbOfficers = new ArrayList<HDBOfficer>();
+	boolean visible = true; // Default to true if no visible field
+	
+	// Check if we have a visible field (it would be the last element)
+	if (btoProjectRow.length > 12) {
+	String lastElement = btoProjectRow[btoProjectRow.length - 1];
+	// Check if the last element is 'true' or 'false'
+	if (lastElement.equalsIgnoreCase("true") || lastElement.equalsIgnoreCase("false")) {
+	visible = Boolean.parseBoolean(lastElement);
+	 // Process officers from index 12 to length-2
+	  for (int i = 12; i < btoProjectRow.length - 1; i++) {
+					String officerName = btoProjectRow[i];
+	   // Find officer by name
+	for (HDBOfficer o : DataStore.getHDBOfficersData().values()) {
+						if (o.getName().equals(officerName)) {
+							hdbOfficers.add(o);
+							break;
+						}
+					}
+				}
+			} else {
+				// No visible field, process all remaining elements as officers
+				for (int i = 12; i < btoProjectRow.length; i++) {
+					String officerName = btoProjectRow[i];
+					// Find officer by name
+					for (HDBOfficer o : DataStore.getHDBOfficersData().values()) {
+						if (o.getName().equals(officerName)) {
+							hdbOfficers.add(o);
+							break;
+						}
+					}
+				}
 			}
-		}
-		
-		int officerSlots = Integer.parseInt(btoProjectRow[11]);
-		
-		// Get all officers from remaining columns
-		List<HDBOfficer> hdbOfficers = new ArrayList<HDBOfficer>();
-		for (int i = 12; i < btoProjectRow.length; i++) {
-			String officerName = btoProjectRow[i];
-			// Find officer by name
-			for (HDBOfficer o : DataStore.getHDBOfficersData().values()) {
-				if (o.getName().equals(officerName)) {
-					hdbOfficers.add(o);
-					break;
+		} else {
+			// No additional fields, just process officers if any
+			if (btoProjectRow.length > 12) {
+				for (int i = 12; i < btoProjectRow.length; i++) {
+					String officerName = btoProjectRow[i];
+					// Find officer by name
+					for (HDBOfficer o : DataStore.getHDBOfficersData().values()) {
+						if (o.getName().equals(officerName)) {
+							hdbOfficers.add(o);
+							break;
+						}
+					}
 				}
 			}
 		}
 
 		return new BTOProject(projectName, neighborhood, applicationOpeningDate, applicationClosingDate, 
-							flatTypes, manager, officerSlots, hdbOfficers, true);
+						flatTypes, manager, officerSlots, hdbOfficers, visible);
 	}
 
 	// ---------- Interface method implementation ---------- //
@@ -481,6 +518,12 @@ public class CsvDataService implements IFileDataService {
 				.map(HDBOfficer::getName)
 				.toArray(String[]::new);
 			line.append(String.join(",", officerNames));
+			
+			// Add visible field
+			if (officers.size() > 0) {
+				line.append(",");
+			}
+			line.append(project.isVisible());
 			
 			btoProjectLines.add(line.toString());
 		}
