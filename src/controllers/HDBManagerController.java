@@ -910,11 +910,15 @@ do {
                 continue;
             }
             
-            // Display eligible flat types
-            System.out.println("Eligible Flat Types:");
-            for (Map.Entry<FlatType, FlatTypeDetails> entry : eligibleFlatTypes.entrySet()) {
-                if (entry.getValue().getUnits() > 0) {
-                    System.out.println(entry.getKey().getDisplayName() + " (" + entry.getValue().getUnits() + " units available)");
+            if (eligibleFlatTypes.isEmpty()) {
+                System.out.println("No eligible flat types for this applicant.");
+            } else {
+                // Display eligible flat types
+                System.out.println("Eligible Flat Types:");
+                for (Map.Entry<FlatType, FlatTypeDetails> entry : eligibleFlatTypes.entrySet()) {
+                    if (entry.getValue().getUnits() > 0) {
+                        System.out.println(entry.getKey().getDisplayName() + " (" + entry.getValue().getUnits() + " units available)");
+                    }
                 }
             }
             System.out.println();
@@ -975,16 +979,16 @@ do {
             }
         }
         
-        if (!hasAvailableUnits) {
-            System.out.println("No units available for any eligible flat type in this project.");
-            clearCurrentApplication();
-            return;
-        }
         
         System.out.print("Approve application? (yes/no): ");
         String approval = sc.nextLine().toLowerCase();
         
         if (approval.equals("yes")) {
+            if (!hasAvailableUnits) {
+                System.out.println("No units available for any eligible flat type in this project.");
+                clearCurrentApplication();
+                return;
+            }
             application.setStatus(BTOApplicationStatus.SUCCESSFUL);
             System.out.println("Application approved successfully!");
             System.out.println("The applicant can now request to book a flat.");
