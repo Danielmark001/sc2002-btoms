@@ -8,9 +8,7 @@ import services.UserService;
 /**
  * The {@link UserController} class is responsible for handling user-related
  * actions, such as changing the user's password. This
- * class serves as a base class for more specific user types like
- * {@link StudentController} or {@link SupervisorController} or
- * {@link FYPCoordinatorController}.
+ * class serves as a base class for more specific user types
  */
 public class UserController {
     /**

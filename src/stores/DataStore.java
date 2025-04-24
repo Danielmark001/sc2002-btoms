@@ -140,7 +140,7 @@ public class DataStore {
 
 	// ---------- Student ---------- //
 	/**
-	 * Gets the students data map.
+	 * Gets the applicants data map.
 	 *
 	 * @return a {@link Map} containing student ID as the key and {@link Student}
 	 *         objects as the value
@@ -150,9 +150,9 @@ public class DataStore {
 	}
 
 	/**
-	 * Sets the students data map and saves the data to the file system.
+	 * Sets the applicants data map and saves the data to the file system.
 	 *
-	 * @param studentsData a {@link Map} containing student ID as the key and
+	 * @param applicantsData a {@link Map} containing student ID as the key and
 	 *                     {@link Student} objects as the value
 	 */
 	public static void setApplicantsData(Map<String, Applicant> applicantsData) {
@@ -160,44 +160,44 @@ public class DataStore {
 		fileDataService.exportApplicantData(filePathsMap.get("applicant"), applicantsData);
 	}
 
-	// ---------- Supervisor ---------- //
+	// ---------- HDB Manager ---------- //
 	/**
-	 * Gets the supervisors data map.
+	 * Gets the HDB Managers data map.
 	 *
-	 * @return a {@link Map} containing supervisor ID as the key and
-	 *         {@link Supervisor} objects as the value
+	 * @return a {@link Map} containing HDB Manager ID as the key and
+	 *         {@link HDB Manager} objects as the value
 	 */
 	public static Map<String, HDBManager> getHDBManagersData() {
 		return DataStore.hdbManagersData;
 	}
 
 	/**
-	 * Sets the supervisors data map and saves the data to the file system.
+	 * Sets the HDB Managers data map and saves the data to the file system.
 	 *
-	 * @param supervisorsData a {@link Map} containing supervisor ID as the key and
-	 *                        {@link Supervisor} objects as the value
+	 * @param HDB ManagersData a {@link Map} containing HDB Manager ID as the key and
+	 *                        {@link HDB Manager} objects as the value
 	 */
 	public static void setHDBManagersData(Map<String, HDBManager> hdbManagersData) {
 		DataStore.hdbManagersData = hdbManagersData;
 		fileDataService.exportHDBManagerData(filePathsMap.get("hdbManager"), hdbManagersData);
 	}
 
-	// ---------- FYP Coordinator ---------- //
+
 	/**
-	 * Gets the FYP coordinators data map.
+	 * Gets the coordinators data map.
 	 *
-	 * @return a {@link Map} containing FYP coordinator ID as the key and
-	 *         {@link FYPCoordinator} objects as the value
+	 * @return a {@link Map} containing coordinator ID as the key and
+	 *         {@link Officer Coordinator} objects as the value
 	 */
 	public static Map<String, HDBOfficer> getHDBOfficersData() {
 		return DataStore.hdbOfficersData;
 	}
 
 	/**
-	 * Sets the FYP coordinators data map and saves the data to the file system.
+	 * Sets the coordinators data map and saves the data to the file system.
 	 *
-	 * @param fypcoordinatorsData a {@link Map} containing FYP coordinator ID as the
-	 *                            key and {@link FYPCoordinator} objects as the
+	 * @param coordinatorsData a {@link Map} containingcoordinator ID as the
+	 *                            key and {@link Coordinator} objects as the
 	 *                            value
 	 */
 	public static void setHDBOfficersData(Map<String, HDBOfficer> hdbOfficersData) {

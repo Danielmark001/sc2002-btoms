@@ -11,10 +11,6 @@ import java.util.Map;
 public class FilePathsUtils {
 	/**
 	 * A {@link Map} object that contains the file paths for various data types used
-	 * in the application. Keys in the map are "user", "student", "supervisor",
-	 * "fypcoordinator", "project", "request", "transferStudentRequest", and
-	 * "changeProjectTitleRequest". The corresponding values are the file paths for
-	 * each data type.
 	 */
 	private static Map<String, String> filePathsMap = new HashMap<String, String>();
 
@@ -27,7 +23,7 @@ public class FilePathsUtils {
 	/**
 	 * Returns a mapping of CSV file paths for various data types used in the
 	 * application. The returned map contains keys such as "user", "student",
-	 * "supervisor", "fypcoordinator", "project", "request",
+	 * "HDB Manager", "coordinator", "project", "request",
 	 * "transferStudentRequest", and "changeProjectTitleRequest",
 	 * each associated with their respective file paths.
 	 *
