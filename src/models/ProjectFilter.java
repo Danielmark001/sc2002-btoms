@@ -6,6 +6,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import enumeration.FlatType;
+import enumeration.UserType;
+import stores.AuthStore;
 
 /**
  * Provides filtering and sorting functionality for BTO projects.
@@ -91,9 +93,15 @@ public class ProjectFilter {
         
         // Apply visibility filter if needed
         if (showVisibleOnly) {
-            filtered = filtered.stream()
-                .filter(BTOProject::isVisible)
-                .collect(Collectors.toList());
+            // Get current user to check if they are an HDB Officer
+            User currentUser = AuthStore.getCurrentUser();
+            
+            // HDB Officers can see all projects regardless of visibility
+            if (currentUser == null || currentUser.getUserType() != UserType.HDB_OFFICER) {
+                filtered = filtered.stream()
+                    .filter(BTOProject::isVisible)
+                    .collect(Collectors.toList());
+            }
         }
         
         // Apply sorting

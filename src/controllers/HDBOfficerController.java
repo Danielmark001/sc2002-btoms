@@ -93,6 +93,7 @@ do {
             System.out.println("└─ 8. View HDB Officer Registrations");
             System.out.println("└─ 9. Process Flat Booking Requests");
             System.out.println("└─ 10. Generate Booking Receipt");
+            System.out.println("└─ 11. View and Reply to Enquiries");
             System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("LOGOUT"));
@@ -105,8 +106,8 @@ do {
                 String input = sc.nextLine().trim();
                 choice = Integer.parseInt(input);
                 
-                if (choice < 0 || choice > 10) {
-                    System.out.println("Invalid choice. Please enter 0-10!");
+                if (choice < 0 || choice > 11) {
+                    System.out.println("Invalid choice. Please enter 0-11!");
                     continue;
                 }
             } catch (NumberFormatException e) {
@@ -148,6 +149,9 @@ do {
                     break;
                 case 10:
                     generateBookingReceipt();
+                    break;
+                case 11:
+                    viewAndReplyToEnquiries();
                     break;
                 case 0:
                     System.out.println("Logging out...");

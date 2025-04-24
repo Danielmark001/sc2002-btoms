@@ -238,14 +238,20 @@ do {
      * Create a new BTO project
      */
   private void createBTOProject() {
-        // Check if the manager is already handling a project within an application period
-        if (projectManagementService.isHandlingActiveProject(hdbManager)) {
-            System.out.println("You are already handling a project within an application period.");
+        // Get project creation details from the view
+        Object[] details = projectManagementView.getProjectCreationDetails();
+        if (details == null) {
             return;
         }
         
-        Object[] details = projectManagementView.getProjectCreationDetails();
-        if (details == null) {
+        // Get the application dates from the details
+        LocalDate openingDate = (LocalDate) details[2];
+        LocalDate closingDate = (LocalDate) details[3];
+        
+        // Check if the new project's dates overlap with existing projects managed by this HDB manager
+        if (projectManagementService.hasOverlappingProjectDates(hdbManager, openingDate, closingDate)) {
+            System.out.println("You already have a project with overlapping application dates.");
+            System.out.println("Please choose different dates that don't overlap with your existing projects.");
             return;
         }
         
@@ -270,8 +276,8 @@ do {
         BTOProject project = projectManagementService.createProject(
             (String) details[0],
             (String) details[1],
-            (LocalDate) details[2],
-            (LocalDate) details[3],
+            openingDate,
+            closingDate,
             flatTypes,
             hdbManager,
             (int) details[5]
@@ -1084,11 +1090,11 @@ do {
             return;
         }
         
-        // Get successful applications
-        List<BTOApplication> successfulApplications = reportService.getAllSuccessfulApplications();
+        // Get successful and booked applications
+        List<BTOApplication> applications = reportService.getAllSuccessfulAndBookedApplications();
         
-        if (successfulApplications.isEmpty()) {
-            System.out.println("No successful BTO applications found for your projects.");
+        if (applications.isEmpty()) {
+            System.out.println("No successful or booked BTO applications found for your projects.");
             return;
         }
         
@@ -1098,7 +1104,7 @@ do {
             return;
         }
         
-        List<BTOApplication> filteredApplications = new ArrayList<>(successfulApplications);
+        List<BTOApplication> filteredApplications = new ArrayList<>(applications);
         
         switch (filterChoice) {
             case 1:
