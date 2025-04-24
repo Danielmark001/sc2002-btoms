@@ -194,7 +194,6 @@ public class BTOSampleDataPopulator {
         applications.add("ApplicationId,ApplicantNRIC,ProjectName,FlatType,Status");
         
         // Use the BTOApplication sample data
-        applications.add("20250301-a1b2c3d4,T7890123W,Harmony Gardens,3-Room,Successful");
         applications.add("20250305-e5f6g7h8,S6789012J,Parkview Residence,2-Room,Successful");
         applications.add("20250310-i9j0k1l2,S0123456P,Heritage View,null,Pending");
         applications.add("20250312-m3n4o5p6,T8901234G,Binjai Hall,3-Room,Booked");

@@ -906,10 +906,11 @@ do {
                     System.out.println(entry.getKey().getDisplayName() + " (" + entry.getValue().getUnits() + " units available)");
                 }
             }
+            System.out.println();
         }
         
         // Select application to approve/reject
-        System.out.print("Enter application number to approve/reject (0 to cancel): ");
+        System.out.print("Enter application number (1-" + pendingApplications.size() +") to approve/reject (0 to cancel): ");
         int choice = 0;
         try {
             choice = Integer.parseInt(sc.nextLine());
