@@ -109,7 +109,7 @@ public class BTOProjectManagementView {
             int units = 0;
             while (!validUnits) {
                 try {
-                    System.out.print("Enter number of units (0 to skip): ");
+                    System.out.print("Enter number of units: ");
                     units = Integer.parseInt(sc.nextLine());
                     if (units < 0) {
                         System.out.println("Number of units cannot be negative!");
@@ -121,7 +121,7 @@ public class BTOProjectManagementView {
                 }
             }
             
-            if (units > 0) {
+            if (units >= 0) {
                 boolean validPrice = false;
                 double price = 0;
                 while (!validPrice) {
