@@ -20,6 +20,18 @@ public class BTOProjectAvailableView implements IProjectView {
         this.projectService = new BTOProjectService();
     }
 
+    /**
+     * Checks if an applicant has already applied for a project
+     * 
+     * @param applicant The applicant to check
+     * @param project The project to check against
+     * @return true if the applicant has already applied for the project, false otherwise
+     */
+    private boolean hasAppliedForProject(Applicant applicant, BTOProject project) {
+        return projectService.getApplicationsByApplicant(applicant).stream()
+            .anyMatch(app -> app.getProject().equals(project));
+    }
+
     @Override
     public void displayProjectInfo(BTOProject project) {
         System.out.println("Project Name: " + project.getProjectName());
@@ -29,6 +41,17 @@ public class BTOProjectAvailableView implements IProjectView {
         
         // Get current user
         User user = AuthStore.getCurrentUser();
+        
+        // If user is an applicant who has already applied for this project,
+        // show limited information
+        if (user instanceof Applicant) {
+            Applicant applicant = (Applicant) user;
+            if (hasAppliedForProject(applicant, project)) {
+                System.out.println("\nYou have already applied for this project.");
+                System.out.println("Project Manager: " + project.getHDBManager().getName());
+                return; // Exit early without showing flat type details
+            }
+        }
         
         // Get eligible flat types for this user
         Map<FlatType, FlatTypeDetails> eligibleFlatTypes;

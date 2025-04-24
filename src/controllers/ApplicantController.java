@@ -72,13 +72,14 @@ public class ApplicantController extends UserController {
             System.out.println("└─ 2. View Available BTO Projects");
             System.out.println("└─ 3. Apply for a BTO Project");
             System.out.println("└─ 4. View My BTO Applications");
-            System.out.println("└─ 5. Withdraw BTO Application");
-            System.out.println("└─ 6. Request Flat Booking");
+            System.out.println("└─ 5. View Applied Project Details");
+            System.out.println("└─ 6. Withdraw BTO Application");
+            System.out.println("└─ 7. Request Flat Booking");
             System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("ENQUIRIES"));
-            System.out.println("└─ 7. Submit Enquiry");
-            System.out.println("└─ 8. View My Enquiries");
+            System.out.println("└─ 8. Submit Enquiry");
+            System.out.println("└─ 9. View My Enquiries");
             System.out.println();
 
             System.out.println(TextDecorationUtils.underlineText("LOGOUT"));
@@ -90,8 +91,8 @@ public class ApplicantController extends UserController {
             String input = sc.nextLine();
             if (input.matches("[0-9]+")) {
                 choice = Integer.parseInt(input);
-                if (choice < 0 || choice > 8) {
-                    System.out.println("Invalid input. Please enter 0-8!");
+                if (choice < 0 || choice > 9) {
+                    System.out.println("Invalid input. Please enter 0-9!");
                     continue;
                 }
             } else {
@@ -117,15 +118,18 @@ public class ApplicantController extends UserController {
                     viewMyBTOApplications();
                     break;
                 case 5:
-                    withdrawBTOApplication();
+                    viewAppliedProjectDetails();
                     break;
                 case 6:
-                    requestFlatBooking();
+                    withdrawBTOApplication();
                     break;
                 case 7:
-                    submitEnquiry();
+                    requestFlatBooking();
                     break;
                 case 8:
+                    submitEnquiry();
+                    break;
+                case 9:
                     viewMyEnquiries();
                     break;
                 case 0:
@@ -229,6 +233,85 @@ public class ApplicantController extends UserController {
             
             BTOProject selectedProject = projects.get(choice - 1);
             projectView.displayProjectInfo(selectedProject);
+            
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+        }
+    }
+
+    /**
+     * View detailed information for projects that the applicant has already applied for
+     */
+    protected void viewAppliedProjectDetails() {
+        Applicant applicant = (Applicant) AuthStore.getCurrentUser();
+        List<BTOApplication> applications = projectService.getApplicationsByApplicant(applicant);
+
+        if (applications.isEmpty()) {
+            System.out.println("\nYou have not applied for any BTO projects yet.");
+            return;
+        }
+
+        // Get unique projects the applicant has applied for
+        List<BTOProject> appliedProjects = applications.stream()
+            .map(BTOApplication::getProject)
+            .distinct()
+            .collect(Collectors.toList());
+
+        System.out.println("\nYour Applied BTO Projects:");
+        for (int i = 0; i < appliedProjects.size(); i++) {
+            BTOProject project = appliedProjects.get(i);
+            System.out.println((i + 1) + ". " + project.getProjectName() + " (" + project.getNeighborhood() + ")");
+        }
+
+        // Select project to view details
+        System.out.print("\nEnter project number to view details (1-" + appliedProjects.size() + ") or 0 to cancel: ");
+        
+        try {
+            int choice = Integer.parseInt(sc.nextLine().trim());
+            
+            if (choice == 0) {
+                return;
+            }
+            
+            if (choice < 1 || choice > appliedProjects.size()) {
+                System.out.println("Invalid project number.");
+                return;
+            }
+            
+            BTOProject selectedProject = appliedProjects.get(choice - 1);
+            
+            // Display full project details
+            System.out.println("\n===== Project Details =====");
+            System.out.println("Project Name: " + selectedProject.getProjectName());
+            System.out.println("Neighborhood: " + selectedProject.getNeighborhood());
+            System.out.println("Application Opening Date: " + selectedProject.getApplicationOpeningDate());
+            System.out.println("Application Closing Date: " + selectedProject.getApplicationClosingDate());
+            
+            // Display flat type details
+            System.out.println("\nFlat Types:");
+            for (Map.Entry<FlatType, FlatTypeDetails> entry : selectedProject.getFlatTypes().entrySet()) {
+                FlatType flatType = entry.getKey();
+                FlatTypeDetails details = entry.getValue();
+                
+                System.out.println(flatType.getDisplayName() + ":");
+                System.out.println("  - Total Units: " + details.getUnits());
+                System.out.println("  - Price: $" + details.getPrice());
+            }
+            
+            // Display project manager
+            System.out.println("\nProject Manager: " + selectedProject.getHDBManager().getName());
+            
+            // Display application status
+            BTOApplication application = applications.stream()
+                .filter(app -> app.getProject().equals(selectedProject))
+                .findFirst().orElse(null);
+            
+            if (application != null) {
+                System.out.println("\nYour Application Status: " + application.getStatus());
+                if (application.getFlatType() != null) {
+                    System.out.println("Selected Flat Type: " + application.getFlatType().getDisplayName());
+                }
+            }
             
         } catch (NumberFormatException e) {
             System.out.println("Invalid input. Please enter a number.");
