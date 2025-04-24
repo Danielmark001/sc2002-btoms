@@ -31,12 +31,25 @@ public class BTOProjectService implements IBTOProjectService {
      * @return true if the user is eligible, false otherwise
      */
     public boolean isEligible(User user, BTOProject project) {
-        // HDB Officers can access all projects regardless of visibility
+        // HDB Officers and Managers can access all projects regardless of visibility
         boolean isHDBOfficer = user instanceof HDBOfficer;
+        boolean isHDBManager = user.getUserType() == enumeration.UserType.HDB_MANAGER;
+        boolean isApplicant = user.getUserType() == enumeration.UserType.APPLICANT;
         
-        // Check if project is visible (skip check for HDB Officers)
-        if (!project.isVisible() && !isHDBOfficer) {
-            return false;
+        // Check if project is visible (skip check for HDB Officers and HDB Managers)
+        if (!project.isVisible() && !isHDBOfficer && !isHDBManager) {
+            // For applicants, allow access to their own applied projects even if not visible
+            if (isApplicant) {
+                Applicant applicant = (Applicant) user;
+                boolean hasApplied = DataStore.getBTOApplicationsData().values().stream()
+                    .anyMatch(app -> app.getApplicant().equals(applicant) && app.getProject().equals(project));
+                
+                if (!hasApplied) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
 
         // Check if project is within application period
@@ -100,9 +113,10 @@ public class BTOProjectService implements IBTOProjectService {
      */
     public List<BTOProject> getEnquirableProjects(User user) {
         boolean isHDBOfficer = user instanceof HDBOfficer;
+        boolean isHDBManager = user.getUserType() == enumeration.UserType.HDB_MANAGER;
         
         return DataStore.getBTOProjectsData().values().stream()
-            .filter(project -> isHDBOfficer || project.isVisible() || 
+            .filter(project -> isHDBOfficer || isHDBManager || project.isVisible() || 
                               DataStore.getBTOApplicationsData().values().stream()
                                   .anyMatch(app -> app.getApplicant().equals(user) && app.getProject().equals(project)))
             .collect(Collectors.toList());

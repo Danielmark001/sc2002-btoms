@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 import enumeration.FlatType;
 import enumeration.UserType;
 import stores.AuthStore;
+import stores.DataStore;
+import models.Applicant;
+import models.BTOApplication;
 
 /**
  * Provides filtering and sorting functionality for BTO projects.
@@ -93,14 +96,34 @@ public class ProjectFilter {
         
         // Apply visibility filter if needed
         if (showVisibleOnly) {
-            // Get current user to check if they are an HDB Officer
+            // Get current user to check if they are an HDB Officer or HDB Manager
             User currentUser = AuthStore.getCurrentUser();
             
-            // HDB Officers can see all projects regardless of visibility
-            if (currentUser == null || currentUser.getUserType() != UserType.HDB_OFFICER) {
-                filtered = filtered.stream()
-                    .filter(BTOProject::isVisible)
-                    .collect(Collectors.toList());
+            // HDB Officers and HDB Managers can see all projects regardless of visibility
+            if (currentUser == null || 
+                (currentUser.getUserType() != UserType.HDB_OFFICER && 
+                 currentUser.getUserType() != UserType.HDB_MANAGER)) {
+                
+                // Allow applicants to see their own applied projects even if visibility is false
+                if (currentUser != null && currentUser.getUserType() == UserType.APPLICANT) {
+                    Applicant applicant = (Applicant) currentUser;
+                    
+                    // Get the projects that the applicant has applied for
+                    List<BTOProject> appliedProjects = DataStore.getBTOApplicationsData().values().stream()
+                        .filter(app -> app.getApplicant().equals(applicant))
+                        .map(BTOApplication::getProject)
+                        .collect(Collectors.toList());
+                    
+                    // Filter projects that are either visible or applied for by the applicant
+                    filtered = filtered.stream()
+                        .filter(project -> project.isVisible() || appliedProjects.contains(project))
+                        .collect(Collectors.toList());
+                } else {
+                    // For other users, only show visible projects
+                    filtered = filtered.stream()
+                        .filter(BTOProject::isVisible)
+                        .collect(Collectors.toList());
+                }
             }
         }
         
