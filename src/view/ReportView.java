@@ -139,7 +139,13 @@ public class ReportView {
             System.out.println("Age: " + application.getApplicant().getAge());
             System.out.println("Marital Status: " + application.getApplicant().getMaritalStatus().getDisplayName());
             System.out.println("Project: " + application.getProject().getProjectName());
-            System.out.println("Flat Type: " + application.getFlatType().getDisplayName());
+            // Handle null flat type case
+            FlatType flatType = application.getFlatType();
+            if (flatType != null) {
+                System.out.println("Flat Type: " + flatType.getDisplayName());
+            } else {
+                System.out.println("Flat Type: Not selected yet");
+            }
         }
     }
 } 
