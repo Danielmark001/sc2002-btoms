@@ -1,13 +1,11 @@
 package services;
 
+import enumeration.FlatType;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Map;
-
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import enumeration.FlatType;
 import models.BTOProject;
 import models.FlatTypeDetails;
 import models.HDBManager;
@@ -169,6 +167,10 @@ public class BTOProjectManagementService {
             });
     }
     
+    public boolean isProjectNameUnique(String projectName) {
+        return !DataStore.getBTOProjectsData().containsKey(projectName);
+    }
+
     /**
      * Get projects managed by a specific HDB Manager
      * @param hdbManager Manager to get projects for

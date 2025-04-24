@@ -254,6 +254,11 @@ do {
             System.out.println("Please choose different dates that don't overlap with your existing projects.");
             return;
         }
+
+        if (!projectManagementService.isProjectNameUnique(details[0].toString())) {
+            System.out.println("Project name already exists. Please choose a different name.");
+            return;
+        }
         
         // Type checking for the map
         if (!(details[4] instanceof Map<?, ?>)) {
