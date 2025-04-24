@@ -33,6 +33,18 @@ public class ReportService {
     }
     
     /**
+     * Get all successful and booked applications
+     * @return List of successful and booked applications
+     */
+    public List<BTOApplication> getAllSuccessfulAndBookedApplications() {
+        return DataStore.getBTOApplicationsData().values().stream()
+            .filter(application -> 
+                application.getStatus() == BTOApplicationStatus.SUCCESSFUL || 
+                application.getStatus() == BTOApplicationStatus.BOOKED)
+            .collect(Collectors.toList());
+    }
+    
+    /**
      * Filter applications by project
      * @param applications List of applications to filter
      * @param project Project to filter by
@@ -83,4 +95,4 @@ public class ReportService {
             })
             .collect(Collectors.toList());
     }
-} 
+}

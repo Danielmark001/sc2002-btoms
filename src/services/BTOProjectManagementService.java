@@ -133,14 +133,49 @@ public class BTOProjectManagementService {
      * @return true if handling an active project, false otherwise
      */
     public boolean isHandlingActiveProject(HDBManager hdbManager) {
-        LocalDate today = LocalDate.now();
-        
+        // Modified to always return false so that HDB manager can create multiple projects
+        // as long as their application dates don't overlap
+        return false;
+    }
+    
+    /**
+     * Check if a new project's application dates overlap with any existing projects managed by the HDB manager
+     * @param hdbManager Manager to check
+     * @param newOpeningDate New project's opening date
+     * @param newClosingDate New project's closing date
+     * @return true if dates overlap with any existing project, false otherwise
+     */
+    public boolean hasOverlappingProjectDates(HDBManager hdbManager, LocalDate newOpeningDate, LocalDate newClosingDate) {
         return DataStore.getBTOProjectsData().values().stream()
             .filter(project -> project.getHDBManager().equals(hdbManager))
-            .anyMatch(project -> 
-                !today.isBefore(project.getApplicationOpeningDate()) && 
-                !today.isAfter(project.getApplicationClosingDate())
-            );
+            .anyMatch(project -> {
+                LocalDate existingOpeningDate = project.getApplicationOpeningDate();
+                LocalDate existingClosingDate = project.getApplicationClosingDate();
+                
+                // Check if date ranges overlap
+                return (newOpeningDate.isBefore(existingClosingDate) || newOpeningDate.isEqual(existingClosingDate)) && 
+                       (newClosingDate.isAfter(existingOpeningDate) || newClosingDate.isEqual(existingOpeningDate));
+            });
+    }
+    
+    /**
+     * Check if a new project's application dates overlap with any existing projects managed by the HDB manager
+     * @param hdbManager Manager to check
+     * @param newOpeningDate New project's opening date
+     * @param newClosingDate New project's closing date
+     * @return true if dates overlap with any existing project, false otherwise
+     */
+    public boolean hasOverlappingProjectDates(HDBManager hdbManager, LocalDate newOpeningDate, LocalDate newClosingDate) {
+        return DataStore.getBTOProjectsData().values().stream()
+            .filter(project -> project.getHDBManager().equals(hdbManager))
+            .anyMatch(project -> {
+                LocalDate existingOpeningDate = project.getApplicationOpeningDate();
+                LocalDate existingClosingDate = project.getApplicationClosingDate();
+                
+                // Check if date ranges overlap
+                return (newOpeningDate.isBefore(existingClosingDate) || newOpeningDate.isEqual(existingClosingDate)) && 
+                       (newClosingDate.isAfter(existingOpeningDate) || newClosingDate.isEqual(existingOpeningDate));
+            });
     }
     
     /**
@@ -174,4 +209,4 @@ public class BTOProjectManagementService {
         List<BTOProject> allProjects = new ArrayList<>(DataStore.getBTOProjectsData().values());
         return filter.applyFilter(allProjects);
     }
-} 
+}

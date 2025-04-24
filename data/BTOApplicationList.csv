@@ -1,16 +1,16 @@
 ApplicationId,ApplicantNRIC,ProjectName,FlatType,Status
-20250301-a1b2c3d4,T7890123W,Harmony Gardens,3-Room,Successful
-20250305-e5f6g7h8,S6789012J,Parkview Residence,2-Room,Successful
-20250310-i9j0k1l2,S0123456P,Heritage View,null,Pending
-20250312-m3n4o5p6,T8901234G,Binjai Hall,3-Room,Booked
 20250315-q7r8s9t0,T9012345Y,Emerald Heights,null,Unsuccessful
-20250320-u1v2w3x4,T5678901K,Garden Vista,2-Room,Successful
-20250325-y5z6a7b8,S5678901H,Urban Oasis,3-Room,Booked
+20250412-s5t6u7v8,S1234567A,Highland Towers,2-Room,Successful
+20250310-i9j0k1l2,S0123456P,Heritage View,null,Pending
+20250415-w9x0y1z2,S8901234X,Sunshine Court,null,Unsuccessful
 20250328-c9d0e1f2,S6789012V,Lakeside View,null,Pending
+20250312-m3n4o5p6,T8901234G,Binjai Hall,3-Room,Booked
+20250301-a1b2c3d4,T7890123W,Harmony Gardens,3-Room,Successful
+20250418-a3b4c5d6,S6789012L,Waterfront Bay,3-Room,Successful
 20250401-g3h4i5j6,T7890123M,Green Haven,3-Room,Successful
 20250405-k7l8m9n0,S8901234N,Pasir Ris Sands,2-Room,Booked
-20250408-o1p2q3r4,T5678901U,Forest Hill,null,Pending
-20250412-s5t6u7v8,S1234567A,Highland Towers,2-Room,Successful
-20250415-w9x0y1z2,S8901234X,Sunshine Court,null,Unsuccessful
-20250418-a3b4c5d6,S6789012L,Waterfront Bay,3-Room,Successful
+20250305-e5f6g7h8,S6789012J,Parkview Residence,2-Room,Successful
 20250422-e7f8g9h0,T9012345O,Acacia Breeze,3-Room,Booked
+20250320-u1v2w3x4,T5678901K,Garden Vista,2-Room,Successful
+20250325-y5z6a7b8,S5678901H,Urban Oasis,3-Room,Booked
+20250408-o1p2q3r4,T5678901U,Forest Hill,null,Pending

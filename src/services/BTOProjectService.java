@@ -31,8 +31,11 @@ public class BTOProjectService implements IBTOProjectService {
      * @return true if the user is eligible, false otherwise
      */
     public boolean isEligible(User user, BTOProject project) {
-        // Check if project is visible
-        if (!project.isVisible()) {
+        // HDB Officers can access all projects regardless of visibility
+        boolean isHDBOfficer = user instanceof HDBOfficer;
+        
+        // Check if project is visible (skip check for HDB Officers)
+        if (!project.isVisible() && !isHDBOfficer) {
             return false;
         }
 
@@ -96,8 +99,10 @@ public class BTOProjectService implements IBTOProjectService {
      * @return List of all visible BTO projects
      */
     public List<BTOProject> getEnquirableProjects(User user) {
+        boolean isHDBOfficer = user instanceof HDBOfficer;
+        
         return DataStore.getBTOProjectsData().values().stream()
-            .filter(project -> project.isVisible() || 
+            .filter(project -> isHDBOfficer || project.isVisible() || 
                               DataStore.getBTOApplicationsData().values().stream()
                                   .anyMatch(app -> app.getApplicant().equals(user) && app.getProject().equals(project)))
             .collect(Collectors.toList());
@@ -306,4 +311,4 @@ public class BTOProjectService implements IBTOProjectService {
     public boolean canOfficerApplyForProject(BTOProject project, HDBOfficer hdbOfficer) {
         return !project.getHDBOfficers().contains(hdbOfficer);
     }
-} 
+}
