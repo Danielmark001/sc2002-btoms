@@ -14,6 +14,17 @@ import models.HDBManager;
 import models.ProjectFilter;
 import stores.DataStore;
 
+    /**
+     * Create a new BTO project and handles services
+     * @param projectName Project name
+     * @param neighborhood Neighborhood
+     * @param openingDate Application opening date
+     * @param closingDate Application closing date
+     * @param flatTypes Map of flat types and their details
+     * @param hdbManager HDB Manager creating the project
+     * @param hdbOfficerSlots Number of HDB Officer slots
+     * @return The created project
+     */
 public class BTOProjectManagementService {
     
     /**
